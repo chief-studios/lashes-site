@@ -1,4 +1,11 @@
 /* Fullscreen intro overlay */
+@font-face {
+  font-family: 'LeagueScript';
+  src: url('../LeagueScript-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 .intro-overlay {
   position: fixed;
   top: 0;
@@ -32,17 +39,20 @@
 .intro-content {
   text-align: center;
   color: var(--support-color);
+  padding: 0 24px; /* horizontal breathing room on all screen sizes */
 }
 
 .intro-title {
-  font-size: 2.4rem;
+  font-size: 6rem; /* much bigger */
   margin-bottom: 0.5rem;
   letter-spacing: 1px;
   text-transform: lowercase;
+  font-family: 'LeagueScript', system-ui, sans-serif;
 }
 
 .typing {
   display: inline-block;
+  /* desktop typing uses a width animation; keep overflow hidden and nowrap so the step animation works */
   overflow: hidden;
   white-space: nowrap;
   border-right: 2px solid var(--support-color);
@@ -61,6 +71,7 @@
 
 .typing-mobile {
   border-right: none;
+  /* allow mobile text to wrap to the next line naturally */
   white-space: normal;
   display: inline-block;
 }
@@ -70,7 +81,9 @@
     animation-name: typing-mobile, blink;
     animation-timing-function: ease, steps(1, end);
   }
-  .intro-title { font-size: 1.6rem; }
+  /* make the intro title larger on small screens and add side padding so text doesn't hug the edges */
+  .intro-title { font-size: 3.2rem; line-height: 1.05; }
+  .intro-content { padding: 0 20px; }
 }
 
 @keyframes typing {
