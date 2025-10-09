@@ -53,6 +53,26 @@
   color: var(--support-color) !important;
 }
 
+/* Mobile: instead of horizontal steps reveal, slide down with fade */
+@keyframes typing-mobile {
+  from { transform: translateY(-8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.typing-mobile {
+  border-right: none;
+  white-space: normal;
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .typing {
+    animation-name: typing-mobile, blink;
+    animation-timing-function: ease, steps(1, end);
+  }
+  .intro-title { font-size: 1.6rem; }
+}
+
 @keyframes typing {
   from { width: 0; }
   to { width: 100%; }

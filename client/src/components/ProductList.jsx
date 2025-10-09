@@ -15,7 +15,7 @@ const ProductList = () => {
                         <p className="product-description">{product.description}</p>
                         <div className="product-details">
                             <span className="duration">{product.duration}</span>
-                            <span className="price">${product.price}</span>
+                            <span className="price">₵{product.price}</span>
                         </div>
                         <span className="category">{product.category}</span>
                     </div>
