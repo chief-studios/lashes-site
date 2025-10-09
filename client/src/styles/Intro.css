@@ -1,0 +1,106 @@
+/* Fullscreen intro overlay */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color); /* solid main color to avoid bleed-through */
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: auto;
+  animation: overlay-fade-in 400ms ease forwards;
+}
+
+.intro-overlay.intro-exit {
+  animation: overlay-fade-out 600ms ease forwards;
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes overlay-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
+
+.intro-content {
+  text-align: center;
+  color: var(--support-color);
+}
+
+.intro-title {
+  font-size: 2.4rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+}
+
+.typing {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--support-color);
+  box-sizing: content-box;
+  animation-name: typing, blink;
+  animation-timing-function: steps(40, end), steps(1, end);
+  animation-fill-mode: forwards;
+  color: var(--support-color) !important;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--support-color); }
+}
+
+.intro-sub {
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.intro-button {
+  background: transparent; /* visually hidden */
+  color: transparent;
+  padding: 0;
+  border: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* allow clicking anywhere on the overlay to dismiss */
+.intro-overlay { cursor: pointer; }
+
+.intro-content { pointer-events: none; }
+.intro-button { pointer-events: auto; }
+
+/* ensure the overlay covers and hides the rest of the page visually */
+.intro-overlay *,
+.intro-overlay *:before,
+.intro-overlay *:after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* screen-reader only helper */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
