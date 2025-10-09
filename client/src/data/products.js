@@ -1,3 +1,12 @@
+import classicCatEye from '../images/classic cat eye.jpg';
+import clusterLashes from '../images/cluster lashes.jpg';
+import hybridCatEye from '../images/hybrid cat eye.jpg';
+import hybridWispy from '../images/hybrid wispy.jpg';
+import hybrid from '../images/hybrid.jpg';
+import otherHybrid from '../images/other hybrid.jpg';
+import volumeCatEye from '../images/volume cat eye.jpg';
+import volumeWispy from '../images/volume wispy.jpg';
+
 export const products = [
     {
         id: 1,
@@ -5,7 +14,7 @@ export const products = [
         description: "A rejuvenating facial treatment for glowing skin",
         price: 80,
         duration: "60 mins",
-        image: "../images/classic cat eye.jpg",
+        image: classicCatEye,
         category: "Lashes"
     },
     {
@@ -14,7 +23,7 @@ export const products = [
         description: "Relaxing full body massage with essential oils",
         price: 120,
         duration: "90 mins",
-        image: "../images/cluster lashes.jpg",
+        image: clusterLashes,
         category: "Lashes"
     },
     {
@@ -23,7 +32,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/hybrid cat eye.jpg",
+        image: hybridCatEye,
         category: "Lashes"
     },
     {
@@ -32,7 +41,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/hybrid wispy.jpg",
+        image: hybridWispy,
         category: "Lashes"
     },
     {
@@ -41,7 +50,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/hybrid.jpg",
+        image: hybrid,
         category: "Lashes"
     },
     {
@@ -50,7 +59,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/other hybrid.jpg",
+        image: otherHybrid,
         category: "Lashes"
     },
     {
@@ -59,7 +68,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/volume cat eye.jpg",
+        image: volumeCatEye,
         category: "Lashes"
     },
     {
@@ -68,7 +77,7 @@ export const products = [
         description: "Complete hand and foot care treatment",
         price: 65,
         duration: "75 mins",
-        image: "../images/volume wispy.jpg",
+        image: volumeWispy,
         category: "Lashes"
     }
 ];
