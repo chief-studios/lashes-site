@@ -30,9 +30,9 @@ const Intro = ({ onFinish, text = 'welcome to the beauty studio' }) => {
           }
         }, fadeOut + 50);
       }
-    };
+    }; 
 
-    window.addEventListener('keydown', handleKey);
+    window.addEventListener('keydown', handleKey)
 
       // Non-mobile flow: schedule exit/finish based on computed durations
       if (!isMobile) {
