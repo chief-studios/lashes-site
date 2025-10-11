@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import '../styles/Intro.css';
 
-const Intro = ({ onFinish, text = 'welcome to the beauty studio' }) => {
+const Intro = ({ onFinish, text = 'WELCOME TO BEST LASHES' }) => {
   const fadeIn = 400; // ms
   const charDelay = 120; // ms per character (slower)
   const typingDuration = Math.max(400, text.length * charDelay);

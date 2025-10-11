@@ -1,41 +1,53 @@
 import React, { useState } from 'react';
-import ProductList from './components/ProductList';
-import BookingForm from './components/BookingForm';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Intro from './components/Intro';
+import ServiceCards from './components/ServiceCards';
+import LashConsultation from './pages/LashConsultation';
+import ClusterLashes from './pages/ClusterLashes';
+import MinkLashes from './pages/MinkLashes';
 import './App.css';
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
 
   const handleIntroFinish = () => setShowIntro(false);
+  
   return (
-    <div className="app">
-      {showIntro && <Intro duration={1800} onFinish={handleIntroFinish} />}
-      <header className="header">
-        <div className="container">
-          <h1>Beauty & Wellness Studio</h1>
-          <p>Book your perfect treatment experience</p>
-        </div>
-      </header>
+    <Router>
+      <div className="app">
+        {showIntro && <Intro duration={1800} onFinish={handleIntroFinish} />}
+        
+        <Routes>
+          <Route path="/" element={
+            <>
+              <header className="header">
+                <div className="container">
+                  <h1>Lash Studio</h1>
+                  <p>Welcome to Best Lashes - Book Your Pefect Lash</p>
+                </div>
+              </header>
 
-      <main className="main-content container">
-        <section className="products-section">
-          <h2>Our Services</h2>
-          <ProductList />
-        </section>
+              <main className="main-content container">
+                <section className="products-section">
+                  <h2>Our Services</h2>
+                  <ServiceCards />
+                </section>
+              </main>
 
-        <section className="booking-section">
-          <h2>Book Your Appointment</h2>
-          <BookingForm />
-        </section>
-      </main>
-
-      <footer className="footer">
-        <div className="container">
-          <p>&copy; 2024 Beauty & Wellness Studio. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+              <footer className="footer">
+                <div className="container">
+                  <p>&copy; 2024 Beauty & Wellness Studio. All rights reserved.</p>
+                </div>
+              </footer>
+            </>
+          } />
+          
+          <Route path="/lash-consultation" element={<LashConsultation />} />
+          <Route path="/cluster-lashes" element={<ClusterLashes />} />
+          <Route path="/mink-lashes" element={<MinkLashes />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
