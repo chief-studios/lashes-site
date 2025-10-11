@@ -29,7 +29,7 @@ function App() {
 
               <main className="main-content container">
                 <section className="products-section">
-                  <h2>Our Services</h2>
+                  <h2>What are you looking for today?</h2>
                   <ServiceCards />
                 </section>
               </main>
