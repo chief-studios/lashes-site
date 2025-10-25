@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import consultationImage from '../images/consultation.jpg';
 import '../styles/ServicePage.css';
 
 const LashConsultation = () => {
@@ -36,22 +37,41 @@ const LashConsultation = () => {
         
         <div className="service-header">
           <div className="service-image">
-            <img src="https://images.unsplash.com/photo-1594736797933-d0c2b0b4b8b8?w=600&h=400&fit=crop&crop=center" alt="Lash Consultation" />
+            <img src={consultationImage} alt="Lash Consultation" />
+            <div className="service-overlay">
+              <div className="service-badge">
+                <span className="price">GHS 120</span>
+                <span className="duration">60 mins</span>
+              </div>
+            </div>
           </div>
           <div className="service-info">
             <h1>Lash Consultation</h1>
             <p className="service-description">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+              Professional consultation to determine the best lash style for your eyes and lifestyle. Our expert technicians will assess your natural lashes and recommend the perfect treatment for you.
             </p>
-            <div className="service-price">
-              <span className="price-label">Price:</span>
-              <span className="price-value">GHS 120</span>
+            <div className="service-features">
+              <div className="feature">
+                <span className="feature-icon">✨</span>
+                <span>Personalized Assessment</span>
+              </div>
+              <div className="feature">
+                <span className="feature-icon">👁️</span>
+                <span>Eye Shape Analysis</span>
+              </div>
+              <div className="feature">
+                <span className="feature-icon">💄</span>
+                <span>Style Recommendations</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="booking-section">
           <h2>Book Your Lash Consultation</h2>
+          <p className="booking-subtitle">
+            Let's find your perfect lash look. We'll respond within 24 hours.
+          </p>
           <form className="booking-form" onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
@@ -63,6 +83,7 @@ const LashConsultation = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
+                  placeholder="Enter your full name"
                 />
               </div>
               
@@ -75,6 +96,7 @@ const LashConsultation = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
+                  placeholder="Enter your phone number"
                 />
               </div>
             </div>
@@ -88,6 +110,7 @@ const LashConsultation = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                placeholder="Enter your email address"
               />
             </div>
             
@@ -121,12 +144,12 @@ const LashConsultation = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows="4"
-                placeholder="Any special requests or notes..."
+                placeholder="Any special requests, questions, or notes about your desired lash look..."
               />
             </div>
             
-            <button type="submit" className="submit-btn">
-              Submit Booking
+            <button type="submit" className="submit-btn btn btn-primary">
+              Book Consultation
             </button>
           </form>
         </div>

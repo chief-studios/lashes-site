@@ -39,18 +39,18 @@
   right: 0;
   bottom: 0;
   padding: 1rem 1.25rem;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 60%);
-  color: var(--support-color);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 60%);
+  color: var(--primary-color);
 }
 
 .product-info h3 {
-  color: var(--support-color);
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .product-description {
-  color: rgba(255,255,255,0.85);
+  color: rgba(0,0,0,0.85);
   margin-bottom: 0.6rem;
   font-size: 0.95rem;
 }
@@ -63,22 +63,22 @@
 }
 
 .duration {
-  background: rgba(0,0,0,0.45);
-  color: var(--support-color);
+  background: rgba(255, 105, 180, 0.2);
+  color: var(--primary-color);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
 }
 
 .price {
-  color: var(--support-color);
+  color: var(--primary-color);
   font-weight: 700;
   font-size: 1.2rem;
 }
 
 .category {
-  background: rgba(0,0,0,0.45);
-  color: var(--support-color);
+  background: rgba(255, 105, 180, 0.2);
+  color: var(--primary-color);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;

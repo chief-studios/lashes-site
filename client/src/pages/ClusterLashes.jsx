@@ -38,28 +38,30 @@ const ClusterLashes = () => {
         <div className="page-header">
           <h1>Cluster Lashes</h1>
           <p className="page-description">
-            Cluster lashes are gentle on the eyes, easy to remove, and last for one to two weeks.
+            Cluster lashes are gentle on the eyes, easy to remove, and last for one to two weeks. Perfect for special occasions or those who want a temporary lash enhancement.
           </p>
         </div>
 
         <div className="products-section">
           <h2>Available Styles</h2>
           <div className="products-grid">
-            {products.map(product => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-                </div>
-                <div className="product-info">
-                  <h3>{product.name}</h3>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-details">
-                    <span className="duration">{product.duration}</span>
-                    <span className="price">₵{product.price}</span>
+            {products
+              .filter(product => product.category.toLowerCase().includes('cluster'))
+              .map(product => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image">
+                    <img src={product.image} alt={product.name} />
+                  </div>
+                  <div className="product-info">
+                    <h3>{product.name}</h3>
+                    <p className="product-description">{product.description}</p>
+                    <div className="product-details">
+                      <span className="duration">{product.duration}</span>
+                      <span className="price">₵{product.price}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 

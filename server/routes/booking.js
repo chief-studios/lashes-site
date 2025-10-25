@@ -41,6 +41,53 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Get available time slots (public)
+router.get('/available-slots', async (req, res) => {
+    try {
+        const { date } = req.query;
+        
+        // Get available time slots from TimeSlot model
+        const TimeSlot = require('../models/TimeSlot');
+        let query = { isAvailable: true };
+        
+        if (date) {
+            const startOfDay = new Date(date);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+            
+            query.date = {
+                $gte: startOfDay,
+                $lte: endOfDay
+            };
+        }
+
+        const timeSlots = await TimeSlot.find(query).sort({ date: 1, time: 1 });
+        
+        // Filter out slots that are already booked
+        const bookedSlots = await Booking.find({
+            bookingTime: {
+                $gte: date ? new Date(date) : new Date(),
+                $lt: date ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            },
+            status: { $in: ['pending', 'confirmed'] }
+        });
+
+        const availableSlots = timeSlots.filter(slot => {
+            const slotDateTime = new Date(`${slot.date.toISOString().split('T')[0]}T${slot.time}`);
+            return !bookedSlots.some(booking => 
+                new Date(booking.bookingTime).getTime() === slotDateTime.getTime()
+            );
+        });
+
+        res.json(availableSlots);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error fetching available time slots',
+            error: error.message
+        });
+    }
+});
+
 // Get all bookings (admin only)
 router.get('/', adminAuth, async (req, res) => {
     try {

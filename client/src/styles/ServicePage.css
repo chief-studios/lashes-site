@@ -1,43 +1,46 @@
 .service-page {
   min-height: 100vh;
-  background: #000000;
-  color: #ffffff;
-  padding: 2rem 0;
+  background: linear-gradient(135deg, var(--white) 0%, var(--light-gray) 100%);
+  color: var(--black);
+  padding: var(--spacing-xl) 0;
 }
 
 .service-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--spacing-md);
 }
 
 .back-btn {
-  background: #ffffff;
-  color: #000000;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  background: var(--white);
+  color: var(--hot-pink);
+  border: 2px solid var(--hot-pink);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 50px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 2rem;
+  transition: var(--transition-smooth);
+  margin-bottom: var(--spacing-xl);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
+  box-shadow: var(--shadow-soft);
 }
 
 .back-btn:hover {
-  background: #cccccc;
+  background: var(--hot-pink);
+  color: var(--white);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
 .page-header {
-  background: #000000;
-  color: #ffffff;
+  background: var(--support-color);
+  color: var(--primary-color);
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
   text-align: center;
   border: 1px solid #333333;
@@ -46,53 +49,130 @@
 .page-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--primary-color);
   margin: 0 0 1rem 0;
 }
 
 .page-description {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: #cccccc;
+  color: #666666;
   margin: 0;
 }
 
 .service-header {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
-  background: #ffffff;
-  color: #000000;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+  gap: var(--spacing-xxl);
+  margin-bottom: var(--spacing-xxl);
+  background: var(--white);
+  border-radius: 24px;
+  padding: var(--spacing-xxl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 20, 147, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hot-pink), var(--hot-pink-light));
 }
 
 .service-image {
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
   height: 400px;
+  position: relative;
 }
 
 .service-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: var(--transition-smooth);
+}
+
+.service-image:hover img {
+  transform: scale(1.05);
+}
+
+.service-overlay {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 2;
+}
+
+.service-badge {
+  background: rgba(255, 255, 255, 0.95);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 50px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-soft);
+}
+
+.service-badge .price {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--hot-pink);
+  margin-bottom: 0.25rem;
+}
+
+.service-badge .duration {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--black);
+  opacity: 0.8;
 }
 
 .service-info h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #000000;
-  margin: 0 0 1rem 0;
+  color: var(--black);
+  margin: 0 0 var(--spacing-md) 0;
+  font-family: var(--font-heading);
 }
 
 .service-description {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: #666666;
-  margin: 0 0 2rem 0;
+  color: var(--black);
+  margin: 0 0 var(--spacing-xl) 0;
+  opacity: 0.8;
+}
+
+.service-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: rgba(255, 20, 147, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 20, 147, 0.1);
+}
+
+.feature-icon {
+  font-size: 1.2rem;
+}
+
+.feature span:last-child {
+  font-weight: 500;
+  color: var(--black);
 }
 
 .service-price {
@@ -114,24 +194,44 @@
 .price-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--primary-color);
 }
 
 .booking-section {
-  background: #000000;
-  color: #ffffff;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-  border: 1px solid #333333;
+  background: var(--white);
+  border-radius: 24px;
+  padding: var(--spacing-xxl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 20, 147, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.booking-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hot-pink), var(--hot-pink-light));
 }
 
 .booking-section h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 600;
-  color: #ffffff;
-  margin: 0 0 2rem 0;
+  color: var(--black);
+  margin: 0 0 var(--spacing-md) 0;
   text-align: center;
+  font-family: var(--font-heading);
+}
+
+.booking-subtitle {
+  text-align: center;
+  color: var(--black);
+  opacity: 0.8;
+  margin-bottom: var(--spacing-xl);
+  font-size: 1.1rem;
 }
 
 .booking-form {
@@ -146,70 +246,63 @@
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
+  color: var(--black);
+  margin-bottom: var(--spacing-sm);
+  font-family: var(--font-body);
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.875rem;
-  border: 2px solid #333333;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  border: 2px solid rgba(255, 20, 147, 0.2);
+  border-radius: 12px;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: var(--transition-smooth);
   box-sizing: border-box;
-  background: #111111;
-  color: #ffffff;
+  background: var(--light-gray);
+  color: var(--black);
+  font-family: var(--font-body);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  border-color: var(--hot-pink);
+  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.1);
+  background: var(--white);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .form-group textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
 }
 
 .submit-btn {
   width: 100%;
-  background: #ffffff;
-  color: #000000;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
-}
-
-.submit-btn:hover {
-  background: #cccccc;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+  margin-top: var(--spacing-lg);
 }
 
 .products-section {
-  background: #000000;
-  color: #ffffff;
+  background: var(--support-color);
+  color: var(--primary-color);
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
   border: 1px solid #333333;
 }
@@ -217,7 +310,7 @@
 .products-section h2 {
   font-size: 2rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--primary-color);
   margin: 0 0 2rem 0;
   text-align: center;
 }
@@ -229,16 +322,16 @@
 }
 
 .product-card {
-  background: #111111;
+  background: #f8f8f8;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #333333;
+  border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {
@@ -260,13 +353,13 @@
 .product-info h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--primary-color);
   margin: 0 0 0.5rem 0;
 }
 
 .product-description {
   font-size: 0.875rem;
-  color: #cccccc;
+  color: #666666;
   margin: 0 0 1rem 0;
   line-height: 1.4;
 }
@@ -279,14 +372,14 @@
 
 .duration {
   font-size: 0.875rem;
-  color: #cccccc;
+  color: #666666;
   font-weight: 500;
 }
 
 .price {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--primary-color);
 }
 
 @media (max-width: 768px) {

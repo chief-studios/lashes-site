@@ -38,28 +38,30 @@ const MinkLashes = () => {
         <div className="page-header">
           <h1>Mink Lashes</h1>
           <p className="page-description">
-            Mink lashes last for three to six weeks and provide a luxurious, long-lasting look.
+            Mink lashes last for three to six weeks and provide a luxurious, long-lasting look. Made from premium materials for the most natural and comfortable feel.
           </p>
         </div>
 
         <div className="products-section">
           <h2>Available Styles</h2>
           <div className="products-grid">
-            {products.map(product => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-                </div>
-                <div className="product-info">
-                  <h3>{product.name}</h3>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-details">
-                    <span className="duration">{product.duration}</span>
-                    <span className="price">₵{product.price}</span>
+            {products
+              .filter(product => product.category.toLowerCase().includes('mink'))
+              .map(product => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image">
+                    <img src={product.image} alt={product.name} />
+                  </div>
+                  <div className="product-info">
+                    <h3>{product.name}</h3>
+                    <p className="product-description">{product.description}</p>
+                    <div className="product-details">
+                      <span className="duration">{product.duration}</span>
+                      <span className="price">₵{product.price}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 

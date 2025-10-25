@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import consultationImage from '../images/consultation.jpg';
+import clusterLashesImage from '../images/cluster cluster lashes.jpg';
+import minkImage from '../images/mink classic.jpg';
 import '../styles/ServiceCards.css';
 
 const ServiceCards = () => {
@@ -9,23 +12,29 @@ const ServiceCards = () => {
     {
       id: 1,
       name: 'Lash Consultation',
-      price: 120,
-      image: 'https://images.unsplash.com/photo-1594736797933-d0c2b0b4b8b8?w=400&h=300&fit=crop&crop=center',
-      route: '/lash-consultation'
+      details: 'Professional consultation to determine the best lash style for your eyes and lifestyle',
+      image: consultationImage,
+      route: '/lash-consultation',
+      price: 'GHS 120',
+      duration: '60 mins'
     },
     {
       id: 2,
       name: 'Cluster Lashes',
-      price: 110,
-      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=300&fit=crop&crop=center',
-      route: '/cluster-lashes'
+      details: 'Individual cluster lashes for a temporary, dramatic look that lasts 1-2 weeks',
+      image: clusterLashesImage,
+      route: '/cluster-lashes',
+      price: 'From GHS 55',
+      duration: '40-110 mins'
     },
     {
       id: 3,
       name: 'Mink Lashes',
-      price: 188,
-      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center',
-      route: '/mink-lashes'
+      details: 'Premium mink lashes that last 3-6 weeks for a luxurious, long-lasting look',
+      image: minkImage,
+      route: '/mink-lashes',
+      price: 'From GHS 115',
+      duration: '90-150 mins'
     }
   ];
 
@@ -35,18 +44,28 @@ const ServiceCards = () => {
 
   return (
     <div className="service-cards-container">
-      {services.map(service => (
+      {services.map((service, index) => (
         <div 
           key={service.id} 
-          className="service-card"
+          className="service-card fade-in-up"
+          style={{ animationDelay: `${index * 0.2}s` }}
           onClick={() => handleCardClick(service.route)}
         >
           <div className="service-image">
             <img src={service.image} alt={service.name} />
+            <div className="service-overlay">
+              <div className="service-price-badge">
+                <span className="price">{service.price}</span>
+                <span className="duration">{service.duration}</span>
+              </div>
+            </div>
           </div>
           <div className="service-info">
             <h3>{service.name}</h3>
-            <p className="service-price">GHS {service.price}</p>
+            <p className="service-details">{service.details}</p>
+            <div className="service-cta">
+              <span className="learn-more">Learn More →</span>
+            </div>
           </div>
         </div>
       ))}
