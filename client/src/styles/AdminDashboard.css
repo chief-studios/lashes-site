@@ -1,8 +1,21 @@
 .admin-dashboard {
   min-height: 100vh;
-  background: var(--primary-color);
-  color: var(--support-color);
+  background: linear-gradient(135deg, var(--white) 0%, var(--light-gray) 100%);
+  color: var(--primary-black);
   padding: 2rem;
+  position: relative;
+}
+
+.admin-dashboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23FF1493" opacity="0.01"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  pointer-events: none;
+  z-index: 0;
 }
 
 .admin-header {
@@ -10,10 +23,26 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  background: var(--support-color);
-  color: var(--primary-color);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  color: var(--primary-black);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
+}
+
+.admin-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-hot-pink), var(--accent-pink));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .admin-header h1 {
@@ -23,19 +52,23 @@
 }
 
 .logout-btn {
-  background: var(--primary-color);
-  color: var(--support-color);
+  background: linear-gradient(135deg, var(--primary-hot-pink), var(--accent-pink));
+  color: var(--text-light);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-full);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-elegant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-medium);
 }
 
 .logout-btn:hover {
-  background: var(--primary-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+  background: linear-gradient(135deg, var(--accent-pink), var(--primary-hot-pink));
 }
 
 .admin-nav {
@@ -45,30 +78,55 @@
 }
 
 .nav-btn {
-  background: var(--support-color);
-  color: var(--primary-color);
-  border: none;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  color: var(--primary-black);
+  border: 1px solid var(--glass-border);
   padding: 1rem 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-elegant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
 }
 
 .nav-btn:hover {
-  background: #f0f0f0;
+  background: rgba(255, 20, 147, 0.1);
+  border-color: var(--primary-hot-pink);
+  transform: translateY(-2px);
 }
 
 .nav-btn.active {
-  background: var(--primary-color);
-  color: var(--support-color);
+  background: linear-gradient(135deg, var(--primary-hot-pink), var(--accent-pink));
+  color: var(--text-light);
+  border-color: var(--primary-hot-pink);
+  box-shadow: var(--shadow-medium);
 }
 
 .admin-content {
-  background: var(--support-color);
-  color: var(--primary-color);
-  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  color: var(--primary-black);
+  border-radius: var(--radius-lg);
   padding: 2rem;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 1;
+}
+
+.admin-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-hot-pink), var(--accent-pink));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .dashboard-stats {
@@ -141,18 +199,21 @@
 }
 
 .status.pending {
-  background: #fff3cd;
-  color: #856404;
+  background: rgba(255, 20, 147, 0.1);
+  color: var(--primary-hot-pink);
+  border: 1px solid rgba(255, 20, 147, 0.3);
 }
 
 .status.confirmed {
-  background: #d4edda;
-  color: #155724;
+  background: rgba(255, 20, 147, 0.2);
+  color: var(--primary-hot-pink);
+  border: 1px solid var(--primary-hot-pink);
 }
 
 .status.cancelled {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(220, 20, 60, 0.1);
+  color: #dc143c;
+  border: 1px solid rgba(220, 20, 60, 0.3);
 }
 
 .booking-actions {
@@ -172,13 +233,17 @@
 }
 
 .status-btn:not(.cancel) {
-  background: var(--primary-color);
-  color: var(--support-color);
+  background: linear-gradient(135deg, var(--primary-hot-pink), var(--accent-pink));
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
 }
 
 .status-btn.cancel {
-  background: #dc3545;
-  color: white;
+  background: linear-gradient(135deg, #dc143c, #ff1744);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
 }
 
 .status-btn:hover:not(:disabled) {

@@ -2,23 +2,28 @@
   position: fixed;
   top: 1rem;
   right: 1rem;
-  background: rgba(0, 0, 0, 0.7);
-  color: var(--support-color);
-  border: none;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-light);
+  border: 1px solid var(--glass-border);
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-elegant);
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-soft);
 }
 
 .admin-link:hover {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--primary-hot-pink);
+  color: var(--text-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-glow);
+  border-color: var(--primary-hot-pink);
 }
 
 @media (max-width: 768px) {

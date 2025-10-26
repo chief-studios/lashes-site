@@ -1,8 +1,21 @@
 /* Luxury App Styles */
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--white) 0%, var(--light-gray) 100%);
+  background: linear-gradient(135deg, var(--primary-black) 0%, var(--gray-bg) 100%);
   position: relative;
+  overflow-x: hidden;
+}
+
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23FF1493" opacity="0.02"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Hero Section */
@@ -12,8 +25,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--hot-pink) 0%, var(--hot-pink-light) 100%);
+  background: linear-gradient(135deg, var(--primary-hot-pink) 0%, var(--accent-pink) 100%);
   overflow: hidden;
+  z-index: 1;
 }
 
 .hero::before {
@@ -27,11 +41,23 @@
   opacity: 0.3;
 }
 
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   text-align: center;
-  color: var(--white);
+  color: var(--text-light);
   max-width: 800px;
   padding: 0 var(--spacing-md);
 }
@@ -42,6 +68,8 @@
   margin-bottom: var(--spacing-md);
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 1s ease-out;
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
 }
 
 .hero p {
@@ -49,6 +77,9 @@
   margin-bottom: var(--spacing-xl);
   opacity: 0.95;
   animation: fadeInUp 1s ease-out 0.2s both;
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
 }
 
 .hero-buttons {
@@ -95,15 +126,28 @@
 
 .products-section, .booking-section {
   margin-bottom: var(--spacing-xxl);
-  background: var(--white);
-  border-radius: 20px;
+  background: var(--primary-black);
+  border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid rgba(255, 20, 147, 0.1);
+  box-shadow: var(--shadow-strong);
+  border: 1px solid rgba(255, 20, 147, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.products-section::before, .booking-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-hot-pink), var(--accent-pink));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .products-section h2, .booking-section h2 {
-  color: var(--black);
+  color: var(--text-light);
   margin-bottom: var(--spacing-xl);
   font-weight: 600;
   font-size: 2.5rem;
@@ -191,6 +235,7 @@
   .hero-buttons {
     flex-direction: column;
     align-items: center;
+    gap: var(--spacing-sm);
   }
   
   .main-content {
@@ -199,9 +244,39 @@
   
   .products-section, .booking-section {
     padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
   }
   
   .social-links {
     flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+  }
+  
+  .products-section, .booking-section {
+    padding: var(--spacing-md);
+  }
+  
+  .social-links a {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
   }
 }

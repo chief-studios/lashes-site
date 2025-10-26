@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Intro from './components/Intro';
+import Navigation from './components/Navigation';
 import ServiceCards from './components/ServiceCards';
 import AdminLink from './components/AdminLink';
 import LashConsultation from './pages/LashConsultation';
@@ -8,16 +8,13 @@ import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
+import './styles/FeminineAccents.css';
 
 function App() {
-  const [showIntro, setShowIntro] = useState(true);
-
-  const handleIntroFinish = () => setShowIntro(false);
-  
   return (
     <Router>
       <div className="app">
-        {showIntro && <Intro duration={1800} onFinish={handleIntroFinish} />}
+        <Navigation />
         <AdminLink />
         
         <Routes>
@@ -44,8 +41,9 @@ function App() {
 
               {/* Services Section */}
               <section id="services" className="main-content">
-                <div className="products-section">
-                  <h2>Our Signature Services</h2>
+                <div className="products-section glass-card">
+                  <h2 className="diamond-accent">Our Signature Services</h2>
+                  <div className="section-divider"></div>
                   <ServiceCards />
                 </div>
               </section>
@@ -53,13 +51,13 @@ function App() {
               {/* Footer */}
               <footer className="footer">
                 <div className="footer-content">
-                  <h3>Best Lashes</h3>
+                  <h3 className="luxury-text">Best Lashes</h3>
                   <p>Where luxury meets beauty. Book your perfect lash experience today.</p>
                   <div className="social-links">
-                    <a href="#" aria-label="Instagram">📸</a>
-                    <a href="#" aria-label="TikTok">🎵</a>
-                    <a href="#" aria-label="Facebook">📘</a>
-                    <a href="#" aria-label="Twitter">🐦</a>
+                    <a href="#" aria-label="Instagram" className="floating">📸</a>
+                    <a href="#" aria-label="TikTok" className="floating" style={{animationDelay: '0.5s'}}>🎵</a>
+                    <a href="#" aria-label="Facebook" className="floating" style={{animationDelay: '1s'}}>📘</a>
+                    <a href="#" aria-label="Twitter" className="floating" style={{animationDelay: '1.5s'}}>🐦</a>
                   </div>
                   <p>&copy; 2024 Best Lashes. All rights reserved.</p>
                 </div>
