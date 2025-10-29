@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
-import '../styles/ServicePage.css';
+import '../styles.css';
 
 const MinkLashes = () => {
   const navigate = useNavigate();

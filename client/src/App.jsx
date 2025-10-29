@@ -7,8 +7,7 @@ import LashConsultation from './pages/LashConsultation';
 import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
-import './App.css';
-import './styles/FeminineAccents.css';
+import './styles.css';
 
 function App() {
   return (

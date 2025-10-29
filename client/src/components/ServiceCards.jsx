@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import consultationImage from '../images/consultation.jpg';
 import clusterLashesImage from '../images/cluster cluster lashes.jpg';
 import minkImage from '../images/mink classic.jpg';
-import '../styles/ServiceCards.css';
+import '../styles.css';
 
 const ServiceCards = () => {
   const navigate = useNavigate();

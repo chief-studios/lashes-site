@@ -1,6 +1,6 @@
 import React from 'react';
 import { products } from '../data/products';
-import '../styles/ProductList.css';
+import '../styles.css';
 
 const ProductList = () => {
     return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import consultationImage from '../images/consultation.jpg';
-import '../styles/ServicePage.css';
+import '../styles.css';
 
 const LashConsultation = () => {
   const navigate = useNavigate();

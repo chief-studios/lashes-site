@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/AdminLink.css';
+import '../styles.css';
 
 const AdminLink = () => {
   const navigate = useNavigate();
