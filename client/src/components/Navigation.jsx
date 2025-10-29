@@ -12,7 +12,8 @@ const Navigation = () => {
     { name: 'Home', path: '/' },
     { name: 'Consultation', path: '/lash-consultation' },
     { name: 'Cluster Lashes', path: '/cluster-lashes' },
-    { name: 'Mink Lashes', path: '/mink-lashes' }
+    { name: 'Mink Lashes', path: '/mink-lashes' },
+    {name: 'Admin', path: '/admin'}
   ];
 
   const handleNavClick = (path) => {
