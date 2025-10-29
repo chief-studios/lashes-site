@@ -97,7 +97,7 @@ a:hover {
 }
 
 /* Luxury Buttons */
-.btn {
+.btn, .submit-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +116,7 @@ a:hover {
   overflow: hidden;
 }
 
-.btn::before {
+.btn::before, .submit-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -127,18 +127,18 @@ a:hover {
   transition: var(--transition-smooth);
 }
 
-.btn:hover::before {
+.btn:hover::before, .submit-btn:hover::before {
   left: 100%;
 }
 
-.btn-primary {
+.btn-primary, .submit-btn {
   background: linear-gradient(135deg, var(--primary-pink), var(--primary-dark-pink));
   color: var(--text-light);
   box-shadow: var(--shadow-medium);
   border: 2px solid transparent;
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .submit-btn:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-glow);
 }

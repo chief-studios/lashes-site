@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import bestLashesLogo from '../images/Best lashes Logo BG WHITE.png';
+import bestLashesLogo from '../images/Best lashes Logo BG Black.png';
 import '../styles.css';
 
 const Navigation = () => {
