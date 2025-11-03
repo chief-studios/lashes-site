@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import '../styles.css';
@@ -9,9 +9,19 @@ const ClusterLashes = () => {
     name: '',
     phone: '',
     email: '',
+    product: '',
     timeSlot: '',
     description: ''
   });
+  const bookingFormRef = useRef(null);
+
+  const handleSelectProduct = (productName) => {
+    setFormData(prev => ({ ...prev, product: productName }));
+    // Smooth scroll to the booking form
+    if (bookingFormRef.current) {
+      bookingFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +58,14 @@ const ClusterLashes = () => {
             {products
               .filter(product => product.category.toLowerCase().includes('cluster'))
               .map(product => (
-                <div key={product.id} className="product-card">
+                <div 
+                  key={product.id} 
+                  className="product-card"
+                  onClick={() => handleSelectProduct(product.name)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                >
                   <div className="product-image">
                     <img src={product.image} alt={product.name} />
                   </div>
@@ -65,9 +82,20 @@ const ClusterLashes = () => {
           </div>
         </div>
 
-        <div className="booking-section">
+        <div className="booking-section" ref={bookingFormRef}>
           <h2>Book Your Cluster Lashes</h2>
           <form className="booking-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="product">Selected Product</label>
+              <input
+                type="text"
+                id="product"
+                name="product"
+                value={formData.product}
+                onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
+                placeholder="Choose a product above or enter here"
+              />
+            </div>
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="name">Full Name *</label>

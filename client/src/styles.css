@@ -394,6 +394,11 @@ a:hover {
   overflow: hidden;
 }
 
+/* Ensure sections scrolled into view are not hidden under fixed navbar */
+.booking-section {
+  scroll-margin-top: 100px;
+}
+
 .products-section::before, .booking-section::before, .services-section::before {
   content: '';
   position: absolute;
@@ -790,10 +795,15 @@ a:hover {
   opacity: 0.8;
 }
 
+/* Add space above the copyright line */
+.footer-content p:last-child {
+  margin-top: var(--spacing-md);
+}
+
 .social-links {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   margin-top: var(--spacing-md);
 }
 
@@ -801,18 +811,19 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 45px;
-  height: 45px;
-  background: var(--primary-pink);
   color: var(--text-light);
-  border-radius: 50%;
   transition: var(--transition-smooth);
 }
 
 .social-links a:hover {
-  background: var(--primary-dark-pink);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-glow);
+  color: var(--primary-pink);
+  transform: translateY(-2px);
+}
+
+/* Ensure Font Awesome icons are visible and centered */
+.social-links a i {
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 /* Admin Dashboard */
@@ -924,6 +935,8 @@ a:hover {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
+  margin-top: 80px; /* create space below fixed navbar */
+  padding-bottom: var(--spacing-xxl); /* add space at bottom of page */
 }
 
 .admin-login-container {
@@ -931,8 +944,9 @@ a:hover {
   border-radius: var(--radius-xl);
   padding: var(--spacing-xxl);
   box-shadow: var(--shadow-strong);
-  width: 100%;
-  max-width: 400px;
+  width: 40%;
+  max-width: 720px;
+  min-width: 340px;
   border: 1px solid rgba(255, 20, 147, 0.2);
 }
 
@@ -1008,6 +1022,24 @@ a:hover {
 
 .back-to-site {
   text-align: center;
+  margin-top: var(--spacing-lg); /* add space after Sign In button */
+}
+
+/* Admin login error and loading states */
+.error-message {
+  background: rgba(230, 0, 115, 0.08);
+  color: #b0004b;
+  border: 1px solid rgba(255, 20, 147, 0.3);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+.loading {
+  text-align: center;
+  color: var(--primary-black);
+  opacity: 0.7;
 }
 
 /* Additional Button Styles for All Pages */
@@ -1137,6 +1169,9 @@ a:hover {
   .admin-login-container {
     padding: var(--spacing-xl);
     margin: var(--spacing-md);
+    width: 100%;
+    max-width: 480px;
+    min-width: 0;
   }
 }
 
@@ -1159,6 +1194,14 @@ a:hover {
   
   .admin-login-container {
     padding: var(--spacing-xl);
+  }
+
+  /* Larger, better spaced footer icons on small screens */
+  .social-links {
+    gap: var(--spacing-xl);
+  }
+  .social-links a i {
+    font-size: 2rem;
   }
 }
 

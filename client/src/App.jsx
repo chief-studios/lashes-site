@@ -7,6 +7,7 @@ import LashConsultation from './pages/LashConsultation';
 import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
+import Footer from './components/Footer';
 import './styles.css';
 
 function App() {
@@ -47,27 +48,14 @@ function App() {
                 </div>
               </section>
 
-              {/* Footer */}
-              <footer className="footer">
-                <div className="footer-content">
-                  <h3 className="luxury-text">Best Lashes</h3>
-                  <p>Where luxury meets beauty. Book your perfect lash experience today.</p>
-                  <div className="social-links">
-                    <a href="#" aria-label="Instagram" className="floating">📸</a>
-                    <a href="#" aria-label="TikTok" className="floating" style={{animationDelay: '0.5s'}}>🎵</a>
-                    <a href="#" aria-label="Facebook" className="floating" style={{animationDelay: '1s'}}>📘</a>
-                    <a href="#" aria-label="Twitter" className="floating" style={{animationDelay: '1.5s'}}>🐦</a>
-                  </div>
-                  <p>&copy; 2024 Best Lashes. All rights reserved.</p>
-                </div>
-              </footer>
+              <Footer />
             </>
           } />
           
-          <Route path="/lash-consultation" element={<LashConsultation />} />
-          <Route path="/cluster-lashes" element={<ClusterLashes />} />
-          <Route path="/mink-lashes" element={<MinkLashes />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/lash-consultation" element={<><LashConsultation /><Footer /></>} />
+          <Route path="/cluster-lashes" element={<><ClusterLashes /><Footer /></>} />
+          <Route path="/mink-lashes" element={<><MinkLashes /><Footer /></>} />
+          <Route path="/admin" element={<><AdminDashboard /><Footer /></>} />
         </Routes>
       </div>
     </Router>

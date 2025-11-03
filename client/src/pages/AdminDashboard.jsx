@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showPassword, setShowPassword] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,20 +175,42 @@ const AdminDashboard = () => {
                 onChange={handleLoginInputChange}
                 required
                 disabled={loginLoading}
+                autoComplete="username"
               />
             </div>
 
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={loginData.password}
-                onChange={handleLoginInputChange}
-                required
-                disabled={loginLoading}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleLoginInputChange}
+                  required
+                  disabled={loginLoading}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  disabled={loginLoading}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#999',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
 
             <button 
