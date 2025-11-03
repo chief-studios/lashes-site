@@ -47,7 +47,17 @@ const Footer = () => {
             <i className="fa-brands fa-whatsapp" />
           </a>
         </div>
-        <p>© 2025 Best Lashes. All rights reserved.</p>
+        <p>
+          © Chief Studios. All rights reserved. 
+          <a 
+            href="https://portfolio-eta-sandy-97.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginLeft: '0.25rem', color: 'inherit', textDecoration: 'underline' }}
+          >
+            Contact us
+          </a>
+        </p>
       </div>
     </footer>
   );

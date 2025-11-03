@@ -80,8 +80,10 @@ const ClusterLashes = () => {
               ];
               const placeholderFor = (key, items) => {
                 if (key === 'hybrid') {
-                  const preferred = items.find(p => (p.name || '').toLowerCase() === 'cluster hybrid');
-                  return (preferred || items[0])?.image;
+                  const lower = (s) => (s || '').toLowerCase();
+                  const by = (substr) => items.find(p => lower(p.name).includes(substr));
+                  const preferred = by('wispy') || by('cat eye') || items.find(p => lower(p.name) === 'cluster hybrid') || items[0];
+                  return preferred?.image;
                 }
                 return items[0]?.image;
               };

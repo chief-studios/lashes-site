@@ -52,22 +52,22 @@ const LashConsultation = () => {
             </p>
             <div className="service-features">
               <div className="feature">
-                <span className="feature-icon">✨</span>
+                <span className="feature-icon"><i className="fa-solid fa-user-check" aria-hidden="true"></i></span>
                 <span>Personalized Assessment</span>
               </div>
               <div className="feature">
-                <span className="feature-icon">👁️</span>
+                <span className="feature-icon"><i className="fa-solid fa-eye" aria-hidden="true"></i></span>
                 <span>Eye Shape Analysis</span>
               </div>
               <div className="feature">
-                <span className="feature-icon">💄</span>
+                <span className="feature-icon"><i className="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span>
                 <span>Style Recommendations</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="booking-section">
+        <div className="booking-section consultation-booking">
           <h2>Book Your Lash Consultation</h2>
           <p className="booking-subtitle">
             Let's find your perfect lash look. We'll respond within 24 hours.

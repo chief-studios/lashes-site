@@ -626,6 +626,26 @@ a:hover {
   margin: 0 auto;
 }
 
+/* Center text only for Lash Consultation booking section */
+.consultation-booking {
+  text-align: center;
+}
+
+.consultation-booking .booking-form {
+  text-align: center;
+}
+
+.consultation-booking .form-group label {
+  text-align: center;
+}
+
+/* Keep input text left-aligned for better readability */
+.consultation-booking .form-group input,
+.consultation-booking .form-group select,
+.consultation-booking .form-group textarea {
+  text-align: left;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -793,6 +813,12 @@ a:hover {
 .feature span:last-child {
   color: var(--text-light);
   font-weight: 500;
+}
+
+/* Font Awesome icons in service features */
+.feature .feature-icon i {
+  color: var(--primary-pink);
+  font-size: 1.2rem;
 }
 
 /* Footer */
