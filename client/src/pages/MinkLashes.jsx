@@ -14,6 +14,8 @@ const MinkLashes = () => {
     description: ''
   });
   const bookingFormRef = useRef(null);
+  const productsSectionRef = useRef(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
   const handleSelectProduct = (productName) => {
     setFormData(prev => ({ ...prev, product: productName }));
@@ -51,36 +53,97 @@ const MinkLashes = () => {
           </p>
         </div>
 
-        <div className="products-section">
+        <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
-          <div className="products-grid">
-            {products
-              .filter(product => product.category.toLowerCase().includes('mink'))
-              .map(product => (
-                <div 
-                  key={product.id} 
-                  className="product-card"
-                  onClick={() => handleSelectProduct(product.name)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
-                >
-                  <div className="product-image">
-                    <img src={product.image} alt={product.name} />
-                  </div>
-                  <div className="product-info">
-                    <h3>{product.name}</h3>
-                    <p className="product-description">{product.description}</p>
-                    <div className="product-details">
-                      <span className="duration">{product.duration}</span>
-                      <span className="price">₵{product.price}</span>
+          {(() => {
+            const minkProducts = products.filter(p => (p.category || '').toLowerCase().includes('mink'));
+            const matches = (key) => (item) =>
+              (item.name || '').toLowerCase().includes(key) || (item.description || '').toLowerCase().includes(key);
+            const groups = {
+              classic: minkProducts.filter(matches('classic')),
+              hybrid: minkProducts.filter(matches('hybrid')),
+              volume: minkProducts.filter(matches('volume')),
+            };
+
+            const scrollToSection = () => {
+              if (productsSectionRef.current) {
+                productsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            };
+
+            if (!selectedGroup) {
+              const sections = [
+                { key: 'classic', title: 'Classic', items: groups.classic },
+                { key: 'volume', title: 'Volume', items: groups.volume },
+                { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
+              ];
+              const selectGroup = (key) => {
+                // Only change the view to show the group's products; do not scroll to form
+                setSelectedGroup(key);
+              };
+
+              return (
+                <div className="service-cards-container">
+                  {sections.filter(s => s.items.length > 0).map(section => (
+                    <div
+                      key={section.key}
+                      className="service-card"
+                      onClick={() => { selectGroup(section.key); }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
+                    >
+                      <div className="service-image">
+                        <img src={section.items[0]?.image} alt={`${section.title} placeholder`} />
+                      </div>
+                      <div className="service-info">
+                        <h3>{section.title}</h3>
+                        <p className="service-details">{section.items.length} styles available</p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-          </div>
+              );
+            }
+
+            const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
+            const items = groups[selectedGroup] || [];
+            return (
+              <>
+                <button className="back-btn" onClick={() => { setSelectedGroup(null); scrollToSection(); }}>
+                  ← Back to Categories
+                </button>
+                <h3 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem'}}>{mapKeyToTitle[selectedGroup]}</h3>
+                <div className="products-grid">
+                  {items.map(product => (
+                    <div
+                      key={product.id}
+                      className="product-card"
+                      onClick={() => handleSelectProduct(product.name)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                    >
+                      <div className="product-image">
+                        <img src={product.image} alt={product.name} />
+                      </div>
+                      <div className="product-info">
+                        <h3>{product.name}</h3>
+                        <p className="product-description">{product.description}</p>
+                        <div className="product-details">
+                          <span className="duration">{product.duration}</span>
+                          <span className="price">₵{product.price}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
+        {selectedGroup && (
         <div className="booking-section" ref={bookingFormRef}>
           <h2>Book Your Mink Lashes</h2>
           <form className="booking-form" onSubmit={handleSubmit}>
@@ -172,6 +235,7 @@ const MinkLashes = () => {
             </button>
           </form>
         </div>
+        )}
       </div>
     </div>
   );

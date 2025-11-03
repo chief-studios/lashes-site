@@ -8,12 +8,14 @@ import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import './styles.css';
 
 function App() {
   return (
     <Router>
       <div className="app">
+        <ScrollToTop />
         <Navigation />
         <AdminLink />
         
