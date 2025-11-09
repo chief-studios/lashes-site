@@ -1,43 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { products } from '../data/products';
 import '../styles.css';
 
-const BookingForm = () => {
+const BookingForm = ({ selectedProduct = null }) => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         email: '',
-        service: '',
+        service: selectedProduct?.name || '',
         date: '',
         time: ''
     });
+    const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
 
-    const timeSlots = [
-        '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-        '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
-    ];
+    useEffect(() => {
+        if (selectedProduct) {
+            setFormData(prev => ({ ...prev, service: selectedProduct.name }));
+        }
+    }, [selectedProduct]);
+
+    useEffect(() => {
+        if (formData.date) {
+            fetchAvailableTimeSlots();
+        } else {
+            setAvailableTimeSlots([]);
+        }
+    }, [formData.date]);
+
+    const fetchAvailableTimeSlots = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/time-slots/available?date=${formData.date}`);
+            if (response.ok) {
+                const data = await response.json();
+                // Convert time slots to display format
+                const formattedSlots = data.map(slot => {
+                    const timeStr = slot.time;
+                    const [hours, minutes] = timeStr.split(':');
+                    const hour = parseInt(hours);
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const displayHour = hour % 12 || 12;
+                    return {
+                        value: timeStr,
+                        display: `${displayHour}:${minutes} ${ampm}`
+                    };
+                });
+                setAvailableTimeSlots(formattedSlots);
+            }
+        } catch (error) {
+            console.error('Error fetching time slots:', error);
+            setAvailableTimeSlots([]);
+        }
+    };
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        setSubmitStatus({ type: '', message: '' });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Will connect to backend later
-        console.log('Booking data:', formData);
-        alert('Booking submitted! We will confirm your appointment soon.');
+        setLoading(true);
+        setSubmitStatus({ type: '', message: '' });
 
-        // Reset form
-        setFormData({
-            name: '',
-            phone: '',
-            email: '',
-            service: '',
-            date: '',
-            time: ''
-        });
+        try {
+            // Combine date and time into a single datetime
+            const [hours, minutes] = formData.time.split(':');
+            const bookingDateTime = new Date(formData.date);
+            bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+            const response = await fetch('http://localhost:5000/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    phone: formData.phone,
+                    email: formData.email,
+                    service: formData.service,
+                    bookingTime: bookingDateTime.toISOString()
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setSubmitStatus({ type: 'success', message: data.message || 'Booking submitted successfully! We will confirm your appointment soon.' });
+                // Reset form
+                setFormData({
+                    name: '',
+                    phone: '',
+                    email: '',
+                    service: selectedProduct?.name || '',
+                    date: '',
+                    time: ''
+                });
+                setAvailableTimeSlots([]);
+            } else {
+                setSubmitStatus({ type: 'error', message: data.message || 'Error submitting booking. Please try again.' });
+            }
+        } catch (error) {
+            setSubmitStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -88,9 +159,11 @@ const BookingForm = () => {
                     required
                 >
                     <option value="">Select a service</option>
-                    <option value="Classic Facial">Classic Facial</option>
-                    <option value="Full Body Massage">Full Body Massage</option>
-                    <option value="Manicure & Pedicure">Manicure & Pedicure</option>
+                    {products.map(product => (
+                        <option key={product._id} value={product.name}>
+                            {product.name} - ${product.price} ({product.duration})
+                        </option>
+                    ))}
                 </select>
             </div>
 
@@ -103,6 +176,7 @@ const BookingForm = () => {
                     value={formData.date}
                     onChange={handleChange}
                     required
+                    min={new Date().toISOString().split('T')[0]}
                 />
             </div>
 
@@ -114,16 +188,29 @@ const BookingForm = () => {
                     value={formData.time}
                     onChange={handleChange}
                     required
+                    disabled={!formData.date || availableTimeSlots.length === 0}
                 >
-                    <option value="">Select a time</option>
-                    {timeSlots.map(slot => (
-                        <option key={slot} value={slot}>{slot}</option>
+                    <option value="">
+                        {!formData.date 
+                            ? 'Please select a date first' 
+                            : availableTimeSlots.length === 0 
+                                ? 'No available slots for this date' 
+                                : 'Select a time'}
+                    </option>
+                    {availableTimeSlots.map((slot, index) => (
+                        <option key={index} value={slot.value}>{slot.display}</option>
                     ))}
                 </select>
             </div>
 
-            <button type="submit" className="submit-btn">
-                Book Appointment
+            {submitStatus.message && (
+                <div className={`submit-message ${submitStatus.type}`}>
+                    {submitStatus.message}
+                </div>
+            )}
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Submitting...' : 'Book Appointment'}
             </button>
         </form>
     );

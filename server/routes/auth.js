@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 const { auth } = require('../middleware/auth');
 const router = express.Router();
 
@@ -9,21 +9,32 @@ router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Find user
-        const user = await User.findOne({ username });
-        if (!user) {
+        // Get credentials from environment variables
+        const adminUsername = process.env.ADMIN_USERNAME;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+
+        // Check username
+        if (username !== adminUsername) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Check password
-        const isMatch = await user.comparePassword(password);
+        // Check password (support both plain text and hashed passwords)
+        let isMatch = false;
+        if (adminPassword.startsWith('$2')) {
+            // Password is hashed
+            isMatch = await bcrypt.compare(password, adminPassword);
+        } else {
+            // Password is plain text
+            isMatch = password === adminPassword;
+        }
+
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
         // Create token
         const token = jwt.sign(
-            { id: user._id },
+            { username: adminUsername, role: 'admin' },
             process.env.JWT_SECRET || 'fallback_secret',
             { expiresIn: '7d' }
         );
@@ -31,9 +42,8 @@ router.post('/login', async (req, res) => {
         res.json({
             token,
             user: {
-                id: user._id,
-                username: user.username,
-                role: user.role
+                username: adminUsername,
+                role: 'admin'
             }
         });
     } catch (error) {
@@ -48,7 +58,6 @@ router.post('/login', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
     res.json({
         user: {
-            id: req.user._id,
             username: req.user.username,
             role: req.user.role
         }

@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 
 const auth = async (req, res, next) => {
     try {
@@ -10,13 +9,13 @@ const auth = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
-        const user = await User.findById(decoded.id).select('-password');
-
-        if (!user) {
-            return res.status(401).json({ message: 'Token is not valid' });
-        }
-
-        req.user = user;
+        
+        // Set user from decoded token (no database lookup needed)
+        req.user = {
+            username: decoded.username,
+            role: decoded.role
+        };
+        
         next();
     } catch (error) {
         res.status(401).json({ message: 'Token is not valid' });

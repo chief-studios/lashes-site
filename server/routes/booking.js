@@ -8,9 +8,17 @@ router.post('/', async (req, res) => {
     try {
         const { name, phone, email, service, bookingTime } = req.body;
 
+        // Validate required fields
+        if (!name || !phone || !email || !service || !bookingTime) {
+            return res.status(400).json({
+                message: 'All fields are required'
+            });
+        }
+
         // Check if time slot is available (basic conflict check)
+        const bookingDateTime = new Date(bookingTime);
         const existingBooking = await Booking.findOne({
-            bookingTime: new Date(bookingTime),
+            bookingTime: bookingDateTime,
             status: { $in: ['pending', 'confirmed'] }
         });
 
@@ -23,12 +31,34 @@ router.post('/', async (req, res) => {
         const booking = new Booking({
             name,
             phone,
-            email,
+            email: email.toLowerCase(),
             service,
-            bookingTime: new Date(bookingTime)
+            bookingTime: bookingDateTime
         });
 
         await booking.save();
+
+        // Update or create customer record
+        const Customer = require('../models/Customer');
+        let customer = await Customer.findOne({ email: email.toLowerCase() });
+        
+        if (customer) {
+            customer.totalBookings += 1;
+            if (!customer.lastVisit || bookingDateTime > customer.lastVisit) {
+                customer.lastVisit = bookingDateTime;
+            }
+            await customer.save();
+        } else {
+            customer = new Customer({
+                name,
+                email: email.toLowerCase(),
+                phone,
+                totalBookings: 1,
+                lastVisit: bookingDateTime
+            });
+            await customer.save();
+        }
+
         res.status(201).json({
             message: 'Booking submitted successfully!',
             booking
@@ -91,7 +121,31 @@ router.get('/available-slots', async (req, res) => {
 // Get all bookings (admin only)
 router.get('/', adminAuth, async (req, res) => {
     try {
-        const bookings = await Booking.find().sort({ bookingTime: 1 });
+        const { status, date, search } = req.query;
+        let query = {};
+
+        if (status) {
+            query.status = status;
+        }
+
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+            query.bookingTime = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } },
+                { service: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const bookings = await Booking.find(query).sort({ bookingTime: 1 });
         res.json(bookings);
     } catch (error) {
         res.status(500).json({
@@ -101,10 +155,31 @@ router.get('/', adminAuth, async (req, res) => {
     }
 });
 
+// Get single booking (admin only)
+router.get('/:id', adminAuth, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+        res.json(booking);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error fetching booking',
+            error: error.message
+        });
+    }
+});
+
 // Update booking status (admin only)
 router.patch('/:id/status', adminAuth, async (req, res) => {
     try {
         const { status } = req.body;
+        
+        if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
         const booking = await Booking.findByIdAndUpdate(
             req.params.id,
             { status },
@@ -119,6 +194,54 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
     } catch (error) {
         res.status(400).json({
             message: 'Error updating booking',
+            error: error.message
+        });
+    }
+});
+
+// Update booking (admin only)
+router.patch('/:id', adminAuth, async (req, res) => {
+    try {
+        const updates = req.body;
+        if (updates.email) {
+            updates.email = updates.email.toLowerCase();
+        }
+        if (updates.bookingTime) {
+            updates.bookingTime = new Date(updates.bookingTime);
+        }
+
+        const booking = await Booking.findByIdAndUpdate(
+            req.params.id,
+            updates,
+            { new: true, runValidators: true }
+        );
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        res.json({ message: 'Booking updated', booking });
+    } catch (error) {
+        res.status(400).json({
+            message: 'Error updating booking',
+            error: error.message
+        });
+    }
+});
+
+// Delete booking (admin only)
+router.delete('/:id', adminAuth, async (req, res) => {
+    try {
+        const booking = await Booking.findByIdAndDelete(req.params.id);
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        res.json({ message: 'Booking deleted successfully' });
+    } catch (error) {
+        res.status(400).json({
+            message: 'Error deleting booking',
             error: error.message
         });
     }

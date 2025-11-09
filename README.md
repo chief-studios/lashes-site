@@ -52,7 +52,11 @@ Create `server/.env`:
 MONGODB_URI=mongodb://localhost:27017/beauty-booking
 JWT_SECRET=your_strong_secret
 PORT=5000
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password
 ```
+
+**Note:** For production, use a strong password and consider hashing it with bcrypt. The system supports both plain text and hashed passwords (starting with `$2`).
 
 ### 3) Start the backend
 ```bash
@@ -67,12 +71,12 @@ npm run dev
 ```
 Vite will print a local dev URL (e.g., http://localhost:5173). The backend runs on http://localhost:5000 by default.
 
-### 5) Create an admin user (once)
-```bash
-cd server
-npm run setup-admin
-```
-Follow the script’s prompts (or check the script for default credentials). Then use those credentials on `/admin` to sign in.
+### 5) Admin Login
+Use the credentials from your `.env` file:
+- Username: Value of `ADMIN_USERNAME` (default: `admin`)
+- Password: Value of `ADMIN_PASSWORD` (default: `admin123`)
+
+Navigate to `/admin` to sign in.
 
 ---
 
@@ -87,7 +91,6 @@ Follow the script’s prompts (or check the script for default credentials). The
 ### Backend (server)
 - `npm run dev` — start with nodemon
 - `npm start` — start Express server
-- `npm run setup-admin` — create or update the initial admin
 
 ---
 

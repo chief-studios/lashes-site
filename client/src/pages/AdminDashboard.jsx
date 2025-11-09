@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdminCustomers from './AdminCustomers';
+import AdminAnalytics from './AdminAnalytics';
+import AdminSettings from './AdminSettings';
 import '../styles.css';
 
 const AdminDashboard = () => {
@@ -108,7 +111,13 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
-    navigate('/admin/login');
+    setIsAuthenticated(false);
+    setBookings([]);
+    setTimeSlots([]);
+    setLoading(false);
+    // Reset form data
+    setLoginData({ username: '', password: '' });
+    setLoginError('');
   };
 
   const handleAddTimeSlot = async (e) => {
@@ -268,10 +277,28 @@ const AdminDashboard = () => {
           Bookings
         </button>
         <button 
+          className={`nav-btn ${activeTab === 'customers' ? 'active' : ''}`}
+          onClick={() => setActiveTab('customers')}
+        >
+          Customers
+        </button>
+        <button 
           className={`nav-btn ${activeTab === 'time-slots' ? 'active' : ''}`}
           onClick={() => setActiveTab('time-slots')}
         >
           Time Slots
+        </button>
+        <button 
+          className={`nav-btn ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          Analytics
+        </button>
+        <button 
+          className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
         </button>
       </div>
 
@@ -335,6 +362,10 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'customers' && <AdminCustomers />}
+        {activeTab === 'analytics' && <AdminAnalytics />}
+        {activeTab === 'settings' && <AdminSettings />}
 
         {activeTab === 'time-slots' && (
           <div className="time-slots-section">
