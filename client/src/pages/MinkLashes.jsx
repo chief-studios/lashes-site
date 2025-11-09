@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import '../styles.css';
@@ -10,12 +10,47 @@ const MinkLashes = () => {
     phone: '',
     email: '',
     product: '',
-    timeSlot: '',
-    description: ''
+    date: '',
+    time: ''
   });
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
+
+  useEffect(() => {
+    if (formData.date) {
+      fetchAvailableTimeSlots();
+    } else {
+      setAvailableTimeSlots([]);
+    }
+  }, [formData.date]);
+
+  const fetchAvailableTimeSlots = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/time-slots/available?date=${formData.date}`);
+      if (response.ok) {
+        const data = await response.json();
+        const formattedSlots = data.map(slot => {
+          const timeStr = slot.time;
+          const [hours, minutes] = timeStr.split(':');
+          const hour = parseInt(hours);
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          const displayHour = hour % 12 || 12;
+          return {
+            value: timeStr,
+            display: `${displayHour}:${minutes} ${ampm}`
+          };
+        });
+        setAvailableTimeSlots(formattedSlots);
+      }
+    } catch (error) {
+      console.error('Error fetching time slots:', error);
+      setAvailableTimeSlots([]);
+    }
+  };
 
   const handleSelectProduct = (productName) => {
     setFormData(prev => ({ ...prev, product: productName }));
@@ -30,13 +65,57 @@ const MinkLashes = () => {
       ...prev,
       [name]: value
     }));
+    setSubmitStatus({ type: '', message: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Booking submitted:', { service: 'Mink Lashes', ...formData });
-    alert('Booking submitted successfully! We will contact you soon.');
-    navigate('/');
+    setLoading(true);
+    setSubmitStatus({ type: '', message: '' });
+
+    try {
+      const [hours, minutes] = formData.time.split(':');
+      const bookingDateTime = new Date(formData.date);
+      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          service: formData.product || 'Mink Lashes',
+          bookingTime: bookingDateTime.toISOString()
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus({ type: 'success', message: data.message || 'Booking submitted successfully! We will confirm your appointment soon.' });
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          product: '',
+          date: '',
+          time: ''
+        });
+        setAvailableTimeSlots([]);
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        setSubmitStatus({ type: 'error', message: data.message || 'Error submitting booking. Please try again.' });
+      }
+    } catch (error) {
+      setSubmitStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -197,41 +276,49 @@ const MinkLashes = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="timeSlot">Preferred Time Slot *</label>
-              <select
-                id="timeSlot"
-                name="timeSlot"
-                value={formData.timeSlot}
+              <label htmlFor="date">Preferred Date *</label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                value={formData.date}
                 onChange={handleInputChange}
                 required
-              >
-                <option value="">Select a time slot</option>
-                <option value="9:00 AM">9:00 AM</option>
-                <option value="10:00 AM">10:00 AM</option>
-                <option value="11:00 AM">11:00 AM</option>
-                <option value="12:00 PM">12:00 PM</option>
-                <option value="1:00 PM">1:00 PM</option>
-                <option value="2:00 PM">2:00 PM</option>
-                <option value="3:00 PM">3:00 PM</option>
-                <option value="4:00 PM">4:00 PM</option>
-                <option value="5:00 PM">5:00 PM</option>
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="description">Additional Notes</label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows="4"
-                placeholder="Any special requests or notes..."
+                min={new Date().toISOString().split('T')[0]}
               />
             </div>
+
+            <div className="form-group">
+              <label htmlFor="time">Preferred Time *</label>
+              <select
+                id="time"
+                name="time"
+                value={formData.time}
+                onChange={handleInputChange}
+                required
+                disabled={!formData.date || availableTimeSlots.length === 0}
+              >
+                <option value="">
+                  {!formData.date 
+                    ? 'Please select a date first' 
+                    : availableTimeSlots.length === 0 
+                      ? 'No available slots for this date' 
+                      : 'Select a time'}
+                </option>
+                {availableTimeSlots.map((slot, index) => (
+                  <option key={index} value={slot.value}>{slot.display}</option>
+                ))}
+              </select>
+            </div>
+
+            {submitStatus.message && (
+              <div className={`submit-message ${submitStatus.type}`}>
+                {submitStatus.message}
+              </div>
+            )}
             
-            <button type="submit" className="submit-btn">
-              Submit Booking
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? 'Submitting...' : 'Submit Booking'}
             </button>
           </form>
         </div>

@@ -48,14 +48,14 @@ const Footer = () => {
           </a>
         </div>
         <p>
-          © Chief Studios. All rights reserved. 
+          © 2025 Best Lashes. All rights reserved. Built by
           <a 
             href="https://portfolio-eta-sandy-97.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             style={{ marginLeft: '0.25rem', color: 'inherit', textDecoration: 'underline' }}
           >
-            Contact us
+            chief studios.
           </a>
         </p>
       </div>
