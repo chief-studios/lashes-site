@@ -20,15 +20,6 @@ const ServiceCards = () => {
       duration: '60 mins'
     },
     {
-      id: 2,
-      name: 'Cluster Lashes',
-      details: 'Individual cluster lashes for a temporary, dramatic look that lasts 1-2 weeks',
-      image: clusterLashesImage,
-      route: '/cluster-lashes',
-      price: 'From GHS 55',
-      duration: '40-110 mins'
-    },
-    {
       id: 3,
       name: 'Mink Lashes',
       details: 'Premium mink lashes that last 3-6 weeks for a luxurious, long-lasting look',
@@ -36,6 +27,15 @@ const ServiceCards = () => {
       route: '/mink-lashes',
       price: 'From GHS 115',
       duration: '90-150 mins'
+    },
+    {
+      id: 2,
+      name: 'Cluster Lashes',
+      details: 'Individual cluster lashes for a temporary, dramatic look that lasts 1-2 weeks',
+      image: clusterLashesImage,
+      route: '/cluster-lashes',
+      price: 'From GHS 55',
+      duration: '40-110 mins'
     }
   ];
 

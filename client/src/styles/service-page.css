@@ -124,6 +124,30 @@
   font-size: 1.2rem;
 }
 
+/* Product cards on service pages - ensure black background */
+.service-page .product-card {
+  background: var(--primary-black) !important;
+  color: var(--text-light);
+}
+
+.service-page .product-card .product-info h3 {
+  color: var(--text-light);
+}
+
+.service-page .product-card .product-description {
+  color: var(--text-light);
+  opacity: 0.9;
+}
+
+.service-page .product-card .price {
+  color: var(--primary-pink);
+}
+
+.service-page .product-card .duration {
+  background: rgba(255, 20, 147, 0.2);
+  color: var(--text-light);
+}
+
 @media (max-width: 768px) {
   .service-page {
     margin-top: 70px;
