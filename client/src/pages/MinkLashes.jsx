@@ -144,8 +144,8 @@ const MinkLashes = () => {
             if (!selectedGroup) {
               const sections = [
                 { key: 'classic', title: 'Classic', items: groups.classic },
-                { key: 'volume', title: 'Volume', items: groups.volume },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
+                { key: 'volume', title: 'Volume', items: groups.volume },
               ];
               const selectGroup = (key) => {
                 setSelectedGroup(key);

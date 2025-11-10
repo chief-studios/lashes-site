@@ -144,8 +144,8 @@ const ClusterLashes = () => {
             if (!selectedGroup) {
               const sections = [
                 { key: 'classic', title: 'Classic', items: groups.classic },
-                { key: 'volume', title: 'Volume', items: groups.volume },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
+                { key: 'volume', title: 'Volume', items: groups.volume },
               ];
               const selectGroup = (key) => {
                 // Only change the view to show the group's products; do not scroll to form
