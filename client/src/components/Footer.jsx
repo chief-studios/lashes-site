@@ -1,4 +1,6 @@
 import React from 'react';
+import '../styles/base.css';
+import '../styles/footer.css';
 
 const Footer = () => {
   return (
@@ -50,13 +52,13 @@ const Footer = () => {
         <p>
           © 2025 Best Lashes. All rights reserved. Built by
           <a 
-            href="https://portfolio-eta-sandy-97.vercel.app"
+            href="https://enamcudjoeahiable.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ marginLeft: '0.25rem', color: 'inherit', textDecoration: 'underline' }}
           >
-            chief studios.
-          </a>
+            chief studios
+          </a>.
         </p>
       </div>
     </footer>

@@ -1,0 +1,76 @@
+/* Footer */
+.footer {
+  background: var(--primary-black);
+  color: var(--text-light);
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary-pink), transparent);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.footer h3 {
+  color: var(--primary-pink);
+  margin-bottom: var(--spacing-md);
+}
+
+.footer p {
+  color: var(--text-light);
+  opacity: 0.8;
+}
+
+/* Add space above the copyright line */
+.footer-content p:last-child {
+  margin-top: var(--spacing-md);
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  transition: var(--transition-smooth);
+}
+
+.social-links a:hover {
+  color: var(--primary-pink);
+  transform: translateY(-2px);
+}
+
+/* Ensure Font Awesome icons are visible and centered */
+.social-links a i {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  /* Larger, better spaced footer icons on small screens */
+  .social-links {
+    gap: var(--spacing-xl);
+  }
+  .social-links a i {
+    font-size: 2rem;
+  }
+}
+

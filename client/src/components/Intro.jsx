@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import '../styles.css';
+import '../styles/base.css';
 
 const Intro = ({ onFinish, text = 'WELCOME TO BEST LASHES' }) => {
   const fadeIn = 400; // ms

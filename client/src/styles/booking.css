@@ -1,0 +1,101 @@
+/* Booking Form */
+.booking-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Center text only for Lash Consultation booking section */
+.consultation-booking {
+  text-align: center;
+}
+
+.consultation-booking .booking-form {
+  text-align: center;
+}
+
+.consultation-booking .form-group label {
+  text-align: center;
+}
+
+/* Keep input text left-aligned for better readability */
+.consultation-booking .form-group input,
+.consultation-booking .form-group select,
+.consultation-booking .form-group textarea {
+  text-align: left;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid rgba(255, 20, 147, 0.3);
+  border-radius: var(--radius-md);
+  background: var(--gray-dark);
+  color: var(--text-light);
+  font-family: var(--font-body);
+  transition: var(--transition-smooth);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: var(--spacing-lg);
+}
+
+/* Submit Message */
+.submit-message {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  font-weight: 500;
+}
+
+.submit-message.success {
+  background: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.submit-message.error {
+  background: rgba(244, 67, 54, 0.1);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+

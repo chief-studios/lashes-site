@@ -9,7 +9,11 @@ import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import './styles.css';
+import './styles/base.css';
+import './styles/navigation.css';
+import './styles/hero.css';
+import './styles/home.css';
+import './styles/footer.css';
 
 function App() {
   return (

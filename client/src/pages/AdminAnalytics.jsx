@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import '../styles.css';
+import '../styles/base.css';
+import '../styles/admin.css';
 
 const AdminAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);

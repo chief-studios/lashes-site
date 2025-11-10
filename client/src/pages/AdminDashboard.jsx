@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import AdminCustomers from './AdminCustomers';
 import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
-import '../styles.css';
+import '../styles/base.css';
+import '../styles/admin.css';
+import '../styles/booking.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -16,11 +18,6 @@ const AdminDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newTimeSlot, setNewTimeSlot] = useState({
-    time: '',
-    date: '',
-    isAvailable: true
-  });
 
   useEffect(() => {
     checkAuth();
@@ -120,27 +117,6 @@ const AdminDashboard = () => {
     setLoginError('');
   };
 
-  const handleAddTimeSlot = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/time-slots', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(newTimeSlot)
-      });
-
-      if (response.ok) {
-        setNewTimeSlot({ time: '', date: '', isAvailable: true });
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error adding time slot:', error);
-    }
-  };
 
   const handleUpdateBookingStatus = async (bookingId, status) => {
     try {
@@ -369,50 +345,48 @@ const AdminDashboard = () => {
 
         {activeTab === 'time-slots' && (
           <div className="time-slots-section">
-            <h2>Manage Time Slots</h2>
-            
-            <form className="add-time-slot-form" onSubmit={handleAddTimeSlot}>
-              <h3>Add New Time Slot</h3>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="date">Date</label>
-                  <input
-                    type="date"
-                    id="date"
-                    value={newTimeSlot.date}
-                    onChange={(e) => setNewTimeSlot({...newTimeSlot, date: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="time">Time</label>
-                  <input
-                    type="time"
-                    id="time"
-                    value={newTimeSlot.time}
-                    onChange={(e) => setNewTimeSlot({...newTimeSlot, time: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-              <button type="submit" className="add-btn">Add Time Slot</button>
-            </form>
+            <h2>Time Slots</h2>
+            <div style={{ 
+              background: 'rgba(255, 20, 147, 0.1)', 
+              padding: '1rem', 
+              borderRadius: '8px', 
+              marginBottom: '2rem',
+              border: '1px solid rgba(255, 20, 147, 0.2)'
+            }}>
+              <p style={{ margin: 0, color: 'var(--primary-black)' }}>
+                <strong>Working Hours:</strong> 8:00 AM - 10:00 PM<br />
+                <strong>Time Blocks:</strong> 2-hour intervals (8:00-10:00, 10:00-12:00, 12:00-2:00 PM, 2:00-4:00 PM, 4:00-6:00 PM, 6:00-8:00 PM, 8:00-10:00 PM)<br />
+                Time slots are automatically generated when customers select a date. No manual addition needed.
+              </p>
+            </div>
 
             <div className="time-slots-list">
-              <h3>Available Time Slots</h3>
-              {timeSlots.map(slot => (
-                <div key={slot._id} className="time-slot-card">
-                  <div className="slot-info">
-                    <p><strong>Date:</strong> {new Date(slot.date).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {slot.time}</p>
-                    <p><strong>Status:</strong> 
-                      <span className={`status ${slot.isAvailable ? 'available' : 'unavailable'}`}>
-                        {slot.isAvailable ? 'Available' : 'Unavailable'}
-                      </span>
-                    </p>
-                  </div>
+              <h3>Recent Time Slots</h3>
+              {timeSlots.length === 0 ? (
+                <p style={{ color: 'var(--gray-dark)', fontStyle: 'italic' }}>
+                  No time slots have been generated yet. They will be created automatically when customers book appointments.
+                </p>
+              ) : (
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+                  gap: '1rem' 
+                }}>
+                  {timeSlots.slice(0, 50).map(slot => (
+                    <div key={slot._id} className="time-slot-card">
+                      <div className="slot-info">
+                        <p><strong>Date:</strong> {new Date(slot.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> {slot.time}</p>
+                        <p><strong>Status:</strong> 
+                          <span className={`status ${slot.isAvailable ? 'available' : 'unavailable'}`}>
+                            {slot.isAvailable ? 'Available' : 'Booked'}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}

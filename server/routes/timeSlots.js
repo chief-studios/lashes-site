@@ -93,24 +93,76 @@ router.delete('/:id', adminAuth, async (req, res) => {
     }
 });
 
-// Get available time slots (public)
+// Helper function to generate time slots for a given date
+async function generateTimeSlotsForDate(date) {
+    const Booking = require('../models/Booking');
+    
+    // Working hours: 08:00 to 22:00 (10:00 PM) with 2-hour blocks
+    const timeSlots = [
+        '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'
+    ];
+    
+    const dateObj = new Date(date);
+    dateObj.setHours(0, 0, 0, 0);
+    
+    const generatedSlots = [];
+    
+    for (const time of timeSlots) {
+        // Check if slot already exists
+        let slot = await TimeSlot.findOne({
+            date: dateObj,
+            time: time
+        });
+        
+        // If slot doesn't exist, create it
+        if (!slot) {
+            slot = new TimeSlot({
+                date: dateObj,
+                time: time,
+                isAvailable: true
+            });
+            await slot.save();
+        }
+        
+        // Check if slot is booked
+        const [hours, minutes] = time.split(':');
+        const slotDateTime = new Date(dateObj);
+        slotDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        const existingBooking = await Booking.findOne({
+            bookingTime: slotDateTime,
+            status: { $in: ['pending', 'confirmed'] }
+        });
+        
+        // Mark as unavailable if booked
+        if (existingBooking && slot.isAvailable) {
+            slot.isAvailable = false;
+            await slot.save();
+        }
+        
+        // Only return available slots
+        if (slot.isAvailable) {
+            generatedSlots.push(slot);
+        }
+    }
+    
+    return generatedSlots;
+}
+
+// Get available time slots (public) - auto-generates if needed
 router.get('/available', async (req, res) => {
     try {
         const { date } = req.query;
-        let query = { isAvailable: true };
         
-        if (date) {
-            const startOfDay = new Date(date);
-            const endOfDay = new Date(date);
-            endOfDay.setHours(23, 59, 59, 999);
-            
-            query.date = {
-                $gte: startOfDay,
-                $lte: endOfDay
-            };
+        if (!date) {
+            return res.status(400).json({
+                message: 'Date parameter is required'
+            });
         }
-
-        const timeSlots = await TimeSlot.find(query).sort({ date: 1, time: 1 });
+        
+        // Generate time slots for the requested date
+        const timeSlots = await generateTimeSlotsForDate(date);
+        
         res.json(timeSlots);
     } catch (error) {
         res.status(500).json({

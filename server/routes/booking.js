@@ -15,8 +15,21 @@ router.post('/', async (req, res) => {
             });
         }
 
-        // Check if time slot is available (basic conflict check)
+        // Check if time slot is available
         const bookingDateTime = new Date(bookingTime);
+        
+        // Validate time is within working hours (08:00-22:00) and is a valid 2-hour block start time
+        const hours = bookingDateTime.getHours();
+        const minutes = bookingDateTime.getMinutes();
+        const validStartTimes = [8, 10, 12, 14, 16, 18, 20];
+        
+        if (!validStartTimes.includes(hours) || minutes !== 0) {
+            return res.status(400).json({
+                message: 'Invalid time slot. Please select a valid 2-hour time block starting at 8:00 AM, 10:00 AM, 12:00 PM, 2:00 PM, 4:00 PM, 6:00 PM, or 8:00 PM.'
+            });
+        }
+        
+        // Check for existing bookings
         const existingBooking = await Booking.findOne({
             bookingTime: bookingDateTime,
             status: { $in: ['pending', 'confirmed'] }
@@ -26,6 +39,22 @@ router.post('/', async (req, res) => {
             return res.status(400).json({
                 message: 'This time slot is already booked. Please choose another time.'
             });
+        }
+        
+        // Mark the time slot as unavailable
+        const TimeSlot = require('../models/TimeSlot');
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        const dateOnly = new Date(bookingDateTime);
+        dateOnly.setHours(0, 0, 0, 0);
+        
+        let timeSlot = await TimeSlot.findOne({
+            date: dateOnly,
+            time: timeString
+        });
+        
+        if (timeSlot) {
+            timeSlot.isAvailable = false;
+            await timeSlot.save();
         }
 
         const booking = new Booking({
@@ -180,14 +209,37 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
-        const booking = await Booking.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        );
-
+        const booking = await Booking.findById(req.params.id);
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        booking.status = status;
+        await booking.save();
+
+        // Update time slot availability based on status
+        const TimeSlot = require('../models/TimeSlot');
+        const bookingDateTime = new Date(booking.bookingTime);
+        const hours = bookingDateTime.getHours();
+        const minutes = bookingDateTime.getMinutes();
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        const dateOnly = new Date(bookingDateTime);
+        dateOnly.setHours(0, 0, 0, 0);
+        
+        let timeSlot = await TimeSlot.findOne({
+            date: dateOnly,
+            time: timeString
+        });
+        
+        if (timeSlot) {
+            // If cancelled, make slot available again
+            // If confirmed or pending, keep it unavailable
+            if (status === 'cancelled') {
+                timeSlot.isAvailable = true;
+            } else {
+                timeSlot.isAvailable = false;
+            }
+            await timeSlot.save();
         }
 
         res.json({ message: 'Booking status updated', booking });
@@ -232,11 +284,32 @@ router.patch('/:id', adminAuth, async (req, res) => {
 // Delete booking (admin only)
 router.delete('/:id', adminAuth, async (req, res) => {
     try {
-        const booking = await Booking.findByIdAndDelete(req.params.id);
+        const booking = await Booking.findById(req.params.id);
 
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found' });
         }
+
+        // Free up the time slot before deleting
+        const TimeSlot = require('../models/TimeSlot');
+        const bookingDateTime = new Date(booking.bookingTime);
+        const hours = bookingDateTime.getHours();
+        const minutes = bookingDateTime.getMinutes();
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        const dateOnly = new Date(bookingDateTime);
+        dateOnly.setHours(0, 0, 0, 0);
+        
+        const timeSlot = await TimeSlot.findOne({
+            date: dateOnly,
+            time: timeString
+        });
+        
+        if (timeSlot) {
+            timeSlot.isAvailable = true;
+            await timeSlot.save();
+        }
+
+        await Booking.findByIdAndDelete(req.params.id);
 
         res.json({ message: 'Booking deleted successfully' });
     } catch (error) {

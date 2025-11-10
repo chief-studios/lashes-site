@@ -1,7 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
-import '../styles.css';
+import { generateTimeSlots } from '../utils/timeSlots';
+import '../styles/base.css';
+import '../styles/service-page.css';
+import '../styles/home.css';
+import '../styles/booking.css';
 
 const ClusterLashes = () => {
   const navigate = useNavigate();
@@ -22,35 +26,13 @@ const ClusterLashes = () => {
 
   useEffect(() => {
     if (formData.date) {
-      fetchAvailableTimeSlots();
+      // Generate time slots on the frontend
+      const slots = generateTimeSlots();
+      setAvailableTimeSlots(slots);
     } else {
       setAvailableTimeSlots([]);
     }
   }, [formData.date]);
-
-  const fetchAvailableTimeSlots = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/time-slots/available?date=${formData.date}`);
-      if (response.ok) {
-        const data = await response.json();
-        const formattedSlots = data.map(slot => {
-          const timeStr = slot.time;
-          const [hours, minutes] = timeStr.split(':');
-          const hour = parseInt(hours);
-          const ampm = hour >= 12 ? 'PM' : 'AM';
-          const displayHour = hour % 12 || 12;
-          return {
-            value: timeStr,
-            display: `${displayHour}:${minutes} ${ampm}`
-          };
-        });
-        setAvailableTimeSlots(formattedSlots);
-      }
-    } catch (error) {
-      console.error('Error fetching time slots:', error);
-      setAvailableTimeSlots([]);
-    }
-  };
 
   const handleSelectProduct = (productName) => {
     setFormData(prev => ({ ...prev, product: productName }));
@@ -306,14 +288,12 @@ const ClusterLashes = () => {
                 value={formData.time}
                 onChange={handleInputChange}
                 required
-                disabled={!formData.date || availableTimeSlots.length === 0}
+                disabled={!formData.date}
               >
                 <option value="">
                   {!formData.date 
                     ? 'Please select a date first' 
-                    : availableTimeSlots.length === 0 
-                      ? 'No available slots for this date' 
-                      : 'Select a time'}
+                    : 'Select a time'}
                 </option>
                 {availableTimeSlots.map((slot, index) => (
                   <option key={index} value={slot.value}>{slot.display}</option>

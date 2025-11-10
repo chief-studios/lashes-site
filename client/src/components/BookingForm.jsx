@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { products } from '../data/products';
-import '../styles.css';
+import { generateTimeSlots } from '../utils/timeSlots';
+import '../styles/base.css';
+import '../styles/booking.css';
 
 const BookingForm = ({ selectedProduct = null }) => {
     const [formData, setFormData] = useState({
@@ -23,36 +25,13 @@ const BookingForm = ({ selectedProduct = null }) => {
 
     useEffect(() => {
         if (formData.date) {
-            fetchAvailableTimeSlots();
+            // Generate time slots on the frontend
+            const slots = generateTimeSlots();
+            setAvailableTimeSlots(slots);
         } else {
             setAvailableTimeSlots([]);
         }
     }, [formData.date]);
-
-    const fetchAvailableTimeSlots = async () => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/time-slots/available?date=${formData.date}`);
-            if (response.ok) {
-                const data = await response.json();
-                // Convert time slots to display format
-                const formattedSlots = data.map(slot => {
-                    const timeStr = slot.time;
-                    const [hours, minutes] = timeStr.split(':');
-                    const hour = parseInt(hours);
-                    const ampm = hour >= 12 ? 'PM' : 'AM';
-                    const displayHour = hour % 12 || 12;
-                    return {
-                        value: timeStr,
-                        display: `${displayHour}:${minutes} ${ampm}`
-                    };
-                });
-                setAvailableTimeSlots(formattedSlots);
-            }
-        } catch (error) {
-            console.error('Error fetching time slots:', error);
-            setAvailableTimeSlots([]);
-        }
-    };
 
     const handleChange = (e) => {
         setFormData({
@@ -188,14 +167,12 @@ const BookingForm = ({ selectedProduct = null }) => {
                     value={formData.time}
                     onChange={handleChange}
                     required
-                    disabled={!formData.date || availableTimeSlots.length === 0}
+                    disabled={!formData.date}
                 >
                     <option value="">
                         {!formData.date 
                             ? 'Please select a date first' 
-                            : availableTimeSlots.length === 0 
-                                ? 'No available slots for this date' 
-                                : 'Select a time'}
+                            : 'Select a time'}
                     </option>
                     {availableTimeSlots.map((slot, index) => (
                         <option key={index} value={slot.value}>{slot.display}</option>
