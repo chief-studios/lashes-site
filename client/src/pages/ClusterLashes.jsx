@@ -118,13 +118,21 @@ const ClusterLashes = () => {
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
           {(() => {
-            const clusterProducts = products.filter(p => (p.category || '').toLowerCase().includes('cluster'));
-            const matches = (key) => (item) =>
-              (item.name || '').toLowerCase().includes(key) || (item.description || '').toLowerCase().includes(key);
+            // Filter cluster products by type property
+            const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
+            
+            // Group by type property and separate main styles from extras
             const groups = {
-              classic: clusterProducts.filter(matches('classic')),
-              hybrid: clusterProducts.filter(matches('hybrid')),
-              volume: clusterProducts.filter(matches('volume')),
+              classic: clusterProducts.filter(p => p.type === 'cluster classic'),
+              hybrid: clusterProducts.filter(p => p.type === 'cluster hybrid'),
+              volume: clusterProducts.filter(p => p.type === 'cluster volume'),
+            };
+
+            // Helper function to separate main styles from extras
+            const separateStylesAndExtras = (items) => {
+              const mainStyles = items.filter(p => p.extra !== 'yes');
+              const extras = items.filter(p => p.extra === 'yes');
+              return { mainStyles, extras };
             };
 
             const scrollToSection = () => {
@@ -139,15 +147,6 @@ const ClusterLashes = () => {
                 { key: 'volume', title: 'Volume', items: groups.volume },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
               ];
-              const placeholderFor = (key, items) => {
-                if (key === 'hybrid') {
-                  const lower = (s) => (s || '').toLowerCase();
-                  const by = (substr) => items.find(p => lower(p.name).includes(substr));
-                  const preferred = by('wispy') || by('cat eye') || items.find(p => lower(p.name) === 'cluster hybrid') || items[0];
-                  return preferred?.image;
-                }
-                return items[0]?.image;
-              };
               const selectGroup = (key) => {
                 // Only change the view to show the group's products; do not scroll to form
                 setSelectedGroup(key);
@@ -155,60 +154,103 @@ const ClusterLashes = () => {
 
               return (
                 <div className="service-cards-container">
-                  {sections.filter(s => s.items.length > 0).map(section => (
-                    <div
-                      key={section.key}
-                      className="service-card"
-                      onClick={() => { selectGroup(section.key); }}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
-                    >
-                      <div className="service-image">
-                        <img src={placeholderFor(section.key, section.items)} alt={`${section.title} placeholder`} />
+                  {sections.filter(s => s.items.length > 0).map(section => {
+                    const { mainStyles } = separateStylesAndExtras(section.items);
+                    return (
+                      <div
+                        key={section.key}
+                        className="service-card"
+                        onClick={() => { selectGroup(section.key); }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
+                      >
+                        <div className="service-image">
+                          <img src={mainStyles[0]?.image || section.items[0]?.image} alt={`${section.title} placeholder`} />
+                        </div>
+                        <div className="service-info">
+                          <h3>{section.title}</h3>
+                          <p className="service-details">{mainStyles.length} styles available</p>
+                        </div>
                       </div>
-                      <div className="service-info">
-                        <h3>{section.title}</h3>
-                        <p className="service-details">{section.items.length} styles available</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               );
             }
 
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
             const items = groups[selectedGroup] || [];
+            const { mainStyles, extras } = separateStylesAndExtras(items);
+            
             return (
               <>
                 <button className="back-btn" onClick={() => { setSelectedGroup(null); scrollToSection(); }}>
                   ← Back to Categories
                 </button>
                 <h3 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem'}}>{mapKeyToTitle[selectedGroup]}</h3>
-                <div className="products-grid">
-                  {items.map(product => (
-                    <div
-                      key={product.id}
-                      className="product-card"
-                      onClick={() => handleSelectProduct(product.name)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
-                    >
-                      <div className="product-image">
-                        <img src={product.image} alt={product.name} />
-                      </div>
-                      <div className="product-info">
-                        <h3>{product.name}</h3>
-                        <p className="product-description">{product.description}</p>
-                        <div className="product-details">
-                          <span className="duration">{product.duration}</span>
-                          <span className="price">₵{product.price}</span>
+                
+                {/* Main Styles */}
+                {mainStyles.length > 0 && (
+                  <>
+                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem'}}></h4>
+                    <div className="products-grid">
+                      {mainStyles.map(product => (
+                        <div
+                          key={product.id}
+                          className="product-card"
+                          onClick={() => handleSelectProduct(product.name)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                        >
+                          <div className="product-image">
+                            <img src={product.image} alt={product.name} />
+                          </div>
+                          <div className="product-info">
+                            <h3>{product.name}</h3>
+                            <p className="product-description">{product.description}</p>
+                            <div className="product-details">
+                              <span className="duration">{product.duration}</span>
+                              <span className="price">₵{product.price}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
+
+                {/* Extras */}
+                {extras.length > 0 && (
+                  <>
+                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem'}}>Extras</h4>
+                    <div className="products-grid">
+                      {extras.map(product => (
+                        <div
+                          key={product.id}
+                          className="product-card"
+                          onClick={() => handleSelectProduct(product.name)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                        >
+                          <div className="product-image">
+                            <img src={product.image} alt={product.name} />
+                          </div>
+                          <div className="product-info">
+                            <h3>{product.name}</h3>
+                            <p className="product-description">{product.description}</p>
+                            <div className="product-details">
+                              <span className="duration">{product.duration}</span>
+                              <span className="price">₵{product.price}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             );
           })()}

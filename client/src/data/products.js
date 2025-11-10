@@ -38,203 +38,223 @@ export const products = [
     // Cluster Lashes - Classic
     {
         id: 1,
-        name: "Cluster Classic",
+        name: "Classic",
         description: "Natural looking cluster lash extensions for everyday wear",
-        price: 60,
+        price: 100,
         duration: "45 mins",
         image: clusterClassic,
-        category: "Cluster Classic"
+        type: "cluster classic",
+        extra: "no"
     },
     {
         id: 2,
-        name: "Cluster Classic Cat Eye",
+        name: "Cat Eye",
         description: "Elegant cat eye style with cluster classic lash extensions",
-        price: 65,
+        price: 20,
         duration: "50 mins",
         image: clusterClassicCatEye,
-        category: "Cluster Classic"
+        type: "cluster classic",
+        extra: "yes"
     },
     {
         id: 3,
-        name: "Cluster Classic Wispy",
+        name: "Wispy",
         description: "Soft, wispy cluster classic lashes for a natural fluttery effect",
-        price: 65,
+        price: 40,
         duration: "50 mins",
         image: clusterClassicWispy,
-        category: "Cluster Classic"
+        type: "cluster classic",
+        extra: "yes"
     },
     {
         id: 4,
-        name: "Cluster Classic with Bottom Lashes",
+        name: "Bottom Lashes",
         description: "Complete eye enhancement with cluster classic on both lash lines",
-        price: 80,
+        price: 50,
         duration: "65 mins",
         image: clusterClassicWithBottom,
-        category: "Cluster Classic"
+        type: "cluster classic",
+        extra: "yes"
     },
     {
         id: 5,
-        name: "Cluster Classic with Color Lashes",
+        name: "Color Lashes",
         description: "Cluster classic lashes with a pop of color for a unique look",
-        price: 75,
+        price: 50,
         duration: "60 mins",
         image: clusterClassicWithColor,
-        category: "Cluster Classic"
+        type: "cluster classic",
+        extra: "yes"
     },
 
     // Cluster Lashes - Hybrid
     {
         id: 6,
-        name: "Cluster Hybrid",
+        name: "Hybrid",
         description: "Perfect blend of classic and volume with cluster technique",
-        price: 85,
+        price: 130,
         duration: "70 mins",
         image: clusterHybrid,
-        category: "Cluster Hybrid"
+        type: "cluster hybrid",
+        extra: "no"
     },
     {
         id: 7,
-        name: "Cluster Hybrid Cat Eye",
+        name: "Cat Eye",
         description: "Dramatic cat eye effect using cluster hybrid technique",
-        price: 90,
+        price: 20,
         duration: "75 mins",
         image: clusterHybridCatEye,
-        category: "Cluster Hybrid"
+        type: "cluster hybrid",
+        extra: "yes"
     },
     {
         id: 8,
-        name: "Cluster Hybrid Wispy",
+        name: "Hybrid Wispy",
         description: "Soft, fluttery cluster hybrid lashes for a romantic look",
-        price: 90,
+        price: 40,
         duration: "75 mins",
         image: clusterHybridWispy,
-        category: "Cluster Hybrid"
+        type: "cluster hybrid",
+        extra: "yes"
     },
     {
         id: 9,
-        name: "Cluster Hybrid with Bottoms",
+        name: "Hybrid with Bottoms",
         description: "Full eye enhancement with cluster hybrid on both lash lines",
-        price: 105,
+        price: 50,
         duration: "90 mins",
         image: clusterHybridWithBottoms,
-        category: "Cluster Hybrid"
+        type: "cluster hybrid",
+        extra: "yes"
     },
     {
         id: 10,
-        name: "Cluster Hybrid Color Lashes",
+        name: "Hybrid Color Lashes",
         description: "Cluster hybrid lashes with colorful accents for a bold statement",
-        price: 100,
+        price: 50,
         duration: "85 mins",
         image: clusterHybridWithColor,
-        category: "Cluster Hybrid"
+        type: "cluster hybrid",
+        extra: "yes"
     },
 
     // Cluster Lashes - Volume
     {
         id: 11,
-        name: "Cluster Volume",
+        name: "Volume",
         description: "Full, dramatic cluster volume lashes for maximum impact",
-        price: 100,
+        price: 150,
         duration: "90 mins",
         image: clusterVolume,
-        category: "Cluster Volume"
+        type: "cluster volume",
+        "extra": "no"
     },
     {
         id: 12,
-        name: "Cluster Volume Cat Eye",
+        name: "Volume Cat Eye",
         description: "Intense cat eye effect with cluster volume technique",
-        price: 110,
+        price: 20,
         duration: "95 mins",
         image: clusterVolumeCatEye,
-        category: "Cluster Volume"
+        type: "cluster volume",
+        extra: "yes"
     },
     {
         id: 13,
-        name: "Cluster Volume Wispy",
+        name: "Volume Wispy",
         description: "Soft cluster volume lashes with a wispy, natural finish",
-        price: 105,
+        price: 40,
         duration: "90 mins",
         image: clusterVolumeWispy,
-        category: "Cluster Volume"
+        type: "cluster volume",
+        extra: "yes"
     },
     {
         id: 14,
-        name: "Cluster Volume with Bottom Lashes",
+        name: "Volume with Bottom Lashes",
         description: "Complete dramatic look with cluster volume on both lash lines",
-        price: 125,
+        price: 50,
         duration: "110 mins",
         image: clusterVolumeWithBottom,
-        category: "Cluster Volume"
+        "type": "cluster volume",
+        "extra": "yes"
     },
     {
         id: 15,
-        name: "Cluster Volume with Color Lashes",
+        name: "Volume with Color Lashes",
         description: "Bold cluster volume lashes with vibrant color accents",
-        price: 115,
+        price: 50,
         duration: "100 mins",
         image: clusterVolumeWithColor,
-        category: "Cluster Volume"
+        type: "cluster volume",
+        extra: "yes"
     },
 
-    // Mink Lashes - Classic
+    // Mink Classic
     {
         id: 17,
-        name: "Mink Classic",
+        name: "Classic",
         description: "Premium mink classic lashes for natural, luxurious look",
         price: 120,
         duration: "90 mins",
         image: minkClassic,
-        category: "Mink Classic"
+        type: "mink classic",
+        extra: "no",
+        poster: "yes"
     },
     {
         id: 18,
-        name: "Mink Classic with Bottom Lashes",
+        name: "Bottom Lashes",
         description: "Complete mink classic enhancement on both lash lines",
-        price: 140,
+        price: 50,
         duration: "110 mins",
         image: minkClassicWithBottom,
-        category: "Mink Classic"
+        type: "mink classic",
+        extra: "yes"
     },
     {
         id: 19,
-        name: "Mink Classic with Color Lashes",
+        name: "Color Lashes",
         description: "Mink classic lashes with colorful accents for a unique look",
-        price: 135,
+        price: 50,
         duration: "105 mins",
         image: minkClassicWithColor,
-        category: "Mink Classic"
+        type: "mink classic",
+        extra: "yes"
     },
 
-    // Mink Lashes - Cat Eye
     {
         id: 20,
-        name: "Mink Cat Eye",
+        name: "Cat Eye",
         description: "Elegant mink cat eye lashes for a dramatic, sophisticated look",
-        price: 130,
+        price: 120,
         duration: "100 mins",
         image: minkCatEye,
-        category: "Mink Cat Eye"
+        extra: "no",
+        type: "mink classic"
     },
     {
         id: 21,
-        name: "Mink Cat Eye Hybrid",
+        name: "Cat Eye",
         description: "Dramatic mink cat eye with hybrid technique for maximum impact",
-        price: 150,
+        price: 170,
         duration: "120 mins",
         image: minkCatEyeHybrid,
-        category: "Mink Cat Eye"
+        type: "mink hybrid",
+        extra: "no"
     },
     {
         id: 22,
-        name: "Mink Cat Eye Volume",
+        name: "Cat Eye",
         description: "Intense mink cat eye with volume technique for bold statement",
-        price: 160,
+        price: 200,
         duration: "130 mins",
         image: minkCatEyeVolume,
-        category: "Mink Cat Eye"
+        type: "mink volume",
+        extra: "no"
     },
 
-    // Mink Lashes - Hybrid
     {
         id: 23,
         name: "Mink Hybrid",
@@ -242,28 +262,31 @@ export const products = [
         price: 140,
         duration: "110 mins",
         image: minkHybrid,
-        category: "Mink Hybrid"
+        type: "mink hybrid",
+        extra: "no",
+        poster: "yes"
     },
     {
         id: 24,
-        name: "Mink Hybrid with Bottom Lashes",
+        name: "Bottom Lashes",
         description: "Complete mink hybrid enhancement on both lash lines",
-        price: 165,
+        price: 50,
         duration: "130 mins",
         image: minkHybridWithBottom,
-        category: "Mink Hybrid"
+        type: "mink hybrid",
+        extra: "yes"
     },
     {
         id: 25,
-        name: "Mink Hybrid with Color Lashes",
+        name: "Color Lashes",
         description: "Mink hybrid lashes with vibrant color accents",
-        price: 155,
+        price: 50,
         duration: "125 mins",
         image: minkHybridWithColor,
-        category: "Mink Hybrid"
+        type: "mink hybrid",
+        extra: "yes"
     },
 
-    // Mink Lashes - Volume
     {
         id: 26,
         name: "Mink Volume",
@@ -271,62 +294,69 @@ export const products = [
         price: 150,
         duration: "120 mins",
         image: minkVolume,
-        category: "Mink Volume"
+        type: "mink volume",
+        extra: "no",
+        poster: "yes"
     },
     {
         id: 27,
-        name: "Mink Volume with Bottom Lashes",
+        name: "Bottom Lashes",
         description: "Complete dramatic mink volume on both lash lines",
-        price: 180,
+        price: 50,
         duration: "150 mins",
         image: minkVolumeWithBottom,
-        category: "Mink Volume"
+        type: "mink volume",
+        extra: "yes"
     },
     {
         id: 28,
-        name: "Mink Volume with Color Lashes",
+        name: "Color Lashes",
         description: "Bold mink volume lashes with vibrant color accents",
-        price: 170,
+        price: 50,
         duration: "140 mins",
         image: minkVolumeWithColor,
-        category: "Mink Volume"
+        type: "mink volume",
+        extra: "yes"
     },
 
-    // Mink Lashes - Special Styles
     {
         id: 29,
-        name: "Mink Wispy",
+        name: "Wispy",
         description: "Soft, feathery mink lashes for a natural, fluttery effect",
-        price: 125,
+        price: 190,
         duration: "95 mins",
         image: minkWispy,
-        category: "Mink Special"
+        type: "mink hybrid",
+        extra: "no"
     },
     {
         id: 30,
-        name: "Mink Wispy Volume",
+        name: "Wispy",
         description: "Soft mink volume lashes with wispy, natural finish",
-        price: 145,
+        price: 220,
         duration: "115 mins",
         image: minkWispyVolume,
-        category: "Mink Special"
+        type: "mink volume",
+        extra: "no"
     },
     {
         id: 31,
-        name: "Mink Doll Eye",
+        name: "Doll Eye",
         description: "Round, doll-like mink lashes for a wide-eyed, innocent look",
-        price: 135,
+        price: 150,
         duration: "105 mins",
         image: minkDollEye,
-        category: "Mink Special"
+        type: "mink hybrid",
+        extra: "no"
     },
     {
         id: 32,
-        name: "Mink Natural Set",
+        name: "Natural Set",
         description: "Subtle, natural-looking mink lashes that enhance your beauty",
-        price: 115,
+        price: 100,
         duration: "90 mins",
         image: minkNaturalSet,
-        category: "Mink Special"
+        extra: "no",
+        type: "mink classic"
     }
 ];

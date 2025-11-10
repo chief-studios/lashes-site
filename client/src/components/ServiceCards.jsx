@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import consultationImage from '../images/consultation.jpg';
 import clusterLashesImage from '../images/cluster cluster lashes.jpg';
-import minkImage from '../images/mink classic.jpg';
+import minkImage from '../images/mink poster.jpg';
 import '../styles/base.css';
 import '../styles/home.css';
 

@@ -29,7 +29,7 @@ const Footer = () => {
             <i className="fa-brands fa-snapchat" />
           </a>
           <a
-            href="https://www.tiktok.com/@thepadikuor09"
+            href="https://www.tiktok.com/@the.padikuor09"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="TikTok"

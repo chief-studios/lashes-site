@@ -26,7 +26,6 @@ const MinkLashes = () => {
 
   useEffect(() => {
     if (formData.date) {
-      // Generate time slots on the frontend
       const slots = generateTimeSlots();
       setAvailableTimeSlots(slots);
     } else {
@@ -117,13 +116,23 @@ const MinkLashes = () => {
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
           {(() => {
-            const minkProducts = products.filter(p => (p.category || '').toLowerCase().includes('mink'));
-            const matches = (key) => (item) =>
-              (item.name || '').toLowerCase().includes(key) || (item.description || '').toLowerCase().includes(key);
+            // Filter mink products by type property
+            const minkProducts = products.filter(p => p.type && p.type.toLowerCase().includes('mink'));
+
+            // NEW: Exclude products marked as posters
+            const filteredMinkProducts = minkProducts.filter(p => p.poster !== 'yes');
+
+            // Group by type property and separate main styles from extras
             const groups = {
-              classic: minkProducts.filter(matches('classic')),
-              hybrid: minkProducts.filter(matches('hybrid')),
-              volume: minkProducts.filter(matches('volume')),
+              classic: filteredMinkProducts.filter(p => p.type === 'mink classic'),
+              hybrid: filteredMinkProducts.filter(p => p.type === 'mink hybrid'),
+              volume: filteredMinkProducts.filter(p => p.type === 'mink volume'),
+            };
+
+            const separateStylesAndExtras = (items) => {
+              const mainStyles = items.filter(p => p.extra !== 'yes');
+              const extras = items.filter(p => p.extra === 'yes');
+              return { mainStyles, extras };
             };
 
             const scrollToSection = () => {
@@ -139,66 +148,112 @@ const MinkLashes = () => {
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
               ];
               const selectGroup = (key) => {
-                // Only change the view to show the group's products; do not scroll to form
                 setSelectedGroup(key);
               };
 
               return (
                 <div className="service-cards-container">
-                  {sections.filter(s => s.items.length > 0).map(section => (
-                    <div
-                      key={section.key}
-                      className="service-card"
-                      onClick={() => { selectGroup(section.key); }}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
-                    >
-                      <div className="service-image">
-                        <img src={section.items[0]?.image} alt={`${section.title} placeholder`} />
+                  {sections.filter(s => s.items.length > 0).map(section => {
+                    const { mainStyles } = separateStylesAndExtras(section.items);
+                    return (
+                      <div
+                        key={section.key}
+                        className="service-card"
+                        onClick={() => { selectGroup(section.key); }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
+                      >
+                        <div className="service-image">
+                          <img src={mainStyles[0]?.image || section.items[0]?.image} alt={`${section.title} placeholder`} />
+                        </div>
+                        <div className="service-info">
+                          <h3>{section.title}</h3>
+                          <p className="service-details">{mainStyles.length} styles available</p>
+                        </div>
                       </div>
-                      <div className="service-info">
-                        <h3>{section.title}</h3>
-                        <p className="service-details">{section.items.length} styles available</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               );
             }
 
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
             const items = groups[selectedGroup] || [];
+            const { mainStyles, extras } = separateStylesAndExtras(items);
+            
             return (
               <>
                 <button className="back-btn" onClick={() => { setSelectedGroup(null); scrollToSection(); }}>
                   ← Back to Categories
                 </button>
                 <h3 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem'}}>{mapKeyToTitle[selectedGroup]}</h3>
-                <div className="products-grid">
-                  {items.map(product => (
-                    <div
-                      key={product.id}
-                      className="product-card"
-                      onClick={() => handleSelectProduct(product.name)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
-                    >
-                      <div className="product-image">
-                        <img src={product.image} alt={product.name} />
-                      </div>
-                      <div className="product-info">
-                        <h3>{product.name}</h3>
-                        <p className="product-description">{product.description}</p>
-                        <div className="product-details">
-                          <span className="duration">{product.duration}</span>
-                          <span className="price">₵{product.price}</span>
+                
+                {/* Main Styles */}
+                {mainStyles.length > 0 && (
+                  <>
+                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem'}}></h4>
+                    <div className="products-grid">
+                      {mainStyles
+                        .filter(p => p.poster !== 'yes') // NEW: Exclude posters
+                        .map(product => (
+                        <div
+                          key={product.id}
+                          className="product-card"
+                          onClick={() => handleSelectProduct(product.name)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                        >
+                          <div className="product-image">
+                            <img src={product.image} alt={product.name} />
+                          </div>
+                          <div className="product-info">
+                            <h3>{product.name}</h3>
+                            <p className="product-description">{product.description}</p>
+                            <div className="product-details">
+                              <span className="duration">{product.duration}</span>
+                              <span className="price">₵{product.price}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
+
+                {/* Extras */}
+                {extras.length > 0 && (
+                  <>
+                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem'}}>Extras</h4>
+                    <div className="products-grid">
+                      {extras
+                        .filter(p => p.poster !== 'yes') // NEW: Exclude posters
+                        .map(product => (
+                        <div
+                          key={product.id}
+                          className="product-card"
+                          onClick={() => handleSelectProduct(product.name)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                        >
+                          <div className="product-image">
+                            <img src={product.image} alt={product.name} />
+                          </div>
+                          <div className="product-info">
+                            <h3>{product.name}</h3>
+                            <p className="product-description">{product.description}</p>
+                            <div className="product-details">
+                              <span className="duration">{product.duration}</span>
+                              <span className="price">₵{product.price}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             );
           })()}
