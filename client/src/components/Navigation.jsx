@@ -30,7 +30,7 @@ const Navigation = () => {
     <nav className="navigation">
       <div className="nav-container">
         <div className="nav-brand" onClick={() => navigate('/')}>
-          <img src={bestLashesLogo} alt="Best Lashes" className="brand-logo" />
+          <h1>Best Lashes</h1>
         </div>
 
         <div className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>

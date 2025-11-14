@@ -14,7 +14,6 @@ import clusterVolumeCatEye from '../images/cluster volume cat eye.jpg';
 import clusterVolumeWispy from '../images/cluster volume wispy.jpg';
 import clusterVolumeWithBottom from '../images/cluster volume with bottom lashes.jpg';
 import clusterVolumeWithColor from '../images/cluster volume with color lashes.jpg';
-import clusterClusterLashes from '../images/cluster cluster lashes.jpg';
 
 // Mink Lashes
 import minkClassic from '../images/mink classic.jpg';
@@ -51,7 +50,7 @@ export const products = [
         name: "Cat Eye",
         description: "Elegant cat eye style with cluster classic lash extensions",
         price: 20,
-        duration: "50 mins",
+        duration: "5 mins",
         image: clusterClassicCatEye,
         type: "cluster classic",
         extra: "yes"
@@ -61,7 +60,7 @@ export const products = [
         name: "Wispy",
         description: "Soft, wispy cluster classic lashes for a natural fluttery effect",
         price: 40,
-        duration: "50 mins",
+        duration: "5 mins",
         image: clusterClassicWispy,
         type: "cluster classic",
         extra: "yes"
@@ -71,7 +70,7 @@ export const products = [
         name: "Bottom Lashes",
         description: "Complete eye enhancement with cluster classic on both lash lines",
         price: 50,
-        duration: "65 mins",
+        duration: "5 mins",
         image: clusterClassicWithBottom,
         type: "cluster classic",
         extra: "yes"
@@ -81,7 +80,7 @@ export const products = [
         name: "Color Lashes",
         description: "Cluster classic lashes with a pop of color for a unique look",
         price: 50,
-        duration: "60 mins",
+        duration: "5 mins",
         image: clusterClassicWithColor,
         type: "cluster classic",
         extra: "yes"
@@ -93,7 +92,7 @@ export const products = [
         name: "Hybrid",
         description: "Perfect blend of classic and volume with cluster technique",
         price: 130,
-        duration: "70 mins",
+        duration: "45 mins",
         image: clusterHybrid,
         type: "cluster hybrid",
         extra: "no"
@@ -103,7 +102,7 @@ export const products = [
         name: "Cat Eye",
         description: "Dramatic cat eye effect using cluster hybrid technique",
         price: 20,
-        duration: "75 mins",
+        duration: "5 mins",
         image: clusterHybridCatEye,
         type: "cluster hybrid",
         extra: "yes"
@@ -113,7 +112,7 @@ export const products = [
         name: "Hybrid Wispy",
         description: "Soft, fluttery cluster hybrid lashes for a romantic look",
         price: 40,
-        duration: "75 mins",
+        duration: "5 mins",
         image: clusterHybridWispy,
         type: "cluster hybrid",
         extra: "yes"
@@ -123,7 +122,7 @@ export const products = [
         name: "Hybrid with Bottoms",
         description: "Full eye enhancement with cluster hybrid on both lash lines",
         price: 50,
-        duration: "90 mins",
+        duration: "5 mins",
         image: clusterHybridWithBottoms,
         type: "cluster hybrid",
         extra: "yes"
@@ -133,7 +132,7 @@ export const products = [
         name: "Hybrid Color Lashes",
         description: "Cluster hybrid lashes with colorful accents for a bold statement",
         price: 50,
-        duration: "85 mins",
+        duration: "5 mins",
         image: clusterHybridWithColor,
         type: "cluster hybrid",
         extra: "yes"
@@ -145,7 +144,7 @@ export const products = [
         name: "Volume",
         description: "Full, dramatic cluster volume lashes for maximum impact",
         price: 150,
-        duration: "90 mins",
+        duration: "45 mins",
         image: clusterVolume,
         type: "cluster volume",
         "extra": "no"
@@ -155,7 +154,7 @@ export const products = [
         name: "Volume Cat Eye",
         description: "Intense cat eye effect with cluster volume technique",
         price: 20,
-        duration: "95 mins",
+        duration: "5 mins",
         image: clusterVolumeCatEye,
         type: "cluster volume",
         extra: "yes"
@@ -165,7 +164,7 @@ export const products = [
         name: "Volume Wispy",
         description: "Soft cluster volume lashes with a wispy, natural finish",
         price: 40,
-        duration: "90 mins",
+        duration: "5 mins",
         image: clusterVolumeWispy,
         type: "cluster volume",
         extra: "yes"
@@ -175,7 +174,7 @@ export const products = [
         name: "Volume with Bottom Lashes",
         description: "Complete dramatic look with cluster volume on both lash lines",
         price: 50,
-        duration: "110 mins",
+        duration: "5 mins",
         image: clusterVolumeWithBottom,
         "type": "cluster volume",
         "extra": "yes"
@@ -185,7 +184,7 @@ export const products = [
         name: "Volume with Color Lashes",
         description: "Bold cluster volume lashes with vibrant color accents",
         price: 50,
-        duration: "100 mins",
+        duration: "5 mins",
         image: clusterVolumeWithColor,
         type: "cluster volume",
         extra: "yes"
@@ -208,7 +207,7 @@ export const products = [
         name: "Bottom Lashes",
         description: "Complete mink classic enhancement on both lash lines",
         price: 50,
-        duration: "110 mins",
+        duration: "15 mins",
         image: minkClassicWithBottom,
         type: "mink classic",
         extra: "yes"
@@ -218,7 +217,7 @@ export const products = [
         name: "Color Lashes",
         description: "Mink classic lashes with colorful accents for a unique look",
         price: 50,
-        duration: "105 mins",
+        duration: "15 mins",
         image: minkClassicWithColor,
         type: "mink classic",
         extra: "yes"
@@ -260,7 +259,7 @@ export const products = [
         name: "Mink Hybrid",
         description: "Perfect blend of mink classic and volume for natural fullness",
         price: 140,
-        duration: "110 mins",
+        duration: "15 mins",
         image: minkHybrid,
         type: "mink hybrid",
         extra: "no",
@@ -271,7 +270,7 @@ export const products = [
         name: "Bottom Lashes",
         description: "Complete mink hybrid enhancement on both lash lines",
         price: 50,
-        duration: "130 mins",
+        duration: "15 mins",
         image: minkHybridWithBottom,
         type: "mink hybrid",
         extra: "yes"
@@ -281,7 +280,7 @@ export const products = [
         name: "Color Lashes",
         description: "Mink hybrid lashes with vibrant color accents",
         price: 50,
-        duration: "125 mins",
+        duration: "15 mins",
         image: minkHybridWithColor,
         type: "mink hybrid",
         extra: "yes"
@@ -303,7 +302,7 @@ export const products = [
         name: "Bottom Lashes",
         description: "Complete dramatic mink volume on both lash lines",
         price: 50,
-        duration: "150 mins",
+        duration: "15 mins",
         image: minkVolumeWithBottom,
         type: "mink volume",
         extra: "yes"
@@ -313,7 +312,7 @@ export const products = [
         name: "Color Lashes",
         description: "Bold mink volume lashes with vibrant color accents",
         price: 50,
-        duration: "140 mins",
+        duration: "15 mins",
         image: minkVolumeWithColor,
         type: "mink volume",
         extra: "yes"

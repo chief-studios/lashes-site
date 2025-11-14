@@ -29,7 +29,7 @@ function App() {
               {/* Hero Section */}
               <section className="hero">
                 <div className="hero-content">
-                  <h1 className="fade-in-up">Lashes That Speak Luxury</h1>
+                  <h1 className="fade-in-up">BEST LASHES</h1>
                   <p className="fade-in-up">
                     Discover the art of premium lash extensions. From delicate classics to bold volumes, 
                     we craft the perfect look for your unique beauty.

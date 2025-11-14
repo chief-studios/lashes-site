@@ -15,14 +15,24 @@ const ClusterLashes = () => {
     email: '',
     product: '',
     date: '',
-    time: ''
+    time: '',
+    comments: '' // NEW: Added comments field
   });
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
-  const [selectedGroup, setSelectedGroup] = useState(null); // 'classic' | 'hybrid' | 'volume' | null
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(''); // NEW: Separate state for color selection
+
+  // NEW: Available colors for color lashes
+  const availableColors = [
+    { value: 'pink', label: 'Pink' },
+    { value: 'green', label: 'Green' },
+    { value: 'blue', label: 'Blue' },
+    { value: 'purple', label: 'Purple' }
+  ];
 
   useEffect(() => {
     if (formData.date) {
@@ -36,6 +46,10 @@ const ClusterLashes = () => {
 
   const handleSelectProduct = (productName) => {
     setFormData(prev => ({ ...prev, product: productName }));
+
+    // NEW: Reset color selection when a new product is selected
+    setSelectedColor('');
+
     // Smooth scroll to the booking form
     if (bookingFormRef.current) {
       bookingFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -49,6 +63,47 @@ const ClusterLashes = () => {
       [name]: value
     }));
     setSubmitStatus({ type: '', message: '' });
+  };
+
+  // NEW: Handle color selection
+  const handleColorChange = (e) => {
+    const color = e.target.value;
+    setSelectedColor(color);
+
+    // Update comments to include the selected color
+    if (color) {
+      const colorComment = `Color: ${color.charAt(0).toUpperCase() + color.slice(1)}`;
+
+      // Check if there's already a color comment and replace it, or add it to existing comments
+      const existingComments = formData.comments;
+      const colorRegex = /Color:\s*\w+/i;
+
+      if (colorRegex.test(existingComments)) {
+        // Replace existing color comment
+        setFormData(prev => ({
+          ...prev,
+          comments: existingComments.replace(colorRegex, colorComment)
+        }));
+      } else {
+        // Add new color comment to existing comments
+        const separator = existingComments ? '\n' : '';
+        setFormData(prev => ({
+          ...prev,
+          comments: existingComments + separator + colorComment
+        }));
+      }
+    } else {
+      // Remove color comment if no color is selected
+      const existingComments = formData.comments;
+      const colorRegex = /Color:\s*\w+/i;
+
+      if (colorRegex.test(existingComments)) {
+        setFormData(prev => ({
+          ...prev,
+          comments: existingComments.replace(colorRegex, '').trim()
+        }));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +126,8 @@ const ClusterLashes = () => {
           phone: formData.phone,
           email: formData.email,
           service: formData.product || 'Cluster Lashes',
-          bookingTime: bookingDateTime.toISOString()
+          bookingTime: bookingDateTime.toISOString(),
+          comments: formData.comments // NEW: Include comments in the API request
         })
       });
 
@@ -85,8 +141,10 @@ const ClusterLashes = () => {
           email: '',
           product: '',
           date: '',
-          time: ''
+          time: '',
+          comments: '' // NEW: Reset comments field
         });
+        setSelectedColor(''); // NEW: Reset color selection
         setAvailableTimeSlots([]);
         setTimeout(() => {
           navigate('/');
@@ -101,13 +159,26 @@ const ClusterLashes = () => {
     }
   };
 
+  // Helper function to sort products by price in ascending order
+  const sortProductsByPrice = (productsArray) => {
+    return productsArray.sort((a, b) => {
+      // Convert prices to numbers for proper comparison
+      const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price) || 0;
+      const priceB = typeof b.price === 'number' ? b.price : parseFloat(b.price) || 0;
+      return priceA - priceB;
+    });
+  };
+
+  // NEW: Check if selected product is a color lash product
+  const isColorLashProduct = formData.product.toLowerCase().includes('color');
+
   return (
     <div className="service-page">
       <div className="service-container">
         <button className="back-btn" onClick={() => navigate('/')}>
           ← Back to Services
         </button>
-        
+
         <div className="page-header">
           <h1>Cluster Lashes</h1>
           <p className="page-description">
@@ -120,7 +191,7 @@ const ClusterLashes = () => {
           {(() => {
             // Filter cluster products by type property
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
-            
+
             // Group by type property and separate main styles from extras
             const groups = {
               classic: clusterProducts.filter(p => p.type === 'cluster classic'),
@@ -182,20 +253,23 @@ const ClusterLashes = () => {
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
             const items = groups[selectedGroup] || [];
             const { mainStyles, extras } = separateStylesAndExtras(items);
-            
+
+            // Sort main styles by price in ascending order
+            const sortedMainStyles = sortProductsByPrice([...mainStyles]);
+
             return (
               <>
                 <button className="back-btn" onClick={() => { setSelectedGroup(null); scrollToSection(); }}>
                   ← Back to Categories
                 </button>
-                <h3 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem'}}>{mapKeyToTitle[selectedGroup]}</h3>
-                
-                {/* Main Styles */}
-                {mainStyles.length > 0 && (
+                <h3 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem' }}>{mapKeyToTitle[selectedGroup]}</h3>
+
+                {/* Main Styles - Now sorted by price */}
+                {sortedMainStyles.length > 0 && (
                   <>
-                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem'}}></h4>
+                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}></h4>
                     <div className="products-grid">
-                      {mainStyles.map(product => (
+                      {sortedMainStyles.map(product => (
                         <div
                           key={product.id}
                           className="product-card"
@@ -224,7 +298,7 @@ const ClusterLashes = () => {
                 {/* Extras */}
                 {extras.length > 0 && (
                   <>
-                    <h4 style={{color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem'}}>Extras</h4>
+                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Extras</h4>
                     <div className="products-grid">
                       {extras.map(product => (
                         <div
@@ -257,103 +331,140 @@ const ClusterLashes = () => {
         </div>
 
         {selectedGroup && (
-        <div className="booking-section" ref={bookingFormRef}>
-          <h2>Book Your Cluster Lashes</h2>
-          <form className="booking-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="product">Selected Product</label>
-              <input
-                type="text"
-                id="product"
-                name="product"
-                value={formData.product}
-                onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
-                placeholder="Choose a product above or enter here"
-              />
-            </div>
-            <div className="form-row">
+          <div className="booking-section" ref={bookingFormRef}>
+            <h2>Book Your Cluster Lashes</h2>
+            <form className="booking-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="name">Full Name *</label>
+                <label htmlFor="product">Selected Product</label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
+                  id="product"
+                  name="product"
+                  value={formData.product}
+                  onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
+                  placeholder="Choose a product above or enter here"
                 />
               </div>
-              
+
+              {/* NEW: Color selection dropdown for color lash products */}
+              {isColorLashProduct && (
+                <div className="form-group">
+                  <label htmlFor="color">Select Color *</label>
+                  <select
+                    id="color"
+                    name="color"
+                    value={selectedColor}
+                    onChange={handleColorChange}
+                    required
+                  >
+                    <option value="">Choose a color</option>
+                    {availableColors.map((color, index) => (
+                      <option key={index} value={color.value}>
+                        {color.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="name">Full Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
-                <label htmlFor="phone">Phone Number *</label>
+                <label htmlFor="email">Email Address *</label>
                 <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
                   required
                 />
               </div>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="email">Email Address *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="date">Preferred Date *</label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                required
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="time">Preferred Time *</label>
-              <select
-                id="time"
-                name="time"
-                value={formData.time}
-                onChange={handleInputChange}
-                required
-                disabled={!formData.date}
-              >
-                <option value="">
-                  {!formData.date 
-                    ? 'Please select a date first' 
-                    : 'Select a time'}
-                </option>
-                {availableTimeSlots.map((slot, index) => (
-                  <option key={index} value={slot.value}>{slot.display}</option>
-                ))}
-              </select>
-            </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="date">Preferred Date *</label>
+                  <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
 
-            {submitStatus.message && (
-              <div className={`submit-message ${submitStatus.type}`}>
-                {submitStatus.message}
+                <div className="form-group">
+                  <label htmlFor="time">Preferred Time *</label>
+                  <select
+                    id="time"
+                    name="time"
+                    value={formData.time}
+                    onChange={handleInputChange}
+                    required
+                    disabled={!formData.date}
+                  >
+                    <option value="">
+                      {!formData.date
+                        ? 'Please select a date first'
+                        : 'Select a time'}
+                    </option>
+                    {availableTimeSlots.map((slot, index) => (
+                      <option key={index} value={slot.value}>{slot.display}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            )}
-            
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Booking'}
-            </button>
-          </form>
-        </div>
+
+              {/* NEW: Comments field */}
+              <div className="form-group">
+                <label htmlFor="comments">Additional Comments (Optional)</label>
+                <textarea
+                  id="comments"
+                  name="comments"
+                  value={formData.comments}
+                  onChange={handleInputChange}
+                  placeholder="Any special requests, allergies, or additional information you'd like us to know..."
+                  rows="4"
+                />
+              </div>
+
+              {submitStatus.message && (
+                <div className={`submit-message ${submitStatus.type}`}>
+                  {submitStatus.message}
+                </div>
+              )}
+
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Submitting...' : 'Submit Booking'}
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </div>
