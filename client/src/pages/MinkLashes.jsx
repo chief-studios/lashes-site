@@ -23,6 +23,9 @@ const MinkLashes = () => {
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
+  const [timeSlotAvailable, setTimeSlotAvailable] = useState(null); // null = not checked, true = available, false = unavailable
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -48,6 +51,22 @@ const MinkLashes = () => {
     }
   }, [formData.date]);
 
+  // Reset status when date or time changes
+  useEffect(() => {
+    if (formData.date || formData.time) {
+      setSubmitStatus({ type: '', message: '' });
+      setTimeSlotAvailable(null); // Reset availability check when date/time changes
+    }
+  }, [formData.date, formData.time]);
+
+  // Trigger payment when shouldTriggerPayment becomes true
+  useEffect(() => {
+    if (shouldTriggerPayment) {
+      setShouldTriggerPayment(false);
+      // The PaystackButton will automatically trigger since we're using the component directly
+    }
+  }, [shouldTriggerPayment]);
+
   const handleSelectProduct = (productName) => {
     const product = products.find(p => p.name === productName);
     setSelectedProductDetails(product);
@@ -66,6 +85,7 @@ const MinkLashes = () => {
       [name]: value
     }));
     setSubmitStatus({ type: '', message: '' });
+    setTimeSlotAvailable(null); // Reset availability check when any field changes
   };
 
   const handleColorChange = (e) => {
@@ -161,6 +181,7 @@ const MinkLashes = () => {
         setSelectedColor('');
         setSelectedProductDetails(null);
         setAvailableTimeSlots([]);
+        setTimeSlotAvailable(null);
 
         setTimeout(() => {
           navigate('/');
@@ -189,8 +210,62 @@ const MinkLashes = () => {
     });
   };
 
-  // Modified handleSubmit to trigger Paystack payment instead of direct booking
-  const handleSubmit = (e) => {
+  // Check if time slot is available by querying existing bookings
+  const checkTimeSlotAvailability = async () => {
+    try {
+      setCheckingAvailability(true);
+      setSubmitStatus({ type: '', message: '' });
+
+      const [hours, minutes] = formData.time.split(':');
+      const bookingDateTime = new Date(formData.date);
+      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      // Check if there's already a booking for this time slot
+      const checkResponse = await fetch(`http://localhost:5000/api/bookings/check-booking-availability`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingTime: bookingDateTime.toISOString()
+        })
+      });
+
+      if (!checkResponse.ok) {
+        throw new Error('Failed to check booking availability');
+      }
+
+      const availabilityData = await checkResponse.json();
+
+      // If available is false, it means the slot is taken
+      if (!availabilityData.available) {
+        setTimeSlotAvailable(false);
+        setSubmitStatus({
+          type: 'error',
+          message: availabilityData.message || 'Time slot unavailable. Kindly choose another time slot.'
+        });
+        return false;
+      }
+
+      // If we get here, the time slot is available
+      setTimeSlotAvailable(true);
+      return true;
+
+    } catch (error) {
+      console.error('Time slot verification error:', error);
+      setTimeSlotAvailable(false);
+      setSubmitStatus({
+        type: 'error',
+        message: 'Error verifying time slot availability. Please try again.'
+      });
+      return false;
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+
+  // Modified handleSubmit to check time slot availability before payment
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus({ type: '', message: '' });
 
@@ -205,15 +280,22 @@ const MinkLashes = () => {
       return;
     }
 
-    // The actual form submission will happen in handlePaystackSuccess after payment
-    setLoading(false); // We don't set loading true here since Paystack handles its own loading
+    // Check time slot availability before payment
+    const isAvailable = await checkTimeSlotAvailability();
+
+    if (!isAvailable) {
+      return; // Stop here if time slot is not available
+    }
+
+    // If time slot is available, proceed to payment
+    setShouldTriggerPayment(true);
   };
 
   // Paystack component props with GHS currency
   const paystackProps = {
     email: formData.email,
     amount: getPaymentAmount(),
-    currency: "GHS", // Add GHS currency
+    currency: "GHS",
     metadata: {
       name: formData.name,
       phone: formData.phone,
@@ -247,6 +329,10 @@ const MinkLashes = () => {
       formData.date &&
       formData.time &&
       selectedProductDetails;
+  };
+
+  const canProceedToPayment = () => {
+    return isFormValid() && timeSlotAvailable === true;
   };
 
   const sortProductsByPrice = (productsArray) => {
@@ -552,22 +638,23 @@ const MinkLashes = () => {
                   rows="4"
                 />
               </div>
-
               {submitStatus.message && (
                 <div className={`submit-message ${submitStatus.type}`}>
                   {submitStatus.message}
                 </div>
               )}
 
-              {/* Paystack Payment Button - replaces the original submit button */}
-              {isFormValid() ? (
-                <PaystackButton
-                  {...paystackProps}
-                  className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
-                />
+              {/* Paystack Payment Button - only show when form is valid and time slot is available */}
+              {canProceedToPayment() ? (
+                <div className="payment-section">
+                  <PaystackButton
+                    {...paystackProps}
+                    className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
+                  />
+                </div>
               ) : (
-                <button type="submit" className="submit-btn" disabled={loading}>
-                  {loading ? 'Submitting...' : 'Submit Booking'}
+                <button type="submit" className="submit-btn" disabled={loading || checkingAvailability}>
+                  {checkingAvailability ? 'Checking Availability...' : 'Proceed to Payment'}
                 </button>
               )}
             </form>

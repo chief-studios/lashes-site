@@ -23,6 +23,9 @@ const ClusterLashes = () => {
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
+  const [timeSlotAvailable, setTimeSlotAvailable] = useState(null); // null = not checked, true = available, false = unavailable
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -48,6 +51,22 @@ const ClusterLashes = () => {
     }
   }, [formData.date]);
 
+  // Reset status when date or time changes
+  useEffect(() => {
+    if (formData.date || formData.time) {
+      setSubmitStatus({ type: '', message: '' });
+      setTimeSlotAvailable(null); // Reset availability check when date/time changes
+    }
+  }, [formData.date, formData.time]);
+
+  // Trigger payment when shouldTriggerPayment becomes true
+  useEffect(() => {
+    if (shouldTriggerPayment) {
+      setShouldTriggerPayment(false);
+      // The PaystackButton will automatically trigger since we're using the component directly
+    }
+  }, [shouldTriggerPayment]);
+
   const handleSelectProduct = (productName) => {
     const product = products.find(p => p.name === productName);
     setSelectedProductDetails(product);
@@ -66,6 +85,7 @@ const ClusterLashes = () => {
       [name]: value
     }));
     setSubmitStatus({ type: '', message: '' });
+    setTimeSlotAvailable(null); // Reset availability check when any field changes
   };
 
   const handleColorChange = (e) => {
@@ -108,7 +128,7 @@ const ClusterLashes = () => {
     const price = typeof selectedProductDetails.price === 'number'
       ? selectedProductDetails.price
       : parseFloat(selectedProductDetails.price) || 0;
-    return price * 100; // Convert to pesewas
+    return price * 100; // Convert to pesewas (for GHS)
   };
 
   // Paystack success callback - this is where we submit the booking after successful payment
@@ -161,6 +181,7 @@ const ClusterLashes = () => {
         setSelectedColor('');
         setSelectedProductDetails(null);
         setAvailableTimeSlots([]);
+        setTimeSlotAvailable(null);
 
         setTimeout(() => {
           navigate('/');
@@ -189,8 +210,62 @@ const ClusterLashes = () => {
     });
   };
 
-  // Modified handleSubmit to trigger Paystack payment instead of direct booking
-  const handleSubmit = (e) => {
+  // Check if time slot is available by querying existing bookings
+  const checkTimeSlotAvailability = async () => {
+    try {
+      setCheckingAvailability(true);
+      setSubmitStatus({ type: '', message: '' });
+
+      const [hours, minutes] = formData.time.split(':');
+      const bookingDateTime = new Date(formData.date);
+      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      // Check if there's already a booking for this time slot
+      const checkResponse = await fetch(`http://localhost:5000/api/bookings/check-booking-availability`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingTime: bookingDateTime.toISOString()
+        })
+      });
+
+      if (!checkResponse.ok) {
+        throw new Error('Failed to check booking availability');
+      }
+
+      const availabilityData = await checkResponse.json();
+
+      // If available is false, it means the slot is taken
+      if (!availabilityData.available) {
+        setTimeSlotAvailable(false);
+        setSubmitStatus({
+          type: 'error',
+          message: availabilityData.message || 'Time slot unavailable. Kindly choose another time slot.'
+        });
+        return false;
+      }
+
+      // If we get here, the time slot is available
+      setTimeSlotAvailable(true);
+      return true;
+
+    } catch (error) {
+      console.error('Time slot verification error:', error);
+      setTimeSlotAvailable(false);
+      setSubmitStatus({
+        type: 'error',
+        message: 'Error verifying time slot availability. Please try again.'
+      });
+      return false;
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+
+  // Modified handleSubmit to check time slot availability before payment
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus({ type: '', message: '' });
 
@@ -205,8 +280,15 @@ const ClusterLashes = () => {
       return;
     }
 
-    // The actual form submission will happen in handlePaystackSuccess after payment
-    setLoading(false);
+    // Check time slot availability before payment
+    const isAvailable = await checkTimeSlotAvailability();
+
+    if (!isAvailable) {
+      return; // Stop here if time slot is not available
+    }
+
+    // If time slot is available, proceed to payment
+    setShouldTriggerPayment(true);
   };
 
   // Paystack component props with GHS currency
@@ -249,7 +331,10 @@ const ClusterLashes = () => {
       selectedProductDetails;
   };
 
-  // Helper function to sort products by price in ascending order
+  const canProceedToPayment = () => {
+    return isFormValid() && timeSlotAvailable === true;
+  };
+
   const sortProductsByPrice = (productsArray) => {
     return productsArray.sort((a, b) => {
       const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price) || 0;
@@ -258,7 +343,6 @@ const ClusterLashes = () => {
     });
   };
 
-  // Check if selected product is a color lash product
   const isColorLashProduct = formData.product.toLowerCase().includes('color');
 
   return (
@@ -278,17 +362,15 @@ const ClusterLashes = () => {
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
           {(() => {
-            // Filter cluster products by type property
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
+            const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');
 
-            // Group by type property and separate main styles from extras
             const groups = {
-              classic: clusterProducts.filter(p => p.type === 'cluster classic'),
-              hybrid: clusterProducts.filter(p => p.type === 'cluster hybrid'),
-              volume: clusterProducts.filter(p => p.type === 'cluster volume'),
+              classic: filteredClusterProducts.filter(p => p.type === 'cluster classic'),
+              hybrid: filteredClusterProducts.filter(p => p.type === 'cluster hybrid'),
+              volume: filteredClusterProducts.filter(p => p.type === 'cluster volume'),
             };
 
-            // Helper function to separate main styles from extras
             const separateStylesAndExtras = (items) => {
               const mainStyles = items.filter(p => p.extra !== 'yes');
               const extras = items.filter(p => p.extra === 'yes');
@@ -341,8 +423,6 @@ const ClusterLashes = () => {
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
             const items = groups[selectedGroup] || [];
             const { mainStyles, extras } = separateStylesAndExtras(items);
-
-            // Sort main styles by price in ascending order
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
 
             return (
@@ -352,64 +432,66 @@ const ClusterLashes = () => {
                 </button>
                 <h3 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem' }}>{mapKeyToTitle[selectedGroup]}</h3>
 
-                {/* Main Styles - Now sorted by price */}
                 {sortedMainStyles.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}></h4>
                     <div className="products-grid">
-                      {sortedMainStyles.map(product => (
-                        <div
-                          key={product.id}
-                          className="product-card"
-                          onClick={() => handleSelectProduct(product.name)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
-                        >
-                          <div className="product-image">
-                            <img src={product.image} alt={product.name} />
-                          </div>
-                          <div className="product-info">
-                            <h3>{product.name}</h3>
-                            <p className="product-description">{product.description}</p>
-                            <div className="product-details">
-                              <span className="duration">{product.duration}</span>
-                              <span className="price">₵{product.price}</span>
+                      {sortedMainStyles
+                        .filter(p => p.poster !== 'yes')
+                        .map(product => (
+                          <div
+                            key={product.id}
+                            className="product-card"
+                            onClick={() => handleSelectProduct(product.name)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                          >
+                            <div className="product-image">
+                              <img src={product.image} alt={product.name} />
+                            </div>
+                            <div className="product-info">
+                              <h3>{product.name}</h3>
+                              <p className="product-description">{product.description}</p>
+                              <div className="product-details">
+                                <span className="duration">{product.duration}</span>
+                                <span className="price">₵{product.price}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </>
                 )}
 
-                {/* Extras */}
                 {extras.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Extras</h4>
                     <div className="products-grid">
-                      {extras.map(product => (
-                        <div
-                          key={product.id}
-                          className="product-card"
-                          onClick={() => handleSelectProduct(product.name)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
-                        >
-                          <div className="product-image">
-                            <img src={product.image} alt={product.name} />
-                          </div>
-                          <div className="product-info">
-                            <h3>{product.name}</h3>
-                            <p className="product-description">{product.description}</p>
-                            <div className="product-details">
-                              <span className="duration">{product.duration}</span>
-                              <span className="price">₵{product.price}</span>
+                      {extras
+                        .filter(p => p.poster !== 'yes')
+                        .map(product => (
+                          <div
+                            key={product.id}
+                            className="product-card"
+                            onClick={() => handleSelectProduct(product.name)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                          >
+                            <div className="product-image">
+                              <img src={product.image} alt={product.name} />
+                            </div>
+                            <div className="product-info">
+                              <h3>{product.name}</h3>
+                              <p className="product-description">{product.description}</p>
+                              <div className="product-details">
+                                <span className="duration">{product.duration}</span>
+                                <span className="price">₵{product.price}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </>
                 )}
@@ -451,7 +533,6 @@ const ClusterLashes = () => {
                 />
               </div>
 
-              {/* Color selection dropdown for color lash products */}
               {isColorLashProduct && (
                 <div className="form-group">
                   <label htmlFor="color">Select Color *</label>
@@ -546,7 +627,6 @@ const ClusterLashes = () => {
                 </div>
               </div>
 
-              {/* Comments field */}
               <div className="form-group">
                 <label htmlFor="comments">Additional Comments (Optional)</label>
                 <textarea
@@ -558,22 +638,23 @@ const ClusterLashes = () => {
                   rows="4"
                 />
               </div>
-
               {submitStatus.message && (
                 <div className={`submit-message ${submitStatus.type}`}>
                   {submitStatus.message}
                 </div>
               )}
 
-              {/* Paystack Payment Button - replaces the original submit button */}
-              {isFormValid() ? (
-                <PaystackButton
-                  {...paystackProps}
-                  className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
-                />
+              {/* Paystack Payment Button - only show when form is valid and time slot is available */}
+              {canProceedToPayment() ? (
+                <div className="payment-section">
+                  <PaystackButton
+                    {...paystackProps}
+                    className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
+                  />
+                </div>
               ) : (
-                <button type="submit" className="submit-btn" disabled={loading}>
-                  {loading ? 'Submitting...' : 'Submit Booking'}
+                <button type="submit" className="submit-btn" disabled={loading || checkingAvailability}>
+                  {checkingAvailability ? 'Checking Availability...' : 'Proceed to Payment'}
                 </button>
               )}
             </form>
