@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PaystackButton } from 'react-paystack';
 import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
 import '../styles/base.css';
@@ -21,12 +22,16 @@ const MinkLashes = () => {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(''); // NEW: Separate state for color selection
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedProductDetails, setSelectedProductDetails] = useState(null);
 
-  // NEW: Available colors for color lashes
+  // Paystack configuration
+  const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
+
   const availableColors = [
     { value: 'pink', label: 'Pink' },
     { value: 'green', label: 'Green' },
@@ -44,9 +49,9 @@ const MinkLashes = () => {
   }, [formData.date]);
 
   const handleSelectProduct = (productName) => {
+    const product = products.find(p => p.name === productName);
+    setSelectedProductDetails(product);
     setFormData(prev => ({ ...prev, product: productName }));
-
-    // NEW: Reset color selection when a new product is selected
     setSelectedColor('');
 
     if (bookingFormRef.current) {
@@ -63,27 +68,21 @@ const MinkLashes = () => {
     setSubmitStatus({ type: '', message: '' });
   };
 
-  // NEW: Handle color selection
   const handleColorChange = (e) => {
     const color = e.target.value;
     setSelectedColor(color);
 
-    // Update comments to include the selected color
     if (color) {
       const colorComment = `Color: ${color.charAt(0).toUpperCase() + color.slice(1)}`;
-
-      // Check if there's already a color comment and replace it, or add it to existing comments
       const existingComments = formData.comments;
       const colorRegex = /Color:\s*\w+/i;
 
       if (colorRegex.test(existingComments)) {
-        // Replace existing color comment
         setFormData(prev => ({
           ...prev,
           comments: existingComments.replace(colorRegex, colorComment)
         }));
       } else {
-        // Add new color comment to existing comments
         const separator = existingComments ? '\n' : '';
         setFormData(prev => ({
           ...prev,
@@ -91,7 +90,6 @@ const MinkLashes = () => {
         }));
       }
     } else {
-      // Remove color comment if no color is selected
       const existingComments = formData.comments;
       const colorRegex = /Color:\s*\w+/i;
 
@@ -104,9 +102,18 @@ const MinkLashes = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  // Calculate amount in pesewas (Paystack uses smallest currency unit)
+  const getPaymentAmount = () => {
+    if (!selectedProductDetails || !selectedProductDetails.price) return 0;
+    const price = typeof selectedProductDetails.price === 'number'
+      ? selectedProductDetails.price
+      : parseFloat(selectedProductDetails.price) || 0;
+    return price * 100; // Convert to pesewas (for GHS)
+  };
+
+  // Paystack success callback - this is where we submit the booking after successful payment
+  const handlePaystackSuccess = async (reference) => {
+    setPaymentProcessing(true);
     setSubmitStatus({ type: '', message: '' });
 
     try {
@@ -125,14 +132,23 @@ const MinkLashes = () => {
           email: formData.email,
           service: formData.product || 'Mink Lashes',
           bookingTime: bookingDateTime.toISOString(),
-          comments: formData.comments
+          comments: formData.comments,
+          paymentReference: reference.reference,
+          amount: getPaymentAmount() / 100, // Convert back to cedis
+          paymentStatus: 'completed',
+          currency: 'GHS'
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSubmitStatus({ type: 'success', message: data.message || 'Booking submitted successfully! We will confirm your appointment soon.' });
+        setSubmitStatus({
+          type: 'success',
+          message: 'Payment successful! Booking confirmed. We will contact you soon.'
+        });
+
+        // Reset form
         setFormData({
           name: '',
           phone: '',
@@ -142,32 +158,105 @@ const MinkLashes = () => {
           time: '',
           comments: ''
         });
-        setSelectedColor(''); // NEW: Reset color selection
+        setSelectedColor('');
+        setSelectedProductDetails(null);
         setAvailableTimeSlots([]);
+
         setTimeout(() => {
           navigate('/');
-        }, 2000);
+        }, 5000);
       } else {
-        setSubmitStatus({ type: 'error', message: data.message || 'Error submitting booking. Please try again.' });
+        setSubmitStatus({
+          type: 'error',
+          message: `Payment successful but booking failed: ${data.message || 'Please contact us with your payment reference.'}`
+        });
       }
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
+      setSubmitStatus({
+        type: 'error',
+        message: `Payment successful but booking failed. Please contact us with reference: ${reference.reference}`
+      });
     } finally {
-      setLoading(false);
+      setPaymentProcessing(false);
     }
   };
 
-  // Helper function to sort products by price in ascending order
+  // Paystack close callback
+  const handlePaystackClose = () => {
+    setSubmitStatus({
+      type: 'info',
+      message: 'Payment was not completed. You can try again when ready.'
+    });
+  };
+
+  // Modified handleSubmit to trigger Paystack payment instead of direct booking
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitStatus({ type: '', message: '' });
+
+    // Form validation
+    if (!formData.name || !formData.phone || !formData.email || !formData.product || !formData.date || !formData.time) {
+      setSubmitStatus({ type: 'error', message: 'Please fill in all required fields.' });
+      return;
+    }
+
+    if (!selectedProductDetails) {
+      setSubmitStatus({ type: 'error', message: 'Please select a product from the list above.' });
+      return;
+    }
+
+    // The actual form submission will happen in handlePaystackSuccess after payment
+    setLoading(false); // We don't set loading true here since Paystack handles its own loading
+  };
+
+  // Paystack component props with GHS currency
+  const paystackProps = {
+    email: formData.email,
+    amount: getPaymentAmount(),
+    currency: "GHS", // Add GHS currency
+    metadata: {
+      name: formData.name,
+      phone: formData.phone,
+      product: formData.product,
+      bookingDate: formData.date,
+      bookingTime: formData.time,
+      custom_fields: [
+        {
+          display_name: "Service",
+          variable_name: "service",
+          value: formData.product
+        },
+        {
+          display_name: "Booking Date",
+          variable_name: "booking_date",
+          value: formData.date
+        }
+      ]
+    },
+    publicKey: paystackPublicKey,
+    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${selectedProductDetails?.price || '0'} Now`,
+    onSuccess: (reference) => handlePaystackSuccess(reference),
+    onClose: handlePaystackClose,
+  };
+
+  const isFormValid = () => {
+    return formData.name &&
+      formData.phone &&
+      formData.email &&
+      formData.product &&
+      formData.date &&
+      formData.time &&
+      selectedProductDetails;
+  };
+
   const sortProductsByPrice = (productsArray) => {
     return productsArray.sort((a, b) => {
-      // Convert prices to numbers for proper comparison
       const priceA = typeof a.price === 'number' ? a.price : parseFloat(a.price) || 0;
       const priceB = typeof b.price === 'number' ? b.price : parseFloat(b.price) || 0;
       return priceA - priceB;
     });
   };
 
-  // NEW: Check if selected product is a color lash product
   const isColorLashProduct = formData.product.toLowerCase().includes('color');
 
   return (
@@ -187,13 +276,9 @@ const MinkLashes = () => {
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
           {(() => {
-            // Filter mink products by type property
             const minkProducts = products.filter(p => p.type && p.type.toLowerCase().includes('mink'));
-
-            // Exclude products marked as posters
             const filteredMinkProducts = minkProducts.filter(p => p.poster !== 'yes');
 
-            // Group by type property and separate main styles from extras
             const groups = {
               classic: filteredMinkProducts.filter(p => p.type === 'mink classic'),
               hybrid: filteredMinkProducts.filter(p => p.type === 'mink hybrid'),
@@ -252,8 +337,6 @@ const MinkLashes = () => {
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
             const items = groups[selectedGroup] || [];
             const { mainStyles, extras } = separateStylesAndExtras(items);
-
-            // Sort main styles by price in ascending order
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
 
             return (
@@ -263,7 +346,6 @@ const MinkLashes = () => {
                 </button>
                 <h3 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem' }}>{mapKeyToTitle[selectedGroup]}</h3>
 
-                {/* Main Styles - Now sorted by price */}
                 {sortedMainStyles.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}></h4>
@@ -296,7 +378,6 @@ const MinkLashes = () => {
                   </>
                 )}
 
-                {/* Extras - You can also sort these by price if desired */}
                 {extras.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Extras</h4>
@@ -336,6 +417,22 @@ const MinkLashes = () => {
         {selectedGroup && (
           <div className="booking-section" ref={bookingFormRef}>
             <h2>Book Your Mink Lashes</h2>
+
+            {/* Order Summary */}
+            {selectedProductDetails && (
+              <div className="order-summary">
+                <h3>Order Summary</h3>
+                <div className="summary-content">
+                  <p><strong>Service:</strong> {selectedProductDetails.name}</p>
+                  <p><strong>Price:</strong> ₵{selectedProductDetails.price}</p>
+                  <p><strong>Duration:</strong> {selectedProductDetails.duration}</p>
+                  {selectedColor && (
+                    <p><strong>Color:</strong> {selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
             <form className="booking-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="product">Selected Product</label>
@@ -346,10 +443,10 @@ const MinkLashes = () => {
                   value={formData.product}
                   onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
                   placeholder="Choose a product above or enter here"
+                  readOnly
                 />
               </div>
 
-              {/* NEW: Color selection dropdown for color lash products */}
               {isColorLashProduct && (
                 <div className="form-group">
                   <label htmlFor="color">Select Color *</label>
@@ -444,7 +541,6 @@ const MinkLashes = () => {
                 </div>
               </div>
 
-              {/* Comments field */}
               <div className="form-group">
                 <label htmlFor="comments">Additional Comments (Optional)</label>
                 <textarea
@@ -463,9 +559,17 @@ const MinkLashes = () => {
                 </div>
               )}
 
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Booking'}
-              </button>
+              {/* Paystack Payment Button - replaces the original submit button */}
+              {isFormValid() ? (
+                <PaystackButton
+                  {...paystackProps}
+                  className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
+                />
+              ) : (
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? 'Submitting...' : 'Submit Booking'}
+                </button>
+              )}
             </form>
           </div>
         )}
