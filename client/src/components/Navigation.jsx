@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import bestLashesLogo from '../images/Best lashes Logo BG Black.png';
+import bestLashesLogo from '../images/Best EyeLash Logo New - big.png';
 import '../styles/base.css';
 import '../styles/navigation.css';
 
@@ -30,7 +30,7 @@ const Navigation = () => {
     <nav className="navigation">
       <div className="nav-container">
         <div className="nav-brand" onClick={() => navigate('/')}>
-          <h1>Best Lashes</h1>
+          <img src={bestLashesLogo} alt="Best Lashes logo" className="brand-logo" />
         </div>
 
         <div className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>

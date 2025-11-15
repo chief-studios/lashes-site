@@ -32,12 +32,8 @@
   transform: scale(1.05);
 }
 
-.nav-brand h1{
-  font-size: 2rem;
-}
-
 .brand-logo {
-  height: 50px;
+  height: 80px;
   width: auto;
   object-fit: contain;
   transition: var(--transition-smooth);
