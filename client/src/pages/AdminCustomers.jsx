@@ -17,8 +17,8 @@ const AdminCustomers = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const url = searchTerm
-        ? `http://localhost:5000/api/customers?search=${encodeURIComponent(searchTerm)}`
-        : 'http://localhost:5000/api/customers';
+        ? `https://lashes-site.onrender.com/api/customers?search=${encodeURIComponent(searchTerm)}`
+        : 'https://lashes-site.onrender.com/api/customers';
       
       const response = await fetch(url, {
         headers: {
@@ -40,7 +40,7 @@ const AdminCustomers = () => {
   const fetchCustomerDetails = async (customerId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`https://lashes-site.onrender.com/api/customers/${customerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -61,7 +61,7 @@ const AdminCustomers = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/customers/sync', {
+      const response = await fetch('https://lashes-site.onrender.com/api/customers/sync', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

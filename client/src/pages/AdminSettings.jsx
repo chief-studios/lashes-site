@@ -40,7 +40,7 @@ const AdminSettings = () => {
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/settings/admin', {
+      const response = await fetch('https://lashes-site.onrender.com/api/settings/admin', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -72,7 +72,7 @@ const AdminSettings = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/settings', {
+      const response = await fetch('https://lashes-site.onrender.com/api/settings', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

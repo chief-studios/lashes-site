@@ -39,7 +39,7 @@ const AdminDashboard = () => {
     setLoginError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('https://lashes-site.onrender.com/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('adminToken');
       
       // Fetch bookings
-      const bookingsResponse = await fetch('http://localhost:5000/api/bookings', {
+      const bookingsResponse = await fetch('https://lashes-site.onrender.com/api/bookings', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch time slots (we'll create this endpoint)
-      const timeSlotsResponse = await fetch('http://localhost:5000/api/time-slots', {
+      const timeSlotsResponse = await fetch('https://lashes-site.onrender.com/api/time-slots', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
   const handleUpdateBookingStatus = async (bookingId, status) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}/status`, {
+      const response = await fetch(`https://lashes-site.onrender.com/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

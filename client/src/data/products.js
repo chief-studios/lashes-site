@@ -49,7 +49,7 @@ export const products = [
         id: 2,
         name: "Cat Eye",
         description: "Elegant cat eye style with cluster classic lash extensions",
-        price: 20,
+        price: 120,
         duration: "5 mins",
         image: clusterClassicCatEye,
         type: "cluster classic",

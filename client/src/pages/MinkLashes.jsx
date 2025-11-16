@@ -227,7 +227,7 @@ const MinkLashes = () => {
         }
       }
 
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      const response = await fetch('https://lashes-site.onrender.com/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ const MinkLashes = () => {
       const bookingDateTime = new Date(formData.date);
       bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      const checkResponse = await fetch(`http://localhost:5000/api/bookings/check-booking-availability`, {
+      const checkResponse = await fetch(`https://lashes-site.onrender.com/api/bookings/check-booking-availability`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
