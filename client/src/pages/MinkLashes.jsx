@@ -25,12 +25,13 @@ const MinkLashes = () => {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
-  const [timeSlotAvailable, setTimeSlotAvailable] = useState(null); // null = not checked, true = available, false = unavailable
+  const [timeSlotAvailable, setTimeSlotAvailable] = useState(null);
   const bookingFormRef = useRef(null);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
+  const [selectedExtras, setSelectedExtras] = useState([]);
 
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
@@ -55,7 +56,7 @@ const MinkLashes = () => {
   useEffect(() => {
     if (formData.date || formData.time) {
       setSubmitStatus({ type: '', message: '' });
-      setTimeSlotAvailable(null); // Reset availability check when date/time changes
+      setTimeSlotAvailable(null);
     }
   }, [formData.date, formData.time]);
 
@@ -63,7 +64,6 @@ const MinkLashes = () => {
   useEffect(() => {
     if (shouldTriggerPayment) {
       setShouldTriggerPayment(false);
-      // The PaystackButton will automatically trigger since we're using the component directly
     }
   }, [shouldTriggerPayment]);
 
@@ -72,10 +72,50 @@ const MinkLashes = () => {
     setSelectedProductDetails(product);
     setFormData(prev => ({ ...prev, product: productName }));
     setSelectedColor('');
+  };
 
-    if (bookingFormRef.current) {
-      bookingFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // NEW: Handle extra selection
+  const handleSelectExtra = (productName, isSelected) => {
+    const product = products.find(p => p.name === productName);
+
+    if (isSelected) {
+      setSelectedExtras(prev => [...prev, product]);
+    } else {
+      setSelectedExtras(prev => prev.filter(p => p.name !== productName));
+      // If color lashes extra is deselected, remove the color selection and comment
+      if (isColorLashExtra(productName)) {
+        setSelectedColor('');
+        removeColorComment();
+      }
     }
+  };
+
+  // NEW: Function to remove color comment from comments
+  const removeColorComment = () => {
+    const existingComments = formData.comments;
+    const colorRegex = /Color:\s*\w+/i;
+
+    if (colorRegex.test(existingComments)) {
+      setFormData(prev => ({
+        ...prev,
+        comments: existingComments.replace(colorRegex, '').trim()
+      }));
+    }
+  };
+
+  // NEW: Check if an extra is selected
+  const isExtraSelected = (productName) => {
+    return selectedExtras.some(extra => extra.name === productName);
+  };
+
+  // NEW: Check if the selected extra is a color lash product
+  const isColorLashExtra = (productName) => {
+    return productName.toLowerCase().includes('color');
+  };
+
+  // NEW: Check if any selected extra is a color lash
+  const hasColorLashExtra = () => {
+    return selectedExtras.some(extra => isColorLashExtra(extra.name));
   };
 
   const handleInputChange = (e) => {
@@ -85,15 +125,16 @@ const MinkLashes = () => {
       [name]: value
     }));
     setSubmitStatus({ type: '', message: '' });
-    setTimeSlotAvailable(null); // Reset availability check when any field changes
+    setTimeSlotAvailable(null);
   };
 
+  // UPDATED: Color change handler that adds to comments
   const handleColorChange = (e) => {
     const color = e.target.value;
     setSelectedColor(color);
 
     if (color) {
-      const colorComment = `Color: ${color.charAt(0).toUpperCase() + color.slice(1)}`;
+      const colorComment = `Color: ${availableColors.find(c => c.value === color)?.label}`;
       const existingComments = formData.comments;
       const colorRegex = /Color:\s*\w+/i;
 
@@ -110,28 +151,58 @@ const MinkLashes = () => {
         }));
       }
     } else {
-      const existingComments = formData.comments;
-      const colorRegex = /Color:\s*\w+/i;
-
-      if (colorRegex.test(existingComments)) {
-        setFormData(prev => ({
-          ...prev,
-          comments: existingComments.replace(colorRegex, '').trim()
-        }));
-      }
+      // Remove color comment if color is deselected
+      removeColorComment();
     }
   };
 
-  // Calculate amount in pesewas (Paystack uses smallest currency unit)
+  // UPDATED: Calculate total amount including extras
   const getPaymentAmount = () => {
-    if (!selectedProductDetails || !selectedProductDetails.price) return 0;
-    const price = typeof selectedProductDetails.price === 'number'
-      ? selectedProductDetails.price
-      : parseFloat(selectedProductDetails.price) || 0;
-    return price * 100; // Convert to pesewas (for GHS)
+    let total = 0;
+
+    if (selectedProductDetails && selectedProductDetails.price) {
+      const price = typeof selectedProductDetails.price === 'number'
+        ? selectedProductDetails.price
+        : parseFloat(selectedProductDetails.price) || 0;
+      total += price;
+    }
+
+    selectedExtras.forEach(extra => {
+      if (extra.price) {
+        const price = typeof extra.price === 'number'
+          ? extra.price
+          : parseFloat(extra.price) || 0;
+        total += price;
+      }
+    });
+
+    return total * 100;
   };
 
-  // Paystack success callback - this is where we submit the booking after successful payment
+  // NEW: Get total price for display
+  const getTotalPrice = () => {
+    let total = 0;
+
+    if (selectedProductDetails && selectedProductDetails.price) {
+      const price = typeof selectedProductDetails.price === 'number'
+        ? selectedProductDetails.price
+        : parseFloat(selectedProductDetails.price) || 0;
+      total += price;
+    }
+
+    selectedExtras.forEach(extra => {
+      if (extra.price) {
+        const price = typeof extra.price === 'number'
+          ? extra.price
+          : parseFloat(extra.price) || 0;
+        total += price;
+      }
+    });
+
+    return total;
+  };
+
+  // UPDATED: Paystack success callback to include extras in comments
   const handlePaystackSuccess = async (reference) => {
     setPaymentProcessing(true);
     setSubmitStatus({ type: '', message: '' });
@@ -140,6 +211,21 @@ const MinkLashes = () => {
       const [hours, minutes] = formData.time.split(':');
       const bookingDateTime = new Date(formData.date);
       bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      let comments = formData.comments;
+
+      // Build comments including extras
+      if (selectedExtras.length > 0) {
+        const extraNames = selectedExtras.map(extra => extra.name).join(', ');
+        const extrasComment = `Extras: ${extraNames}`;
+
+        // Combine existing comments with extras comment
+        if (comments && !comments.includes('Extras:')) {
+          comments = comments + '\n' + extrasComment;
+        } else if (!comments) {
+          comments = extrasComment;
+        }
+      }
 
       const response = await fetch('http://localhost:5000/api/bookings', {
         method: 'POST',
@@ -152,9 +238,9 @@ const MinkLashes = () => {
           email: formData.email,
           service: formData.product || 'Mink Lashes',
           bookingTime: bookingDateTime.toISOString(),
-          comments: formData.comments,
+          comments: comments,
           paymentReference: reference.reference,
-          amount: getPaymentAmount() / 100, // Convert back to cedis
+          amount: getPaymentAmount() / 100,
           paymentStatus: 'completed',
           currency: 'GHS'
         })
@@ -180,6 +266,7 @@ const MinkLashes = () => {
         });
         setSelectedColor('');
         setSelectedProductDetails(null);
+        setSelectedExtras([]);
         setAvailableTimeSlots([]);
         setTimeSlotAvailable(null);
 
@@ -220,7 +307,6 @@ const MinkLashes = () => {
       const bookingDateTime = new Date(formData.date);
       bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      // Check if there's already a booking for this time slot
       const checkResponse = await fetch(`http://localhost:5000/api/bookings/check-booking-availability`, {
         method: 'POST',
         headers: {
@@ -237,7 +323,6 @@ const MinkLashes = () => {
 
       const availabilityData = await checkResponse.json();
 
-      // If available is false, it means the slot is taken
       if (!availabilityData.available) {
         setTimeSlotAvailable(false);
         setSubmitStatus({
@@ -247,7 +332,6 @@ const MinkLashes = () => {
         return false;
       }
 
-      // If we get here, the time slot is available
       setTimeSlotAvailable(true);
       return true;
 
@@ -264,34 +348,37 @@ const MinkLashes = () => {
     }
   };
 
-  // Modified handleSubmit to check time slot availability before payment
+  // UPDATED: Modified handleSubmit to check time slot availability before payment
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus({ type: '', message: '' });
 
-    // Form validation
     if (!formData.name || !formData.phone || !formData.email || !formData.product || !formData.date || !formData.time) {
       setSubmitStatus({ type: 'error', message: 'Please fill in all required fields.' });
       return;
     }
 
     if (!selectedProductDetails) {
-      setSubmitStatus({ type: 'error', message: 'Please select a product from the list above.' });
+      setSubmitStatus({ type: 'error', message: 'Please select a main style from the list above.' });
       return;
     }
 
-    // Check time slot availability before payment
+    // NEW: Check if color lashes extra is selected but no color is chosen
+    if (hasColorLashExtra() && !selectedColor) {
+      setSubmitStatus({ type: 'error', message: 'Please select a color for your color lashes extra.' });
+      return;
+    }
+
     const isAvailable = await checkTimeSlotAvailability();
 
     if (!isAvailable) {
-      return; // Stop here if time slot is not available
+      return;
     }
 
-    // If time slot is available, proceed to payment
     setShouldTriggerPayment(true);
   };
 
-  // Paystack component props with GHS currency
+  // UPDATED: Paystack component props with GHS currency
   const paystackProps = {
     email: formData.email,
     amount: getPaymentAmount(),
@@ -316,7 +403,7 @@ const MinkLashes = () => {
       ]
     },
     publicKey: paystackPublicKey,
-    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${selectedProductDetails?.price || '0'} Now`,
+    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${getTotalPrice()} Now`,
     onSuccess: (reference) => handlePaystackSuccess(reference),
     onClose: handlePaystackClose,
   };
@@ -328,7 +415,9 @@ const MinkLashes = () => {
       formData.product &&
       formData.date &&
       formData.time &&
-      selectedProductDetails;
+      selectedProductDetails &&
+      // NEW: Include color validation only if color lashes extra is selected
+      (!hasColorLashExtra() || selectedColor);
   };
 
   const canProceedToPayment = () => {
@@ -342,8 +431,6 @@ const MinkLashes = () => {
       return priceA - priceB;
     });
   };
-
-  const isColorLashProduct = formData.product.toLowerCase().includes('color');
 
   return (
     <div className="service-page">
@@ -434,14 +521,14 @@ const MinkLashes = () => {
 
                 {sortedMainStyles.length > 0 && (
                   <>
-                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}></h4>
+                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
                     <div className="products-grid">
                       {sortedMainStyles
                         .filter(p => p.poster !== 'yes')
                         .map(product => (
                           <div
                             key={product.id}
-                            className="product-card"
+                            className={`product-card ${selectedProductDetails?.name === product.name ? 'selected' : ''}`}
                             onClick={() => handleSelectProduct(product.name)}
                             role="button"
                             tabIndex={0}
@@ -466,28 +553,37 @@ const MinkLashes = () => {
 
                 {extras.length > 0 && (
                   <>
-                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Extras</h4>
+                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Optional Extras</h4>
+                    <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
                     <div className="products-grid">
                       {extras
                         .filter(p => p.poster !== 'yes')
                         .map(product => (
                           <div
                             key={product.id}
-                            className="product-card"
-                            onClick={() => handleSelectProduct(product.name)}
+                            className={`product-card extra-card ${isExtraSelected(product.name) ? 'selected' : ''}`}
+                            onClick={() => handleSelectExtra(product.name, !isExtraSelected(product.name))}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectExtra(product.name, !isExtraSelected(product.name)); } }}
                           >
                             <div className="product-image">
                               <img src={product.image} alt={product.name} />
+                              <div className="extra-checkbox">
+                                <input
+                                  type="checkbox"
+                                  checked={isExtraSelected(product.name)}
+                                  onChange={(e) => handleSelectExtra(product.name, e.target.checked)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
                             </div>
                             <div className="product-info">
                               <h3>{product.name}</h3>
                               <p className="product-description">{product.description}</p>
                               <div className="product-details">
                                 <span className="duration">{product.duration}</span>
-                                <span className="price">₵{product.price}</span>
+                                <span className="price">+₵{product.price}</span>
                               </div>
                             </div>
                           </div>
@@ -504,38 +600,60 @@ const MinkLashes = () => {
           <div className="booking-section" ref={bookingFormRef}>
             <h2>Book Your Mink Lashes</h2>
 
-            {/* Order Summary */}
-            {selectedProductDetails && (
+            {/* UPDATED: Order Summary to include extras */}
+            {(selectedProductDetails || selectedExtras.length > 0) && (
               <div className="order-summary">
                 <h3>Order Summary</h3>
                 <div className="summary-content">
-                  <p><strong>Service:</strong> {selectedProductDetails.name}</p>
-                  <p><strong>Price:</strong> ₵{selectedProductDetails.price}</p>
-                  <p><strong>Duration:</strong> {selectedProductDetails.duration}</p>
-                  {selectedColor && (
-                    <p><strong>Color:</strong> {selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}</p>
+                  {selectedProductDetails && (
+                    <>
+                      <p><strong>Main Service:</strong> {selectedProductDetails.name}</p>
+                      <p><strong>Base Price:</strong> ₵{selectedProductDetails.price}</p>
+                      <p><strong>Duration:</strong> {selectedProductDetails.duration}</p>
+                    </>
                   )}
+
+                  {selectedExtras.length > 0 && (
+                    <>
+                      <p><strong>Extras:</strong></p>
+                      <ul className="extras-list">
+                        {selectedExtras.map((extra, index) => (
+                          <li key={index}>
+                            {extra.name} - +₵{extra.price}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <div className="total-section">
+                    <p><strong>Total Price:</strong> ₵{getTotalPrice()}</p>
+                  </div>
                 </div>
               </div>
             )}
 
             <form className="booking-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="product">Selected Product</label>
+                <label htmlFor="product">Selected Main Style *</label>
                 <input
                   type="text"
                   id="product"
                   name="product"
                   value={formData.product}
                   onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
-                  placeholder="Choose a product above or enter here"
+                  placeholder="Choose a main style above"
                   readOnly
                 />
+                {!selectedProductDetails && (
+                  <small className="form-hint">Please select a main style from the options above</small>
+                )}
               </div>
 
-              {isColorLashProduct && (
+              {/* NEW: Color selection only shows when color lashes extra is selected */}
+              {hasColorLashExtra() && (
                 <div className="form-group">
-                  <label htmlFor="color">Select Color *</label>
+                  <label htmlFor="color">Select Color for Color Lashes *</label>
                   <select
                     id="color"
                     name="color"
@@ -550,6 +668,9 @@ const MinkLashes = () => {
                       </option>
                     ))}
                   </select>
+                  <small className="form-hint">
+                    Please select your preferred color for the color lashes extra
+                  </small>
                 </div>
               )}
 
@@ -637,6 +758,11 @@ const MinkLashes = () => {
                   placeholder="Any special requests, allergies, or additional information you'd like us to know..."
                   rows="4"
                 />
+                <small className="form-hint">
+                  {hasColorLashExtra() && selectedColor
+                    ? `Color selection (${availableColors.find(c => c.value === selectedColor)?.label}) has been automatically added above.`
+                    : 'Your color selection will appear here when you choose a color.'}
+                </small>
               </div>
               {submitStatus.message && (
                 <div className={`submit-message ${submitStatus.type}`}>
