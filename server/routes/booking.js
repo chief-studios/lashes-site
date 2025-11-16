@@ -100,6 +100,49 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Check booking availability (public)
+router.post('/check-booking-availability', async (req, res) => {
+    try {
+        const { bookingTime } = req.body;
+
+        if (!bookingTime) {
+            return res.status(400).json({
+                message: 'Booking time is required',
+                available: false
+            });
+        }
+
+        const bookingDateTime = new Date(bookingTime);
+
+        // Check for existing bookings
+        const existingBooking = await Booking.findOne({
+            bookingTime: bookingDateTime,
+            status: { $in: ['pending', 'confirmed'] }
+        });
+
+        if (existingBooking) {
+            return res.json({
+                available: false,
+                message: 'This time slot is already booked. Please choose another time.'
+            });
+        }
+
+        // If no existing booking, time slot is available
+        res.json({
+            available: true,
+            message: 'Time slot is available'
+        });
+
+    } catch (error) {
+        console.error('Error in check-booking-availability:', error);
+        res.status(500).json({
+            message: 'Error checking booking availability',
+            error: error.message,
+            available: false
+        });
+    }
+});
+
 // Get available time slots (public)
 router.get('/available-slots', async (req, res) => {
     try {

@@ -104,7 +104,7 @@ app.use('/api/auth', require('./routes/auth'));
 // All other routes require database connection
 app.use('/api/bookings', checkDBConnection, require('./routes/booking'));
 app.use('/api/admin', checkDBConnection, require('./routes/admin'));
-app.use('/api/time-slots', checkDBConnection, require('./routes/timeSlots'));
+app.use('/api/timeslots', checkDBConnection, require('./routes/timeSlots'));
 app.use('/api/customers', checkDBConnection, require('./routes/customers'));
 app.use('/api/settings', checkDBConnection, require('./routes/settings'));
 
