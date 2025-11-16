@@ -450,6 +450,7 @@ const ClusterLashes = () => {
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
+          <p>Kindly select any style and extra you prefer. It will automatically be added to your order summary. You can select another main style and it will automatically be changed in your order summary or select an already selected extra to deselect it if you no longer prefer that extra.</p>
           {(() => {
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
             const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');
