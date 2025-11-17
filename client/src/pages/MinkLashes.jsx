@@ -236,7 +236,7 @@ const MinkLashes = () => {
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          service: formData.product || 'Mink Lashes',
+          service: `Mink Lashes ${formData.product}` || 'Mink Lashes',
           bookingTime: bookingDateTime.toISOString(),
           comments: comments,
           paymentReference: reference.reference,
