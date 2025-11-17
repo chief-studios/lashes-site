@@ -67,23 +67,23 @@ const MinkLashes = () => {
     }
   }, [shouldTriggerPayment]);
 
-  const handleSelectProduct = (productName) => {
-    const product = products.find(p => p.name === productName);
+  const handleSelectProduct = (productId) => {
+    const product = products.find(p => p.id === productId);
     setSelectedProductDetails(product);
-    setFormData(prev => ({ ...prev, product: productName }));
+    setFormData(prev => ({ ...prev, product: product?.name || '' }));
     setSelectedColor('');
   };
 
   // NEW: Handle extra selection
-  const handleSelectExtra = (productName, isSelected) => {
-    const product = products.find(p => p.name === productName);
+  const handleSelectExtra = (productId, isSelected) => {
+    const product = products.find(p => p.id === productId);
 
     if (isSelected) {
       setSelectedExtras(prev => [...prev, product]);
     } else {
-      setSelectedExtras(prev => prev.filter(p => p.name !== productName));
+      setSelectedExtras(prev => prev.filter(p => p.id !== productId));
       // If color lashes extra is deselected, remove the color selection and comment
-      if (isColorLashExtra(productName)) {
+      if (isColorLashExtra(product?.name)) {
         setSelectedColor('');
         removeColorComment();
       }
@@ -103,9 +103,9 @@ const MinkLashes = () => {
     }
   };
 
-  // NEW: Check if an extra is selected
-  const isExtraSelected = (productName) => {
-    return selectedExtras.some(extra => extra.name === productName);
+  // Check if an extra is selected
+  const isExtraSelected = (productId) => {
+    return selectedExtras.some(extra => extra.id === productId);
   };
 
   // NEW: Check if the selected extra is a color lash product
@@ -529,11 +529,11 @@ const MinkLashes = () => {
                         .map(product => (
                           <div
                             key={product.id}
-                            className={`product-card ${selectedProductDetails?.name === product.name ? 'selected' : ''}`}
-                            onClick={() => handleSelectProduct(product.name)}
+                            className={`product-card ${selectedProductDetails?.id === product.id ? 'selected' : ''}`}
+                            onClick={() => handleSelectProduct(product.id)}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.name); } }}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProduct(product.id); } }}
                           >
                             <div className="product-image">
                               <img src={product.image} alt={product.name} />
@@ -562,11 +562,11 @@ const MinkLashes = () => {
                         .map(product => (
                           <div
                             key={product.id}
-                            className={`product-card extra-card ${isExtraSelected(product.name) ? 'selected' : ''}`}
-                            onClick={() => handleSelectExtra(product.name, !isExtraSelected(product.name))}
+                            className={`product-card extra-card ${isExtraSelected(product.id) ? 'selected' : ''}`}
+                            onClick={() => handleSelectExtra(product.id, !isExtraSelected(product.id))}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectExtra(product.name, !isExtraSelected(product.name)); } }}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectExtra(product.id, !isExtraSelected(product.id)); } }}
                           >
                             <div className="product-image">
                               <img src={product.image} alt={product.name} />
