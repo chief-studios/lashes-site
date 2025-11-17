@@ -485,6 +485,10 @@ const MinkLashes = () => {
                 <div className="service-cards-container">
                   {sections.filter(s => s.items.length > 0).map(section => {
                     const { mainStyles } = separateStylesAndExtras(section.items);
+                    // Prefer a poster image for the cover if one is defined for this mink group
+                    const posterItem = minkProducts.find(p => p.type === `mink ${section.key}` && p.poster === 'yes');
+                    const coverImage = posterItem?.image || mainStyles[0]?.image || section.items[0]?.image;
+
                     return (
                       <div
                         key={section.key}
@@ -495,7 +499,7 @@ const MinkLashes = () => {
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
                       >
                         <div className="service-image">
-                          <img src={mainStyles[0]?.image || section.items[0]?.image} alt={`${section.title} placeholder`} />
+                          <img src={coverImage} alt={`${section.title} placeholder`} />
                         </div>
                         <div className="service-info">
                           <h3>{section.title}</h3>
