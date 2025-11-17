@@ -238,7 +238,7 @@ const ClusterLashes = () => {
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          service: formData.product || 'Cluster Lashes',
+          service: `Cluster Lashes ${formData.product}` || 'Cluster Lashes',
           bookingTime: bookingDateTime.toISOString(),
           comments: comments,
           paymentReference: reference.reference,
