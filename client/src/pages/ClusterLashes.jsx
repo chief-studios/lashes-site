@@ -43,6 +43,11 @@ const ClusterLashes = () => {
     { value: 'purple', label: 'Purple' }
   ];
 
+  // Plain-text extra for cluster lashes (no image)
+  const additionalExtras = [
+    { id: 2001, name: 'Removal', price: 50, extra: 'yes' }
+  ];
+
   useEffect(() => {
     if (formData.date) {
       const slots = generateTimeSlots();
@@ -76,10 +81,17 @@ const ClusterLashes = () => {
 
   // Handle extra selection
   const handleSelectExtra = (productId, isSelected) => {
-    const product = products.find(p => p.id === productId);
+    // Look up in products first, then in component additionalExtras
+    let product = products.find(p => p.id === productId);
+    if (!product) product = additionalExtras.find(a => a.id === productId);
+
+    if (!product) return;
 
     if (isSelected) {
-      setSelectedExtras(prev => [...prev, product]);
+      setSelectedExtras(prev => {
+        if (prev.some(p => p.id === product.id)) return prev;
+        return [...prev, product];
+      });
     } else {
       setSelectedExtras(prev => prev.filter(p => p.id !== productId));
       // If color lashes extra is deselected, remove the color selection and comment
@@ -554,44 +566,66 @@ const ClusterLashes = () => {
                   </>
                 )}
 
-                {extras.length > 0 && (
+                {(extras.length > 0 || additionalExtras.length > 0) && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Optional Extras</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
-                    <div className="products-grid">
-                      {extras
-                        .filter(p => p.poster !== 'yes')
-                        .map(product => (
-                          <div
-                            key={product.id}
-                            className={`product-card extra-card ${isExtraSelected(product.id) ? 'selected' : ''}`}
-                            onClick={() => handleSelectExtra(product.id, !isExtraSelected(product.id))}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectExtra(product.id, !isExtraSelected(product.id)); } }}
-                          >
-                            <div className="product-image">
-                              <img src={product.image} alt={product.name} />
-                              <div className="extra-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={isExtraSelected(product.name)}
-                                  onChange={(e) => handleSelectExtra(product.name, e.target.checked)}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
+
+                    {extras.length > 0 && (
+                      <div className="products-grid">
+                        {extras
+                          .filter(p => p.poster !== 'yes')
+                          .map(product => (
+                            <div
+                              key={product.id}
+                              className={`product-card extra-card ${isExtraSelected(product.id) ? 'selected' : ''}`}
+                              onClick={() => handleSelectExtra(product.id, !isExtraSelected(product.id))}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectExtra(product.id, !isExtraSelected(product.id)); } }}
+                            >
+                              <div className="product-image">
+                                <img src={product.image} alt={product.name} />
+                                <div className="extra-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    checked={isExtraSelected(product.id)}
+                                    onChange={(e) => handleSelectExtra(product.id, e.target.checked)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              </div>
+                              <div className="product-info">
+                                <h3>{product.name}</h3>
+                                <p className="product-description">{product.description}</p>
+                                <div className="product-details">
+                                  <span className="duration">{product.duration}</span>
+                                  <span className="price">+₵{product.price}</span>
+                                </div>
                               </div>
                             </div>
-                            <div className="product-info">
-                              <h3>{product.name}</h3>
-                              <p className="product-description">{product.description}</p>
-                              <div className="product-details">
-                                <span className="duration">{product.duration}</span>
-                                <span className="price">+₵{product.price}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
+                          ))}
+                      </div>
+                    )}
+
+                    {additionalExtras.length > 0 && (
+                      <>
+                        <h5 style={{ color: '#fff', marginTop: '1.5rem' }}>Other Extras</h5>
+                        <div className="plain-extras-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          {additionalExtras.map(extra => (
+                            <label key={extra.id} className={`plain-extra ${isExtraSelected(extra.id) ? 'selected' : ''}`} style={{ color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                              <input
+                                type="checkbox"
+                                checked={isExtraSelected(extra.id)}
+                                onChange={(e) => handleSelectExtra(extra.id, e.target.checked)}
+                                style={{ marginRight: '0.6rem' }}
+                              />
+                              <span>{extra.name} - ₵{extra.price}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </>
