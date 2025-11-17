@@ -610,7 +610,7 @@ const ClusterLashes = () => {
 
                     {additionalExtras.length > 0 && (
                       <>
-                        <h5 style={{ color: '#fff', marginTop: '1.5rem' }}>Other Extras</h5>
+                        <h5 style={{ color: '#fff', marginTop: '5rem' }}>Other Extras</h5>
                         <div className="plain-extras-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
                           {additionalExtras.map(extra => (
                             <label key={extra.id} className={`plain-extra ${isExtraSelected(extra.id) ? 'selected' : ''}`} style={{ color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
