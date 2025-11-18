@@ -97,6 +97,7 @@
   align-items: flex-start;
   gap: var(--spacing-lg);
   transition: var(--transition-smooth);
+  overflow: hidden;
 }
 
 .booking-card:hover {
@@ -106,6 +107,9 @@
 
 .booking-info {
   flex: 1;
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .booking-info h4 {
@@ -118,6 +122,9 @@
   margin-bottom: var(--spacing-xs);
   color: var(--gray-dark);
   font-size: 0.95rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .booking-info .status {
