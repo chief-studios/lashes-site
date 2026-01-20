@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -9,9 +8,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from the client build directory
-app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Database connection status
 let dbConnected = false;
@@ -119,11 +115,6 @@ app.use((err, req, res, next) => {
         message: 'Something went wrong!',
         error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
     });
-});
-
-// Fallback to index.html for client-side routing (must be after API routes and error handler)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Start server only after database connection

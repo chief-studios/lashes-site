@@ -32,6 +32,7 @@ const ClusterLashes = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
+  const [showInstructionModal, setShowInstructionModal] = useState(true);
 
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
@@ -169,7 +170,7 @@ const ClusterLashes = () => {
     }
   };
 
-  // Calculate total amount including extras
+  // Calculate total amount including extras (charge 40% of total)
   const getPaymentAmount = () => {
     let total = 0;
 
@@ -189,7 +190,7 @@ const ClusterLashes = () => {
       }
     });
 
-    return total * 100;
+    return (total * 0.4) * 100;
   };
 
   // Get total price for display
@@ -417,7 +418,7 @@ const ClusterLashes = () => {
       ]
     },
     publicKey: paystackPublicKey,
-    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${getTotalPrice()} Now`,
+    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${(getTotalPrice() * 0.4).toFixed(2)} Now (40% Down Payment)`,
     onSuccess: (reference) => handlePaystackSuccess(reference),
     onClose: handlePaystackClose,
   };
@@ -453,6 +454,26 @@ const ClusterLashes = () => {
           ← Back to Services
         </button>
 
+        {/* Instruction Modal */}
+        {showInstructionModal && (
+          <div className="modal-overlay" onClick={(e) => e.currentTarget === e.target && null}>
+            <div className="modal-content">
+              <h2>How to Order</h2>
+              <p>
+                Kindly select any style and extra you prefer. It will automatically be added to your order summary.
+                You can select another main style and it will automatically be changed in your order summary or select
+                an already selected extra to deselect it if you no longer prefer that extra. You would also be required to make a 40% down payment of your total bill to book a session.
+              </p>
+              <button
+                className="modal-ok-btn"
+                onClick={() => setShowInstructionModal(false)}
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="page-header">
           <h1>Cluster Lashes</h1>
           <p className="page-description">
@@ -462,7 +483,6 @@ const ClusterLashes = () => {
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
-          <p>Kindly select any style and extra you prefer. It will automatically be added to your order summary. You can select another main style and it will automatically be changed in your order summary or select an already selected extra to deselect it if you no longer prefer that extra.</p>
           {(() => {
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
             const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');

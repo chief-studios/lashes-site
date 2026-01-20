@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PaystackButton } from 'react-paystack';
 import consultationImage from '../images/consultation.jpg';
 import { generateTimeSlots } from '../utils/timeSlots';
 import '../styles/base.css';
@@ -19,6 +20,16 @@ const LashConsultation = () => {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [timeSlotAvailable, setTimeSlotAvailable] = useState(null);
+
+  // Consultation fee
+  const CONSULTATION_FEE = 50;
+  
+  // Paystack configuration
+  const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
 
   useEffect(() => {
     if (formData.date) {
@@ -30,6 +41,21 @@ const LashConsultation = () => {
     }
   }, [formData.date]);
 
+  // Reset status when date or time changes
+  useEffect(() => {
+    if (formData.date || formData.time) {
+      setSubmitStatus({ type: '', message: '' });
+      setTimeSlotAvailable(null);
+    }
+  }, [formData.date, formData.time]);
+
+  // Trigger payment when shouldTriggerPayment becomes true
+  useEffect(() => {
+    if (shouldTriggerPayment) {
+      setShouldTriggerPayment(false);
+    }
+  }, [shouldTriggerPayment]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -37,11 +63,63 @@ const LashConsultation = () => {
       [name]: value
     }));
     setSubmitStatus({ type: '', message: '' });
+    setTimeSlotAvailable(null);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  // Check if time slot is available
+  const checkTimeSlotAvailability = async () => {
+    try {
+      setCheckingAvailability(true);
+      setSubmitStatus({ type: '', message: '' });
+
+      const [hours, minutes] = formData.time.split(':');
+      const bookingDateTime = new Date(formData.date);
+      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const checkResponse = await fetch(`https://lashes-site.onrender.com/api/bookings/check-booking-availability`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingTime: bookingDateTime.toISOString()
+        })
+      });
+
+      if (!checkResponse.ok) {
+        throw new Error('Failed to check booking availability');
+      }
+
+      const availabilityData = await checkResponse.json();
+
+      if (!availabilityData.available) {
+        setTimeSlotAvailable(false);
+        setSubmitStatus({
+          type: 'error',
+          message: availabilityData.message || 'Time slot unavailable. Kindly choose another time slot.'
+        });
+        return false;
+      }
+
+      setTimeSlotAvailable(true);
+      return true;
+
+    } catch (error) {
+      console.error('Time slot verification error:', error);
+      setTimeSlotAvailable(false);
+      setSubmitStatus({
+        type: 'error',
+        message: 'Error verifying time slot availability. Please try again.'
+      });
+      return false;
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+
+  // Paystack success callback
+  const handlePaystackSuccess = async (reference) => {
+    setPaymentProcessing(true);
     setSubmitStatus({ type: '', message: '' });
 
     try {
@@ -59,14 +137,23 @@ const LashConsultation = () => {
           phone: formData.phone,
           email: formData.email,
           service: 'Lash Consultation',
-          bookingTime: bookingDateTime.toISOString()
+          bookingTime: bookingDateTime.toISOString(),
+          paymentReference: reference.reference,
+          amount: CONSULTATION_FEE,
+          paymentStatus: 'completed',
+          currency: 'GHS'
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSubmitStatus({ type: 'success', message: data.message || 'Booking submitted successfully! We will confirm your appointment soon.' });
+        setSubmitStatus({
+          type: 'success',
+          message: 'Payment successful! Consultation booking confirmed. We will contact you soon.'
+        });
+
+        // Reset form
         setFormData({
           name: '',
           phone: '',
@@ -75,17 +162,81 @@ const LashConsultation = () => {
           time: ''
         });
         setAvailableTimeSlots([]);
+        setTimeSlotAvailable(null);
+
         setTimeout(() => {
           navigate('/');
-        }, 2000);
+        }, 3000);
       } else {
-        setSubmitStatus({ type: 'error', message: data.message || 'Error submitting booking. Please try again.' });
+        setSubmitStatus({
+          type: 'error',
+          message: `Payment successful but booking failed: ${data.message || 'Please contact us with your payment reference.'}`
+        });
       }
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
+      setSubmitStatus({
+        type: 'error',
+        message: `Payment successful but booking failed. Please contact us with reference: ${reference.reference}`
+      });
     } finally {
-      setLoading(false);
+      setPaymentProcessing(false);
     }
+  };
+
+  // Paystack close callback
+  const handlePaystackClose = () => {
+    setSubmitStatus({
+      type: 'info',
+      message: 'Payment was not completed. You can try again when ready.'
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitStatus({ type: '', message: '' });
+
+    if (!formData.name || !formData.phone || !formData.email || !formData.date || !formData.time) {
+      setSubmitStatus({ type: 'error', message: 'Please fill in all required fields.' });
+      return;
+    }
+
+    const isAvailable = await checkTimeSlotAvailability();
+
+    if (!isAvailable) {
+      return;
+    }
+
+    setShouldTriggerPayment(true);
+  };
+
+  // Paystack component props
+  const paystackProps = {
+    email: formData.email,
+    amount: CONSULTATION_FEE * 100,
+    currency: "GHS",
+    metadata: {
+      name: formData.name,
+      phone: formData.phone,
+      service: 'Lash Consultation',
+      bookingDate: formData.date,
+      bookingTime: formData.time
+    },
+    publicKey: paystackPublicKey,
+    text: paymentProcessing ? "Processing Payment..." : `Pay ₵${CONSULTATION_FEE} Now`,
+    onSuccess: (reference) => handlePaystackSuccess(reference),
+    onClose: handlePaystackClose,
+  };
+
+  const isFormValid = () => {
+    return formData.name &&
+      formData.phone &&
+      formData.email &&
+      formData.date &&
+      formData.time;
+  };
+
+  const canProceedToPayment = () => {
+    return isFormValid() && timeSlotAvailable === true;
   };
 
   return (
@@ -214,9 +365,18 @@ const LashConsultation = () => {
               </div>
             )}
             
-            <button type="submit" className="submit-btn btn btn-primary" disabled={loading}>
-              {loading ? 'Submitting...' : 'Book Consultation'}
-            </button>
+            {canProceedToPayment() ? (
+              <div className="payment-section">
+                <PaystackButton
+                  {...paystackProps}
+                  className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
+                />
+              </div>
+            ) : (
+              <button type="submit" className="submit-btn btn btn-primary" disabled={loading || checkingAvailability}>
+                {checkingAvailability ? 'Checking Availability...' : 'Proceed to Payment'}
+              </button>
+            )}
           </form>
         </div>
       </div>
