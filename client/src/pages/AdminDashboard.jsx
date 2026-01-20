@@ -118,6 +118,15 @@ const AdminDashboard = () => {
   };
 
 
+  const formatTime = (date) => {
+    const d = new Date(date);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+    const displayHours = String(d.getHours() % 12 || 12).padStart(2, '0');
+    return `${displayHours}:${minutes}${ampm}`;
+  };
+
   const handleUpdateBookingStatus = async (bookingId, status) => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -312,7 +321,7 @@ const AdminDashboard = () => {
                     <p><strong>Email:</strong> {booking.email}</p>
                     <p><strong>Phone:</strong> {booking.phone}</p>
                     <p><strong>Date:</strong> {new Date(booking.bookingTime).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {new Date(booking.bookingTime).toLocaleTimeString()}</p>
+                    <p><strong>Time:</strong> {formatTime(booking.bookingTime)}</p>
                     <p><strong>Status:</strong> 
                       <span className={`status ${booking.status}`}>{booking.status}</span>
                     </p>

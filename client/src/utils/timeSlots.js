@@ -10,10 +10,11 @@ export const generateTimeSlots = () => {
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
+    const formattedHour = String(displayHour).padStart(2, '0');
     
     return {
       value: timeStr,
-      display: `${displayHour}:${minutes} ${ampm}`
+      display: `${formattedHour}:${minutes}${ampm}`
     };
   });
 };
