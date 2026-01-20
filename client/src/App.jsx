@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import ServiceCards from './components/ServiceCards';
 import AdminLink from './components/AdminLink';
@@ -35,9 +35,9 @@ function App() {
                     we craft the perfect look for your unique beauty.
                   </p>
                   <div className="hero-buttons">
-                    <a href="/lash-consultation" className="btn btn-primary">
+                    <Link to="/lash-consultation" className="btn btn-primary">
                       Book Consultation
-                    </a>
+                    </Link>
                     <a href="#services" className="btn btn-secondary">
                       Explore Collection
                     </a>
