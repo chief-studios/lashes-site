@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
 
   useEffect(() => {
     checkAuth();
@@ -129,6 +130,7 @@ const AdminDashboard = () => {
 
   const handleUpdateBookingStatus = async (bookingId, status) => {
     try {
+      setUpdatingBookingId(bookingId);
       const token = localStorage.getItem('adminToken');
       const response = await fetch(`https://lashes-site.onrender.com/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
@@ -144,6 +146,8 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('Error updating booking status:', error);
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
@@ -330,16 +334,28 @@ const AdminDashboard = () => {
                     <button 
                       className={`status-btn ${booking.status === 'confirmed' ? 'confirmed' : ''}`}
                       onClick={() => handleUpdateBookingStatus(booking._id, 'confirmed')}
-                      disabled={booking.status === 'confirmed'}
+                      disabled={booking.status === 'confirmed' || updatingBookingId === booking._id}
                     >
-                      Confirm
+                      {updatingBookingId === booking._id ? (
+                        <>
+                          <span className="spinner"></span> Updating...
+                        </>
+                      ) : (
+                        'Confirm'
+                      )}
                     </button>
                     <button 
                       className={`status-btn cancel`}
                       onClick={() => handleUpdateBookingStatus(booking._id, 'cancelled')}
-                      disabled={booking.status === 'cancelled'}
+                      disabled={booking.status === 'cancelled' || updatingBookingId === booking._id}
                     >
-                      Cancel
+                      {updatingBookingId === booking._id ? (
+                        <>
+                          <span className="spinner"></span> Updating...
+                        </>
+                      ) : (
+                        'Cancel'
+                      )}
                     </button>
                   </div>
                 </div>
