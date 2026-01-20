@@ -100,6 +100,7 @@ app.get('/api/health', (req, res) => {
 // Apply database check middleware to all routes that need it
 // Auth routes don't need DB (using env vars)
 app.use('/api/auth', require('./routes/auth'));
+app.use(express.static("path/to/client/dist"))
 
 // All other routes require database connection
 app.use('/api/bookings', checkDBConnection, require('./routes/booking'));
@@ -116,6 +117,10 @@ app.use((err, req, res, next) => {
         error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
     });
 });
+
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve("path/to/client/dish/index.html"))
+})
 
 // 404 handler
 app.use((req, res) => {

@@ -35,7 +35,7 @@ function App() {
                     we craft the perfect look for your unique beauty.
                   </p>
                   <div className="hero-buttons">
-                    <a href="lash-consultation" className="btn btn-primary">
+                    <a href="/lash-consultation" className="btn btn-primary">
                       Book Consultation
                     </a>
                     <a href="#services" className="btn btn-secondary">
