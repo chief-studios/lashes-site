@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -8,6 +9,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the client build directory
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Database connection status
 let dbConnected = false;
@@ -100,7 +104,6 @@ app.get('/api/health', (req, res) => {
 // Apply database check middleware to all routes that need it
 // Auth routes don't need DB (using env vars)
 app.use('/api/auth', require('./routes/auth'));
-app.use(express.static("path/to/client/dist"))
 
 // All other routes require database connection
 app.use('/api/bookings', checkDBConnection, require('./routes/booking'));
@@ -118,13 +121,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.get("*", (req, res) => {
-    res.sendFile(path.resolve("path/to/client/dish/index.html"))
-})
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+// Fallback to index.html for client-side routing (must be after API routes and error handler)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Start server only after database connection
