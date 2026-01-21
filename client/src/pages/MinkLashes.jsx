@@ -245,6 +245,16 @@ const MinkLashes = () => {
         }
       }
 
+      // Build service string with lash type (e.g., "Mink Hybrid Cat Eye")
+      let service = 'Mink Lashes';
+      if (selectedProductDetails && selectedProductDetails.type) {
+        const typeParts = selectedProductDetails.type.toLowerCase().split(' ');
+        const lashType = typeParts[1]?.charAt(0).toUpperCase() + typeParts[1]?.slice(1); // 'hybrid', 'volume', 'classic'
+        service = `Mink ${lashType} ${formData.product}`.trim();
+      } else if (formData.product) {
+        service = `Mink Lashes ${formData.product}`;
+      }
+
       const response = await fetch('https://lashes-site.onrender.com/api/bookings', {
         method: 'POST',
         headers: {
@@ -254,7 +264,7 @@ const MinkLashes = () => {
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          service: `Mink Lashes ${formData.product}` || 'Mink Lashes',
+          service: service,
           bookingTime: bookingDateTime.toISOString(),
           comments: comments,
           paymentReference: reference.reference,
