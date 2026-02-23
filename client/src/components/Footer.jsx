@@ -49,6 +49,7 @@ const Footer = () => {
             <i className="fa-brands fa-whatsapp" />
           </a>
         </div>
+        <p className='location'>KNUST, Boadi Abaase</p>
         <p>
           © 2025 Best Lashes. All rights reserved. Built by
           <a 

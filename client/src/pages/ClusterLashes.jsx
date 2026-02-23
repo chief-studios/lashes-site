@@ -33,6 +33,7 @@ const ClusterLashes = () => {
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [showInstructionModal, setShowInstructionModal] = useState(true);
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
 
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
@@ -274,10 +275,8 @@ const ClusterLashes = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSubmitStatus({
-          type: 'success',
-          message: 'Payment successful! Booking confirmed. We will contact you soon.'
-        });
+        // Show confirmation popup for 3 seconds with late fee info
+        setShowConfirmationPopup(true);
 
         // Reset form
         setFormData({
@@ -296,8 +295,9 @@ const ClusterLashes = () => {
         setTimeSlotAvailable(null);
 
         setTimeout(() => {
+          setShowConfirmationPopup(false);
           navigate('/');
-        }, 5000);
+        }, 6500);
       } else {
         setSubmitStatus({
           type: 'error',
@@ -490,6 +490,20 @@ const ClusterLashes = () => {
             Cluster lashes are gentle on the eyes, easy to remove, and last for one to two weeks. Perfect for special occasions or those who want a temporary lash enhancement.
           </p>
         </div>
+
+        {/* Confirmation popup shown after successful payment */}
+        {showConfirmationPopup && (
+          <div className="modal-overlay" style={{ zIndex: 1000 }}>
+            <div
+              className="modal-content"
+              style={{ maxWidth: '420px', textAlign: 'center', color: '#fff', background: 'rgba(0,0,0,0.7)' }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Payment Successful</h3>
+              <p style={{ margin: '0.5rem 0 0', fontSize: '1rem', color: '#fff' }}>Payment completed and booking confirmed.</p>
+              <p style={{ fontWeight: 600, marginTop: '0.5rem', fontSize: '0.95rem', color: '#fff' }}>Late arrivals attract an extra fee of GHS 300.</p>
+            </div>
+          </div>
+        )}
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>

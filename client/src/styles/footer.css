@@ -64,6 +64,11 @@
   line-height: 1;
 }
 
+.location{
+  margin-top: var(--spacing-md);
+  font-size: 1.2rem;
+}
+
 @media (max-width: 480px) {
   /* Larger, better spaced footer icons on small screens */
   .social-links {
