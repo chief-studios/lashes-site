@@ -10,6 +10,7 @@ const BookingForm = ({ selectedProduct = null }) => {
         phone: '',
         email: '',
         service: selectedProduct?.name || '',
+        comments: '',
         date: '',
         time: ''
     });
@@ -62,6 +63,7 @@ const BookingForm = ({ selectedProduct = null }) => {
                     phone: formData.phone,
                     email: formData.email,
                     service: formData.service,
+                    comments: formData.comments,
                     bookingTime: bookingDateTime.toISOString()
                 })
             });
@@ -76,6 +78,7 @@ const BookingForm = ({ selectedProduct = null }) => {
                     phone: '',
                     email: '',
                     service: selectedProduct?.name || '',
+                    comments: '',
                     date: '',
                     time: ''
                 });
@@ -178,6 +181,18 @@ const BookingForm = ({ selectedProduct = null }) => {
                         <option key={index} value={slot.value}>{slot.display}</option>
                     ))}
                 </select>
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="comments">Additional Comments (optional)</label>
+                <textarea
+                    id="comments"
+                    name="comments"
+                    value={formData.comments}
+                    onChange={handleChange}
+                    placeholder="Any special requests, extras, or information you'd like us to know..."
+                    rows="3"
+                />
             </div>
 
             {submitStatus.message && (

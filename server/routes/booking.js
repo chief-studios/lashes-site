@@ -6,7 +6,7 @@ const router = express.Router();
 // Create new booking (public)
 router.post('/', async (req, res) => {
     try {
-        const { name, phone, email, service, bookingTime } = req.body;
+        const { name, phone, email, service, bookingTime, comments } = req.body;
 
         // Validate required fields
         if (!name || !phone || !email || !service || !bookingTime) {
@@ -62,7 +62,8 @@ router.post('/', async (req, res) => {
             phone,
             email: email.toLowerCase(),
             service,
-            bookingTime: bookingDateTime
+            bookingTime: bookingDateTime,
+            comments: comments || ''
         });
 
         await booking.save();

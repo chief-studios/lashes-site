@@ -329,6 +329,9 @@ const AdminDashboard = () => {
                     <p><strong>Status:</strong> 
                       <span className={`status ${booking.status}`}>{booking.status}</span>
                     </p>
+                    {booking.comments && (
+                      <p><strong>Comments / Extras:</strong> {booking.comments}</p>
+                    )}
                   </div>
                   <div className="booking-actions">
                     <button 
