@@ -166,7 +166,7 @@ const LashConsultation = () => {
 
         setTimeout(() => {
           navigate('/');
-        }, 3000);
+        }, 5000);
       } else {
         setSubmitStatus({
           type: 'error',
