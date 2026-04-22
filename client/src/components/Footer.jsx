@@ -53,12 +53,12 @@ const Footer = () => {
         <p>
           © 2025 Best Lashes. All rights reserved. Built by
           <a 
-            href="https://enamcudjoeahiable.vercel.app/"
+            href="https://therealdevsrus.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ marginLeft: '0.25rem', color: 'inherit', textDecoration: 'underline' }}
           >
-            chief studios
+            DevsRUs
           </a>.
         </p>
       </div>
