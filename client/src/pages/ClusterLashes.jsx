@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PaystackButton } from 'react-paystack';
 import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
+import InlineTip from '../components/InlineTip';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/home.css';
@@ -32,7 +33,6 @@ const ClusterLashes = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
-  const [showInstructionModal, setShowInstructionModal] = useState(true);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
 
   // Paystack configuration
@@ -464,26 +464,6 @@ const ClusterLashes = () => {
           ← Back to Services
         </button>
 
-        {/* Instruction Modal */}
-        {showInstructionModal && (
-          <div className="modal-overlay" onClick={(e) => e.currentTarget === e.target && null}>
-            <div className="modal-content">
-              <h2>How to Order</h2>
-              <p>
-                Kindly select any style and extra you prefer. It will automatically be added to your order summary.
-                You can select another main style and it will automatically be changed in your order summary or select
-                an already selected extra to deselect it if you no longer prefer that extra. You would also be required to make a 40% non-refundable down payment of your total bill to book a session.
-              </p>
-              <button
-                className="modal-ok-btn"
-                onClick={() => setShowInstructionModal(false)}
-              >
-                Okay
-              </button>
-            </div>
-          </div>
-        )}
-
         <div className="page-header">
           <h1>Cluster Lashes</h1>
           <p className="page-description">
@@ -507,6 +487,12 @@ const ClusterLashes = () => {
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
+          <InlineTip title="How to order">
+            <ul>
+              <li>Pick a category (Classic, Hybrid, or Volume).</li>
+              <li>Tap a main style to add it to your Order Summary.</li>
+            </ul>
+          </InlineTip>
           {(() => {
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
             const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');
@@ -614,6 +600,9 @@ const ClusterLashes = () => {
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Optional Extras</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
+                    <InlineTip title="Tip">
+                      Extras are optional—tap to add, tap again to remove. Your summary updates automatically.
+                    </InlineTip>
 
                     {extras.length > 0 && (
                       <div className="products-grid">
@@ -851,6 +840,10 @@ const ClusterLashes = () => {
                   {submitStatus.message}
                 </div>
               )}
+
+              <InlineTip title="Payment">
+                To book, you’ll pay a <strong>40% non‑refundable</strong> deposit after we verify your selected time slot.
+              </InlineTip>
 
               {/* Paystack Payment Button - only show when form is valid and time slot is available */}
               {canProceedToPayment() ? (

@@ -244,3 +244,35 @@
   }
 }
 
+/* Progressive Inline Tips */
+.inline-tip {
+  background: rgba(255, 20, 147, 0.08);
+  border: 1px solid rgba(255, 20, 147, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0 18px;
+}
+
+.inline-tip__title {
+  color: var(--primary-pink);
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+
+.inline-tip__body {
+  color: var(--text-light);
+  opacity: 0.95;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.inline-tip__body ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.inline-tip__body li {
+  margin: 4px 0;
+}
+
