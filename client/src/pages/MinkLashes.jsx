@@ -1,9 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PaystackButton } from 'react-paystack';
 import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
+import { getHowToOrderSteps } from '../utils/howToOrderSteps';
+import { LASH_COLORS } from '../data/lashColors';
 import InlineTip from '../components/InlineTip';
+import OrderBar from '../components/OrderBar';
+import BookingCheckoutModal from '../components/BookingCheckoutModal';
+import ColorLashPicker from '../components/ColorLashPicker';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/home.css';
@@ -25,9 +29,9 @@ const MinkLashes = () => {
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
-  const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
   const [timeSlotAvailable, setTimeSlotAvailable] = useState(null);
-  const bookingFormRef = useRef(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [checkoutReadyToPay, setCheckoutReadyToPay] = useState(false);
   const productsSectionRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
@@ -37,13 +41,6 @@ const MinkLashes = () => {
 
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
-
-  const availableColors = [
-    { value: 'pink', label: 'Pink' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'purple', label: 'Purple' }
-  ];
 
   // Plain-text extras for mink lashes (no images)
   const additionalExtras = [
@@ -69,18 +66,22 @@ const MinkLashes = () => {
     }
   }, [formData.date, formData.time]);
 
-  // Trigger payment when shouldTriggerPayment becomes true
-  useEffect(() => {
-    if (shouldTriggerPayment) {
-      setShouldTriggerPayment(false);
-    }
-  }, [shouldTriggerPayment]);
-
   const handleSelectProduct = (productId) => {
     const product = products.find(p => p.id === productId);
+    if (!product) return;
     setSelectedProductDetails(product);
-    setFormData(prev => ({ ...prev, product: product?.name || '' }));
+    setFormData(prev => ({ ...prev, product: product.name || '' }));
     setSelectedColor('');
+  };
+
+  const removeMainFromOrder = () => {
+    if (!selectedProductDetails) return;
+    const name = selectedProductDetails.name;
+    setSelectedProductDetails(null);
+    setFormData(prev => ({ ...prev, product: '' }));
+    setSelectedColor('');
+    removeColorComment();
+    setCheckoutReadyToPay(false);
   };
 
   // NEW: Handle extra selection (supports products and additional plain extras)
@@ -94,19 +95,16 @@ const MinkLashes = () => {
     if (!product) return;
 
     if (isSelected) {
-      setSelectedExtras(prev => {
-        // avoid duplicates
-        if (prev.some(p => p.id === product.id)) return prev;
-        return [...prev, product];
-      });
+      if (selectedExtras.some(p => p.id === product.id)) return;
+      setSelectedExtras(prev => [...prev, product]);
     } else {
       setSelectedExtras(prev => prev.filter(p => p.id !== productId));
-      // If color lashes extra is deselected, remove the color selection and comment
       if (isColorLashExtra(product?.name)) {
         setSelectedColor('');
         removeColorComment();
       }
     }
+    setCheckoutReadyToPay(false);
   };
 
   // NEW: Function to remove color comment from comments
@@ -145,15 +143,17 @@ const MinkLashes = () => {
     }));
     setSubmitStatus({ type: '', message: '' });
     setTimeSlotAvailable(null);
+    setCheckoutReadyToPay(false);
   };
 
   // UPDATED: Color change handler that adds to comments
   const handleColorChange = (e) => {
     const color = e.target.value;
     setSelectedColor(color);
+    setCheckoutReadyToPay(false);
 
     if (color) {
-      const colorComment = `Color: ${availableColors.find(c => c.value === color)?.label}`;
+      const colorComment = `Color: ${LASH_COLORS.find(c => c.value === color)?.label}`;
       const existingComments = formData.comments;
       const colorRegex = /Color:\s*\w+/i;
 
@@ -278,7 +278,8 @@ const MinkLashes = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Show confirmation popup for 3 seconds with late fee info
+        setShowBookingModal(false);
+        setCheckoutReadyToPay(false);
         setShowConfirmationPopup(true);
 
         // Reset form
@@ -403,8 +404,21 @@ const MinkLashes = () => {
       return;
     }
 
-    setShouldTriggerPayment(true);
+    setCheckoutReadyToPay(true);
   };
+
+  const closeBookingModal = () => {
+    setShowBookingModal(false);
+    setCheckoutReadyToPay(false);
+  };
+
+  const openBookingModal = () => {
+    setCheckoutReadyToPay(false);
+    setSubmitStatus({ type: '', message: '' });
+    setShowBookingModal(true);
+  };
+
+  const hasActiveOrder = Boolean(selectedProductDetails) || selectedExtras.length > 0;
 
   // UPDATED: Paystack component props with GHS currency
   const paystackProps = {
@@ -448,8 +462,8 @@ const MinkLashes = () => {
       (!hasColorLashExtra() || selectedColor);
   };
 
-  const canProceedToPayment = () => {
-    return isFormValid() && timeSlotAvailable === true;
+  const canPayFromReview = () => {
+    return Boolean(selectedProductDetails) && (!hasColorLashExtra() || selectedColor);
   };
 
   const sortProductsByPrice = (productsArray) => {
@@ -461,7 +475,50 @@ const MinkLashes = () => {
   };
 
   return (
-    <div className="service-page">
+    <div className={`service-page${hasActiveOrder ? ' service-page--order-active' : ''}`}>
+      <BookingCheckoutModal
+        isOpen={showBookingModal}
+        onClose={closeBookingModal}
+        title="Book Your Mink Lashes"
+        mainProduct={selectedProductDetails}
+        extras={selectedExtras}
+        colorLabel={
+          hasColorLashExtra() && selectedColor
+            ? LASH_COLORS.find(c => c.value === selectedColor)?.label
+            : null
+        }
+        totalPrice={getTotalPrice()}
+        depositAmount={getTotalPrice() * 0.4}
+        onRemoveMain={removeMainFromOrder}
+        onRemoveExtra={(id) => handleSelectExtra(id, false)}
+        formData={formData}
+        onInputChange={handleInputChange}
+        selectedColor={selectedColor}
+        onColorChange={handleColorChange}
+        hasColorLashExtra={hasColorLashExtra}
+        availableColors={LASH_COLORS}
+        availableTimeSlots={availableTimeSlots}
+        onSubmit={handleSubmit}
+        submitStatus={submitStatus}
+        checkingAvailability={checkingAvailability}
+        readyToPay={checkoutReadyToPay}
+        paystackProps={paystackProps}
+        paymentProcessing={paymentProcessing}
+        canPay={canPayFromReview()}
+      />
+      <OrderBar
+        mainProduct={selectedProductDetails}
+        extras={selectedExtras}
+        totalPrice={getTotalPrice()}
+        depositAmount={getTotalPrice() * 0.4}
+        onProceed={openBookingModal}
+        canProceed={Boolean(selectedProductDetails)}
+        colorLabel={
+          hasColorLashExtra() && selectedColor
+            ? LASH_COLORS.find((c) => c.value === selectedColor)?.label
+            : null
+        }
+      />
       <div className="service-container">
         <button className="back-btn" onClick={() => navigate('/')}>
           ← Back to Services
@@ -492,8 +549,9 @@ const MinkLashes = () => {
           <h2>Available Styles</h2>
           <InlineTip title="How to order">
             <ul>
-              <li>Pick a category (Classic, Hybrid, or Volume).</li>
-              <li>Tap a main style to add it to your Order Summary.</li>
+              {getHowToOrderSteps(selectedGroup, selectedProductDetails).map((step) => (
+                <li key={step}>{step}</li>
+              ))}
             </ul>
           </InlineTip>
           {(() => {
@@ -649,6 +707,15 @@ const MinkLashes = () => {
                       </div>
                     )}
 
+                    {hasColorLashExtra() && (
+                      <ColorLashPicker
+                        id="mink-lash-color"
+                        selectedColor={selectedColor}
+                        onChange={handleColorChange}
+                        colors={LASH_COLORS}
+                      />
+                    )}
+
                     {/* Plain-text extras (no images) */}
                     {additionalExtras.length > 0 && (
                       <>
@@ -675,200 +742,6 @@ const MinkLashes = () => {
           })()}
         </div>
 
-        {selectedGroup && (
-          <div className="booking-section" ref={bookingFormRef}>
-            <h2>Book Your Mink Lashes</h2>
-
-            {/* UPDATED: Order Summary to include extras */}
-            {(selectedProductDetails || selectedExtras.length > 0) && (
-              <div className="order-summary">
-                <h3>Order Summary</h3>
-                <div className="summary-content">
-                  {selectedProductDetails && (
-                    <>
-                      <p><strong>Main Service:</strong> {selectedProductDetails.name}</p>
-                      <p><strong>Base Price:</strong> ₵{selectedProductDetails.price}</p>
-                      <p><strong>Duration:</strong> {selectedProductDetails.duration}</p>
-                    </>
-                  )}
-
-                  {selectedExtras.length > 0 && (
-                    <>
-                      <p><strong>Extras:</strong></p>
-                      <ul className="extras-list">
-                        {selectedExtras.map((extra, index) => (
-                          <li key={index}>
-                            {extra.name} - +₵{extra.price}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-
-                  <div className="total-section">
-                    <p><strong>Total Price:</strong> ₵{getTotalPrice()}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <form className="booking-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="product">Selected Main Style *</label>
-                <input
-                  type="text"
-                  id="product"
-                  name="product"
-                  value={formData.product}
-                  onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
-                  placeholder="Choose a main style above"
-                  readOnly
-                />
-                {!selectedProductDetails && (
-                  <small className="form-hint">Please select a main style from the options above</small>
-                )}
-              </div>
-
-              {/* NEW: Color selection only shows when color lashes extra is selected */}
-              {hasColorLashExtra() && (
-                <div className="form-group">
-                  <label htmlFor="color">Select Color for Color Lashes *</label>
-                  <select
-                    id="color"
-                    name="color"
-                    value={selectedColor}
-                    onChange={handleColorChange}
-                    required
-                  >
-                    <option value="">Choose a color</option>
-                    {availableColors.map((color, index) => (
-                      <option key={index} value={color.value}>
-                        {color.label}
-                      </option>
-                    ))}
-                  </select>
-                  <small className="form-hint">
-                    Please select your preferred color for the color lashes extra
-                  </small>
-                </div>
-              )}
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="name">Full Name *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email Address *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="date">Preferred Date *</label>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="time">Preferred Time *</label>
-                  <select
-                    id="time"
-                    name="time"
-                    value={formData.time}
-                    onChange={handleInputChange}
-                    required
-                    disabled={!formData.date}
-                  >
-                    <option value="">
-                      {!formData.date
-                        ? 'Please select a date first'
-                        : 'Select a time'}
-                    </option>
-                    {availableTimeSlots.map((slot, index) => (
-                      <option key={index} value={slot.value}>{slot.display}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="comments">Additional Comments (Optional)</label>
-                <textarea
-                  id="comments"
-                  name="comments"
-                  value={formData.comments}
-                  onChange={handleInputChange}
-                  placeholder="Any special requests, allergies, or additional information you'd like us to know..."
-                  rows="4"
-                />
-                <small className="form-hint">
-                  {hasColorLashExtra() && selectedColor
-                    ? `Color selection (${availableColors.find(c => c.value === selectedColor)?.label}) has been automatically added above.`
-                    : 'Your color selection will appear here when you choose a color.'}
-                </small>
-              </div>
-              {submitStatus.message && (
-                <div className={`submit-message ${submitStatus.type}`}>
-                  {submitStatus.message}
-                </div>
-              )}
-
-              <InlineTip title="Payment">
-                To book, you’ll pay a <strong>40% non‑refundable</strong> deposit after we verify your selected time slot.
-              </InlineTip>
-
-              {/* Paystack Payment Button - only show when form is valid and time slot is available */}
-              {canProceedToPayment() ? (
-                <div className="payment-section">
-                  <PaystackButton
-                    {...paystackProps}
-                    className={`paystack-button ${paymentProcessing ? 'processing' : ''}`}
-                  />
-                </div>
-              ) : (
-                <button type="submit" className="submit-btn" disabled={loading || checkingAvailability}>
-                  {checkingAvailability ? 'Checking Availability...' : 'Proceed to Payment'}
-                </button>
-              )}
-            </form>
-          </div>
-        )}
       </div>
     </div>
   );
