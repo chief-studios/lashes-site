@@ -2,12 +2,15 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
+import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
+import { apiUrl } from '../config/api';
 import { getHowToOrderSteps } from '../utils/howToOrderSteps';
 import { LASH_COLORS } from '../data/lashColors';
 import InlineTip from '../components/InlineTip';
 import OrderBar from '../components/OrderBar';
 import BookingCheckoutModal from '../components/BookingCheckoutModal';
 import ColorLashPicker from '../components/ColorLashPicker';
+import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/home.css';
@@ -223,9 +226,7 @@ const ClusterLashes = () => {
     setSubmitStatus({ type: '', message: '' });
 
     try {
-      const [hours, minutes] = formData.time.split(':');
-      const bookingDateTime = new Date(formData.date);
-      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
 
       let comments = formData.comments;
 
@@ -253,7 +254,7 @@ const ClusterLashes = () => {
         service = `Cluster Lashes ${formData.product}`;
       }
 
-      const response = await fetch('https://lashes-site.onrender.com/api/bookings', {
+      const response = await fetch(apiUrl('/api/bookings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +264,7 @@ const ClusterLashes = () => {
           phone: formData.phone,
           email: formData.email,
           service: service,
-          bookingTime: bookingDateTime.toISOString(),
+          ...dateTimeFields,
           comments: comments,
           paymentReference: reference.reference,
           amount: getPaymentAmount() / 100,
@@ -302,7 +303,7 @@ const ClusterLashes = () => {
       } else {
         setSubmitStatus({
           type: 'error',
-          message: `Payment successful but booking failed: ${data.message || 'Please contact us with your payment reference.'}`
+          message: `Payment successful but booking failed: ${data.message || data.error || 'Please contact us with your payment reference.'}`
         });
       }
     } catch (error) {
@@ -329,18 +330,14 @@ const ClusterLashes = () => {
       setCheckingAvailability(true);
       setSubmitStatus({ type: '', message: '' });
 
-      const [hours, minutes] = formData.time.split(':');
-      const bookingDateTime = new Date(formData.date);
-      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
 
-      const checkResponse = await fetch(`https://lashes-site.onrender.com/api/bookings/check-booking-availability`, {
+      const checkResponse = await fetch(apiUrl('/api/bookings/check-booking-availability'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          bookingTime: bookingDateTime.toISOString()
-        })
+        body: JSON.stringify(dateTimeFields)
       });
 
       if (!checkResponse.ok) {
@@ -528,19 +525,7 @@ const ClusterLashes = () => {
           </p>
         </div>
 
-        {/* Confirmation popup shown after successful payment */}
-        {showConfirmationPopup && (
-          <div className="modal-overlay" style={{ zIndex: 1000 }}>
-            <div
-              className="modal-content"
-              style={{ maxWidth: '420px', textAlign: 'center', color: '#fff', background: 'rgba(0,0,0,0.7)' }}
-            >
-              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Payment Successful</h3>
-              <p style={{ margin: '0.5rem 0 0', fontSize: '1rem', color: '#fff' }}>Payment completed and booking confirmed.</p>
-              <p style={{ fontWeight: 600, marginTop: '0.5rem', fontSize: '0.95rem', color: '#fff' }}>Late arrivals attract an extra fee of GHS 30.</p>
-            </div>
-          </div>
-        )}
+        <PaymentSuccessModal isOpen={showConfirmationPopup} />
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>

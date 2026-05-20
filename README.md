@@ -49,11 +49,17 @@ cd ../client && npm install
 ### 2) Configure environment
 Create `server/.env`:
 ```
-MONGODB_URI=mongodb://localhost:27017/beauty-booking
+MONGO_URI=mongodb://localhost:27017/beauty-booking
 JWT_SECRET=your_strong_secret
 PORT=5000
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your_secure_password
+
+# Resend (booking emails)
+RESEND_API_KEY=re_xxxxxxxx
+ADMIN_EMAIL=you@example.com
+# Optional: verified sender in Resend (defaults to onboarding@resend.dev for testing)
+# EMAIL_FROM=Best Lashes <onboarding@resend.dev>
 ```
 
 **Note:** For production, use a strong password and consider hashing it with bcrypt. The system supports both plain text and hashed passwords (starting with `$2`).

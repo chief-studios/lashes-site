@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { PaystackButton } from 'react-paystack';
 import consultationImage from '../images/consultation.jpg';
 import { generateTimeSlots } from '../utils/timeSlots';
+import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
+import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/consultation.css';
@@ -72,18 +74,14 @@ const LashConsultation = () => {
       setCheckingAvailability(true);
       setSubmitStatus({ type: '', message: '' });
 
-      const [hours, minutes] = formData.time.split(':');
-      const bookingDateTime = new Date(formData.date);
-      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
 
-      const checkResponse = await fetch(`https://lashes-site.onrender.com/api/bookings/check-booking-availability`, {
+      const checkResponse = await fetch(apiUrl('/api/bookings/check-booking-availability'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          bookingTime: bookingDateTime.toISOString()
-        })
+        body: JSON.stringify(dateTimeFields)
       });
 
       if (!checkResponse.ok) {
@@ -123,11 +121,9 @@ const LashConsultation = () => {
     setSubmitStatus({ type: '', message: '' });
 
     try {
-      const [hours, minutes] = formData.time.split(':');
-      const bookingDateTime = new Date(formData.date);
-      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
 
-      const response = await fetch('https://lashes-site.onrender.com/api/bookings', {
+      const response = await fetch(apiUrl('/api/bookings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +133,7 @@ const LashConsultation = () => {
           phone: formData.phone,
           email: formData.email,
           service: 'Lash Consultation',
-          bookingTime: bookingDateTime.toISOString(),
+          ...dateTimeFields,
           paymentReference: reference.reference,
           amount: CONSULTATION_FEE,
           paymentStatus: 'completed',

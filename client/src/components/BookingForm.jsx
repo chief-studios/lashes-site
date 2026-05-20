@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
+import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
+import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/booking.css';
 
@@ -48,12 +50,9 @@ const BookingForm = ({ selectedProduct = null }) => {
         setSubmitStatus({ type: '', message: '' });
 
         try {
-            // Combine date and time into a single datetime
-            const [hours, minutes] = formData.time.split(':');
-            const bookingDateTime = new Date(formData.date);
-            bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
 
-            const response = await fetch('https://lashes-site.onrender.com/api/bookings', {
+            const response = await fetch(apiUrl('/api/bookings'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +63,7 @@ const BookingForm = ({ selectedProduct = null }) => {
                     email: formData.email,
                     service: formData.service,
                     comments: formData.comments,
-                    bookingTime: bookingDateTime.toISOString()
+                    ...dateTimeFields
                 })
             });
 
