@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminCustomers from './AdminCustomers';
 import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
+import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/admin.css';
 import '../styles/booking.css';
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
     setLoginError('');
 
     try {
-      const response = await fetch('https://lashes-site.onrender.com/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('adminToken');
       
       // Fetch bookings
-      const bookingsResponse = await fetch('https://lashes-site.onrender.com/api/bookings', {
+      const bookingsResponse = await fetch(apiUrl('/api/bookings'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -89,7 +90,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch time slots (we'll create this endpoint)
-      const timeSlotsResponse = await fetch('https://lashes-site.onrender.com/api/time-slots', {
+      const timeSlotsResponse = await fetch(apiUrl('/api/timeslots'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -132,7 +133,7 @@ const AdminDashboard = () => {
     try {
       setUpdatingBookingId(bookingId);
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`https://lashes-site.onrender.com/api/bookings/${bookingId}/status`, {
+      const response = await fetch(apiUrl(`/api/bookings/${bookingId}/status`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -344,7 +345,7 @@ const AdminDashboard = () => {
                           <span className="spinner"></span> Updating...
                         </>
                       ) : (
-                        'Confirm'
+                        'Approve'
                       )}
                     </button>
                     <button 
@@ -357,7 +358,7 @@ const AdminDashboard = () => {
                           <span className="spinner"></span> Updating...
                         </>
                       ) : (
-                        'Cancel'
+                        'Reject'
                       )}
                     </button>
                   </div>

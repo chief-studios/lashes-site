@@ -136,7 +136,7 @@ const sendAdminNewBookingEmail = async (booking) => {
 };
 
 /**
- * Notify the client when admin accepts (confirmed) or rejects (cancelled) a booking.
+ * Email the client when admin approves (confirmed) or rejects (cancelled) a booking.
  * @param {import('../models/Booking')} booking
  * @param {'confirmed'|'cancelled'} status
  */
@@ -146,27 +146,30 @@ const sendClientStatusEmail = async (booking, status) => {
         return;
     }
 
-    const isConfirmed = status === 'confirmed';
+    const isApproved = status === 'confirmed';
     const when = formatBookingDateTime(booking.bookingTime);
 
-    const subject = isConfirmed
-        ? 'Your lash appointment is confirmed'
-        : 'Your lash appointment was not confirmed';
+    const subject = isApproved
+        ? 'Your booking has been approved'
+        : 'Your booking has been rejected';
 
-    const html = isConfirmed
+    const text = isApproved
+        ? `Hi ${booking.name},\n\nYour booking has been approved.\n\nService: ${booking.service}\nDate & time: ${when}\n\nYour appointment will take place at the time above. We look forward to seeing you.\n\nIf you need to make changes, reply to this email or contact the studio.`
+        : `Hi ${booking.name},\n\nYour booking has been rejected.\n\nService: ${booking.service}\nRequested time: ${when}\n\nThis appointment will not take place. You may book another available slot on our website.\n\nThank you for your interest.`;
+
+    const html = isApproved
         ? `
-        <h2>Appointment confirmed</h2>
+        <h2>Booking approved</h2>
         <p>Hi ${booking.name},</p>
-        <p>Your booking has been <strong>accepted</strong>. Your appointment <strong>will take place</strong> at the time below.</p>
+        <p>Your booking has been <strong>approved</strong>. Your appointment <strong>will take place</strong> at the time below.</p>
         <p><strong>Service:</strong> ${booking.service}</p>
         <p><strong>Date &amp; time:</strong> ${when}</p>
-        <p><strong>Phone on file:</strong> ${booking.phone}</p>
-        <p>We look forward to seeing you. If you need to change anything, reply to this email or contact the studio.</p>
+        <p>We look forward to seeing you. If you need to make changes, reply to this email or contact the studio.</p>
     `
         : `
-        <h2>Appointment not confirmed</h2>
+        <h2>Booking rejected</h2>
         <p>Hi ${booking.name},</p>
-        <p>Your booking request was <strong>not accepted</strong>. The appointment below <strong>will not take place</strong>.</p>
+        <p>Your booking has been <strong>rejected</strong>. The appointment below <strong>will not take place</strong>.</p>
         <p><strong>Service:</strong> ${booking.service}</p>
         <p><strong>Requested time:</strong> ${when}</p>
         <p>Please choose another available slot on our website if you would still like to book.</p>
@@ -176,22 +179,21 @@ const sendClientStatusEmail = async (booking, status) => {
         from: emailFrom(),
         to: [booking.email],
         subject,
-        html
+        html,
+        text
     });
 
     if (!result.ok) {
         const err = result.error;
-        const msg =
-            err && typeof err === 'object' && 'message' in err
-                ? String(err.message)
-                : err
-                  ? JSON.stringify(err)
-                  : 'Resend send failed';
-        throw new Error(msg);
+        console.error(
+            '[booking email] Client approval/rejection email failed:',
+            err && typeof err === 'object' && 'message' in err ? err.message : err
+        );
+        return;
     }
 
     console.log(
-        `[booking email] Client ${isConfirmed ? 'acceptance' : 'rejection'} email sent to ${booking.email}`
+        `[booking email] Client ${isApproved ? 'approval' : 'rejection'} email sent to ${booking.email}`
     );
 };
 
@@ -462,14 +464,7 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
             statusChanged && (status === 'confirmed' || status === 'cancelled');
 
         if (shouldNotifyClient) {
-            try {
-                await sendClientStatusEmail(booking, status);
-            } catch (emailError) {
-                console.error(
-                    '[booking email] Failed to send client status email:',
-                    emailError.message
-                );
-            }
+            await sendClientStatusEmail(booking, status);
         }
 
         // Update time slot availability based on status
