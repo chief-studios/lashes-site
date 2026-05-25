@@ -599,7 +599,7 @@ const MinkLashes = () => {
                 title: 'Customized Set',
                 consultationOnly: true,
                 coverImage: customizedSetImage,
-                details: 'Consultation required first',
+                details: 'Anime Set and other Mink Lashes Customizations. Consultation required first',
               };
 
               const selectGroup = (key) => {
