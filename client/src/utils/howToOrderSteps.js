@@ -17,7 +17,7 @@ export function getHowToOrderSteps(selectedGroup, selectedProductDetails) {
   }
 
   return [
-    'Pick your main style — begin with Classic, Hybrid, or Volume.',
-    'Each collection reveals the looks curated for you.',
+    'Pick your main style — Classic, Hybrid, Volume, or Customized Set.',
+    'Each collection reveals the looks curated for you (Customized Set requires a consultation first).',
   ];
 }

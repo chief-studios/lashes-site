@@ -148,6 +148,16 @@
   color: var(--text-light);
 }
 
+.service-page .products-grid.mink-products-grid {
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 900px) {
+  .service-page .products-grid.mink-products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
 @media (max-width: 768px) {
   .service-page {
     margin-top: 70px;
@@ -231,6 +241,44 @@
 
 .modal-ok-btn:active {
   transform: translateY(0);
+}
+
+.customized-set-modal__hint {
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.customized-set-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.customized-set-modal__cta {
+  text-align: center;
+  text-decoration: none;
+}
+
+.customized-set-modal__close {
+  background: transparent;
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.customized-set-modal__close:hover {
+  border-color: var(--primary-pink);
+  color: var(--primary-pink);
+}
+
+.customized-set-modal-overlay {
+  z-index: 1100;
 }
 
 @keyframes slideIn {

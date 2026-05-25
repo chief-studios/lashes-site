@@ -4,6 +4,8 @@ import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
+import { useServicePageScroll } from '../hooks/useServicePageScroll';
+import { scrollElementBelowNav } from '../utils/scrollPageToTop';
 import { getHowToOrderSteps } from '../utils/howToOrderSteps';
 import { LASH_COLORS } from '../data/lashColors';
 import InlineTip from '../components/InlineTip';
@@ -42,6 +44,11 @@ const ClusterLashes = () => {
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
 
+  useServicePageScroll(productsSectionRef, {
+    selectedGroup,
+    selectedProductId: selectedProductDetails?.id,
+  });
+
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
 
@@ -73,6 +80,9 @@ const ClusterLashes = () => {
     setSelectedProductDetails(product);
     setFormData(prev => ({ ...prev, product: product.name || '' }));
     setSelectedColor('');
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const removeMainFromOrder = () => {
@@ -553,9 +563,7 @@ const ClusterLashes = () => {
             };
 
             const scrollToSection = () => {
-              if (productsSectionRef.current) {
-                productsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
+              scrollElementBelowNav(productsSectionRef.current, 'smooth');
             };
 
             if (!selectedGroup) {

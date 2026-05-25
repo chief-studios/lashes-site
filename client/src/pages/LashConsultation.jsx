@@ -5,6 +5,7 @@ import consultationImage from '../images/consultation.jpg';
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
+import { scrollPageToTopAfterPaint } from '../utils/scrollPageToTop';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/consultation.css';
@@ -32,6 +33,10 @@ const LashConsultation = () => {
   
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
+
+  useEffect(() => {
+    scrollPageToTopAfterPaint();
+  }, []);
 
   useEffect(() => {
     if (formData.date) {

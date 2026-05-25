@@ -4,6 +4,8 @@ import { products } from '../data/products';
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
+import { useServicePageScroll } from '../hooks/useServicePageScroll';
+import { scrollElementBelowNav } from '../utils/scrollPageToTop';
 import { getHowToOrderSteps } from '../utils/howToOrderSteps';
 import { LASH_COLORS } from '../data/lashColors';
 import InlineTip from '../components/InlineTip';
@@ -11,6 +13,8 @@ import OrderBar from '../components/OrderBar';
 import BookingCheckoutModal from '../components/BookingCheckoutModal';
 import ColorLashPicker from '../components/ColorLashPicker';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
+import CustomizedSetConsultModal from '../components/CustomizedSetConsultModal';
+import customizedSetImage from '../images/anime image.jpeg';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/home.css';
@@ -41,6 +45,12 @@ const MinkLashes = () => {
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
+  const [showCustomizedSetModal, setShowCustomizedSetModal] = useState(false);
+
+  useServicePageScroll(productsSectionRef, {
+    selectedGroup,
+    selectedProductId: selectedProductDetails?.id,
+  });
 
   // Paystack configuration
   const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
@@ -75,6 +85,9 @@ const MinkLashes = () => {
     setSelectedProductDetails(product);
     setFormData(prev => ({ ...prev, product: product.name || '' }));
     setSelectedColor('');
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const removeMainFromOrder = () => {
@@ -529,6 +542,10 @@ const MinkLashes = () => {
         </div>
 
         <PaymentSuccessModal isOpen={showConfirmationPopup} />
+        <CustomizedSetConsultModal
+          isOpen={showCustomizedSetModal}
+          onClose={() => setShowCustomizedSetModal(false)}
+        />
         {false && showConfirmationPopup && (
           <div className="modal-overlay" style={{ zIndex: 1000 }}>
             <div
@@ -568,26 +585,38 @@ const MinkLashes = () => {
             };
 
             const scrollToSection = () => {
-              if (productsSectionRef.current) {
-                productsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
+              scrollElementBelowNav(productsSectionRef.current, 'smooth');
             };
 
             if (!selectedGroup) {
-              const sections = [
+              const styleSections = [
                 { key: 'classic', title: 'Classic', items: groups.classic },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
                 { key: 'volume', title: 'Volume', items: groups.volume },
               ];
+              const customizedSection = {
+                key: 'customized',
+                title: 'Customized Set',
+                consultationOnly: true,
+                coverImage: customizedSetImage,
+                details: 'Consultation required first',
+              };
+
               const selectGroup = (key) => {
                 setSelectedGroup(key);
               };
 
+              const openCustomizedModal = () => {
+                setShowCustomizedSetModal(true);
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+              };
+
               return (
                 <div className="service-cards-container">
-                  {sections.filter(s => s.items.length > 0).map(section => {
+                  {styleSections.filter(s => s.items.length > 0).map(section => {
                     const { mainStyles } = separateStylesAndExtras(section.items);
-                    // Prefer a poster image for the cover if one is defined for this mink group
                     const posterItem = minkProducts.find(p => p.type === `mink ${section.key}` && p.poster === 'yes');
                     const coverImage = posterItem?.image || mainStyles[0]?.image || section.items[0]?.image;
 
@@ -610,6 +639,27 @@ const MinkLashes = () => {
                       </div>
                     );
                   })}
+                  <div
+                    key={customizedSection.key}
+                    className="service-card service-card--consultation"
+                    onClick={openCustomizedModal}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openCustomizedModal();
+                      }
+                    }}
+                  >
+                    <div className="service-image">
+                      <img src={customizedSection.coverImage} alt="Customized Set" />
+                    </div>
+                    <div className="service-info">
+                      <h3>{customizedSection.title}</h3>
+                      <p className="service-details">{customizedSection.details}</p>
+                    </div>
+                  </div>
                 </div>
               );
             }
@@ -629,7 +679,7 @@ const MinkLashes = () => {
                 {sortedMainStyles.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
-                    <div className="products-grid">
+                    <div className="products-grid mink-products-grid">
                       {sortedMainStyles
                         .filter(p => p.poster !== 'yes')
                         .map(product => (
@@ -668,7 +718,7 @@ const MinkLashes = () => {
 
                     {/* Product extras grid (only if there are product-based extras) */}
                     {extras.length > 0 && (
-                      <div className="products-grid">
+                      <div className="products-grid mink-products-grid">
                         {extras
                           .filter(p => p.poster !== 'yes')
                           .map(product => (
