@@ -599,7 +599,7 @@ const MinkLashes = () => {
                 title: 'Customized Set',
                 consultationOnly: true,
                 coverImage: customizedSetImage,
-                details: 'Anime Set and other Mink Lashes Customizations. Consultation required first',
+                details: 'Consultation required first',
               };
 
               const selectGroup = (key) => {
@@ -679,7 +679,7 @@ const MinkLashes = () => {
                 {sortedMainStyles.length > 0 && (
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
-                    <div className="products-grid mink-products-grid">
+                    <div className="products-grid">
                       {sortedMainStyles
                         .filter(p => p.poster !== 'yes')
                         .map(product => (
@@ -718,7 +718,7 @@ const MinkLashes = () => {
 
                     {/* Product extras grid (only if there are product-based extras) */}
                     {extras.length > 0 && (
-                      <div className="products-grid mink-products-grid">
+                      <div className="products-grid">
                         {extras
                           .filter(p => p.poster !== 'yes')
                           .map(product => (
