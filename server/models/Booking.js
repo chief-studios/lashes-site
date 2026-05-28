@@ -33,6 +33,31 @@ const bookingSchema = new mongoose.Schema({
     comments:{
         type: String,
     },
+    amountPaid: {
+        type: Number,
+        default: 0
+    },
+    totalAmount: {
+        type: Number,
+        default: 0
+    },
+    remainingAmount: {
+        type: Number,
+        default: 0
+    },
+    paymentReference: {
+        type: String,
+        trim: true
+    },
+    paymentStatus: {
+        type: String,
+        trim: true
+    },
+    currency: {
+        type: String,
+        trim: true,
+        default: 'GHS'
+    },
     createdAt: {
         type: Date,
         default: Date.now

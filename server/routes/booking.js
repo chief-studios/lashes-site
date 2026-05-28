@@ -40,15 +40,26 @@ const resolveBookingDateTime = (body) => {
             return { error: INVALID_SLOT_MESSAGE };
         }
 
-        const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(bookingDate).trim());
-        if (!dateMatch) {
-            return { error: 'Invalid booking date.' };
+        let dateMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(String(bookingDate).trim());
+        let day;
+        let month;
+        let year;
+
+        if (dateMatch) {
+            year = parseInt(dateMatch[1], 10);
+            month = parseInt(dateMatch[2], 10);
+            day = parseInt(dateMatch[3], 10);
+        } else {
+            dateMatch = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/.exec(String(bookingDate).trim());
+            if (!dateMatch) {
+                return { error: 'Invalid booking date.' };
+            }
+            day = parseInt(dateMatch[1], 10);
+            month = parseInt(dateMatch[2], 10);
+            year = parseInt(dateMatch[3], 10);
         }
 
-        const y = parseInt(dateMatch[1], 10);
-        const mo = parseInt(dateMatch[2], 10);
-        const d = parseInt(dateMatch[3], 10);
-        const bookingDateTime = new Date(y, mo - 1, d, hours, minutes, 0, 0);
+        const bookingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
         if (Number.isNaN(bookingDateTime.getTime())) {
             return { error: 'Invalid booking date.' };
@@ -200,7 +211,20 @@ const sendClientStatusEmail = async (booking, status) => {
 // Create new booking (public)
 router.post('/', async (req, res) => {
     try {
-        const { name, phone, email, service, bookingTime, comments } = req.body;
+        const {
+            name,
+            phone,
+            email,
+            service,
+            bookingTime,
+            comments,
+            amount,
+            amountPaid,
+            totalAmount,
+            paymentReference,
+            paymentStatus,
+            currency
+        } = req.body;
 
         // Validate required fields
         if (!name || !phone || !email || !service || !bookingTime) {
@@ -208,6 +232,21 @@ router.post('/', async (req, res) => {
                 message: 'All fields are required'
             });
         }
+
+        const parsedNumber = (value) => {
+            if (typeof value === 'number') return value;
+            const parsed = parseFloat(value);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        };
+
+        const paid = parsedNumber(amountPaid ?? amount);
+        const total = parsedNumber(totalAmount);
+
+        if (paid < 0 || total < 0) {
+            return res.status(400).json({ message: 'Invalid payment amounts' });
+        }
+
+        const remainingAmount = Math.max(0, total - paid);
 
         const resolved = resolveBookingDateTime(req.body);
         if (resolved.error) {
@@ -250,7 +289,13 @@ router.post('/', async (req, res) => {
             email: email.toLowerCase(),
             service,
             bookingTime: bookingDateTime,
-            comments: comments || ''
+            comments: comments || '',
+            amountPaid: paid,
+            totalAmount: total,
+            remainingAmount,
+            paymentReference,
+            paymentStatus,
+            currency: currency || 'GHS'
         });
 
         await booking.save();

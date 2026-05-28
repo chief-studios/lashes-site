@@ -77,6 +77,15 @@ const AdminCustomers = () => {
     }
   };
 
+  const formatDate = (value) => {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   if (loading) {
     return <div className="admin-content"><div className="loading">Loading...</div></div>;
   }
@@ -120,7 +129,7 @@ const AdminCustomers = () => {
                     <p><strong>Email:</strong> {customer.email}</p>
                     <p><strong>Phone:</strong> {customer.phone}</p>
                     {customer.lastVisit && (
-                      <p><strong>Last Visit:</strong> {new Date(customer.lastVisit).toLocaleDateString()}</p>
+                      <p><strong>Last Visit:</strong> {formatDate(customer.lastVisit)}</p>
                     )}
                     {customer.totalSpent > 0 && (
                       <p><strong>Total Spent:</strong> ${customer.totalSpent.toFixed(2)}</p>
@@ -149,7 +158,7 @@ const AdminCustomers = () => {
                 <p><strong>Phone:</strong> {selectedCustomer.phone}</p>
                 <p><strong>Total Bookings:</strong> {selectedCustomer.totalBookings}</p>
                 {selectedCustomer.lastVisit && (
-                  <p><strong>Last Visit:</strong> {new Date(selectedCustomer.lastVisit).toLocaleDateString()}</p>
+                  <p><strong>Last Visit:</strong> {formatDate(selectedCustomer.lastVisit)}</p>
                 )}
                 {selectedCustomer.notes && (
                   <div className="notes-section">
@@ -167,7 +176,7 @@ const AdminCustomers = () => {
                   <div key={booking._id} className="booking-item">
                     <div className="booking-info">
                       <p><strong>Service:</strong> {booking.service}</p>
-                      <p><strong>Date:</strong> {new Date(booking.bookingTime).toLocaleDateString()}</p>
+                      <p><strong>Date:</strong> {formatDate(booking.bookingTime)}</p>
                       <p><strong>Time:</strong> {new Date(booking.bookingTime).toLocaleTimeString()}</p>
                       <p><strong>Status:</strong> 
                         <span className={`status ${booking.status}`}>{booking.status}</span>

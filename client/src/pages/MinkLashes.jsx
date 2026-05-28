@@ -284,6 +284,9 @@ const MinkLashes = () => {
           comments: comments,
           paymentReference: reference.reference,
           amount: getPaymentAmount() / 100,
+          amountPaid: getPaymentAmount() / 100,
+          totalAmount: getTotalPrice(),
+          remainingAmount: Math.max(0, getTotalPrice() - (getPaymentAmount() / 100)),
           paymentStatus: 'completed',
           currency: 'GHS'
         })
@@ -710,7 +713,7 @@ const MinkLashes = () => {
 
                 {(extras.length > 0 || additionalExtras.length > 0) && (
                   <>
-                    <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.2rem' }}>Optional Extras</h4>
+                    <h4 style={{ color: '#ff66b2', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.5rem', fontWeight: '700' }}>Optional Extras</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
                     <InlineTip title="Tip">
                       Extras are optional—tap to add, tap again to remove. Your summary updates automatically.

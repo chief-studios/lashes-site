@@ -141,6 +141,9 @@ const LashConsultation = () => {
           ...dateTimeFields,
           paymentReference: reference.reference,
           amount: CONSULTATION_FEE,
+          amountPaid: CONSULTATION_FEE,
+          totalAmount: CONSULTATION_FEE,
+          remainingAmount: 0,
           paymentStatus: 'completed',
           currency: 'GHS'
         })

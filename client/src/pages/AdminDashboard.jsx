@@ -129,6 +129,15 @@ const AdminDashboard = () => {
     return `${displayHours}:${minutes}${ampm}`;
   };
 
+  const formatDate = (value) => {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const handleUpdateBookingStatus = async (bookingId, status) => {
     try {
       setUpdatingBookingId(bookingId);
@@ -325,10 +334,17 @@ const AdminDashboard = () => {
                     <p><strong>Service:</strong> {booking.service}</p>
                     <p><strong>Email:</strong> {booking.email}</p>
                     <p><strong>Phone:</strong> {booking.phone}</p>
-                    <p><strong>Date:</strong> {new Date(booking.bookingTime).toLocaleDateString()}</p>
+                    <p><strong>Date:</strong> {formatDate(booking.bookingTime)}</p>
                     <p><strong>Time:</strong> {formatTime(booking.bookingTime)}</p>
                     <p><strong>Status:</strong> 
                       <span className={`status ${booking.status}`}>{booking.status}</span>
+                    </p>
+                    <p><strong>Total:</strong> ₵{typeof booking.totalAmount === 'number' ? booking.totalAmount.toFixed(2) : '0.00'}</p>
+                    <p><strong>Paid:</strong> ₵{typeof booking.amountPaid === 'number' ? booking.amountPaid.toFixed(2) : '0.00'}</p>
+                    <p><strong>Remaining:</strong> 
+                      <span className={booking.remainingAmount > 0 ? 'remaining-due' : 'paid-in-full'}>
+                        ₵{typeof booking.remainingAmount === 'number' ? booking.remainingAmount.toFixed(2) : '0.00'}
+                      </span>
                     </p>
                     {booking.comments && (
                       <p><strong>Comments / Extras:</strong> {booking.comments}</p>
@@ -404,7 +420,7 @@ const AdminDashboard = () => {
                   {timeSlots.slice(0, 50).map(slot => (
                     <div key={slot._id} className="time-slot-card">
                       <div className="slot-info">
-                        <p><strong>Date:</strong> {new Date(slot.date).toLocaleDateString()}</p>
+                        <p><strong>Date:</strong> {formatDate(slot.date)}</p>
                         <p><strong>Time:</strong> {slot.time}</p>
                         <p><strong>Status:</strong> 
                           <span className={`status ${slot.isAvailable ? 'available' : 'unavailable'}`}>

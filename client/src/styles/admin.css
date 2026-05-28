@@ -146,6 +146,16 @@
   color: #2e7d32;
 }
 
+.booking-info .remaining-due {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.booking-info .paid-in-full {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
 .booking-info .status.cancelled {
   background: rgba(158, 158, 158, 0.1);
   color: #616161;
