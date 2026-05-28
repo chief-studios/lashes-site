@@ -15,7 +15,27 @@ const getAdminNotifyEmail = () =>
         '')
         .trim();
 
-const formatBookingDateTime = (date) => new Date(date).toLocaleString();
+function pad2(n) {
+    return String(n).padStart(2, '0');
+}
+
+function formatDateOnlyToDDMMYYYY(input) {
+    const d = new Date(input);
+    if (Number.isNaN(d.getTime())) return '';
+    const day = pad2(d.getDate());
+    const month = pad2(d.getMonth() + 1);
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+const formatBookingDateTime = (input) => {
+    const d = new Date(input);
+    if (Number.isNaN(d.getTime())) return String(input);
+    const date = formatDateOnlyToDDMMYYYY(d);
+    const hours = pad2(d.getHours());
+    const minutes = pad2(d.getMinutes());
+    return `${date} ${hours}:${minutes}`;
+};
 
 const VALID_SLOT_HOURS = [8, 10, 12, 14, 16, 18, 20];
 const INVALID_SLOT_MESSAGE =
@@ -330,9 +350,13 @@ router.post('/', async (req, res) => {
             console.error('[booking] Customer record update failed:', customerError.message);
         }
 
+        // Return booking plus a human-friendly date string (DD/MM/YYYY)
+        const bookingObj = booking.toObject ? booking.toObject() : booking;
+        bookingObj.bookingDate = formatDateOnlyToDDMMYYYY(booking.bookingTime);
+
         res.status(201).json({
             message: 'Booking submitted successfully!',
-            booking
+            booking: bookingObj
         });
     } catch (error) {
         console.error('[booking] Create booking failed:', error);
