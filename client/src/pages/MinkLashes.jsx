@@ -52,8 +52,24 @@ const MinkLashes = () => {
     selectedProductId: selectedProductDetails?.id,
   });
 
-  // Paystack configuration
-  const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
+  const [paystackPublicKey, setPaystackPublicKey] = useState('');
+  const [paystackKeyError, setPaystackKeyError] = useState('');
+
+  useEffect(() => {
+    const loadPaystackKey = async () => {
+      try {
+        const response = await fetch(apiUrl('/api/paystack/public-key'));
+        if (!response.ok) throw new Error('Unable to load payment configuration.');
+        const data = await response.json();
+        setPaystackPublicKey(data.publicKey || '');
+      } catch (error) {
+        console.error('Paystack key fetch failed:', error);
+        setPaystackKeyError('Unable to initialize payment gateway. Please try again later.');
+      }
+    };
+
+    loadPaystackKey();
+  }, []);
 
   // Plain-text extras for mink lashes (no images)
   const additionalExtras = [
@@ -405,6 +421,11 @@ const MinkLashes = () => {
       return;
     }
 
+    if (!paystackPublicKey) {
+      setSubmitStatus({ type: 'error', message: 'Payment gateway unavailable. Please try again later.' });
+      return;
+    }
+
     // NEW: Check if color lashes extra is selected but no color is chosen
     if (hasColorLashExtra() && !selectedColor) {
       setSubmitStatus({ type: 'error', message: 'Please select a color for your color lashes extra.' });
@@ -472,11 +493,12 @@ const MinkLashes = () => {
       formData.time &&
       selectedProductDetails &&
       // NEW: Include color validation only if color lashes extra is selected
-      (!hasColorLashExtra() || selectedColor);
+      (!hasColorLashExtra() || selectedColor) &&
+      !!paystackPublicKey;
   };
 
   const canPayFromReview = () => {
-    return Boolean(selectedProductDetails) && (!hasColorLashExtra() || selectedColor);
+    return Boolean(selectedProductDetails) && (!hasColorLashExtra() || selectedColor) && !!paystackPublicKey;
   };
 
   const sortProductsByPrice = (productsArray) => {

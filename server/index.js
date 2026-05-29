@@ -101,6 +101,17 @@ app.get('/api/health', (req, res) => {
 // Auth routes don't need DB (using env vars)
 app.use('/api/auth', require('./routes/auth'));
 
+// Paystack public key endpoint
+app.get('/api/paystack/public-key', (req, res) => {
+    const publicKey = process.env.PAYSTACK_PUBLIC_KEY;
+    if (!publicKey) {
+        return res.status(500).json({
+            message: 'Paystack public key is not configured on the server.'
+        });
+    }
+    res.json({ publicKey });
+});
+
 // All other routes require database connection
 app.use('/api/bookings', checkDBConnection, require('./routes/booking'));
 app.use('/api/admin', checkDBConnection, require('./routes/admin'));

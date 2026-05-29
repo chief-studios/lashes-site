@@ -27,12 +27,27 @@ const LashConsultation = () => {
   const [shouldTriggerPayment, setShouldTriggerPayment] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [timeSlotAvailable, setTimeSlotAvailable] = useState(null);
+  const [paystackPublicKey, setPaystackPublicKey] = useState('');
+  const [paystackKeyError, setPaystackKeyError] = useState('');
 
   // Consultation fee
   const CONSULTATION_FEE = 50;
-  
-  // Paystack configuration
-  const paystackPublicKey = "pk_test_687e1e97db3f1e8ce1b3f7b8bd3220169f57dff2";
+
+  useEffect(() => {
+    const loadPaystackKey = async () => {
+      try {
+        const response = await fetch(apiUrl('/api/paystack/public-key'));
+        if (!response.ok) throw new Error('Unable to load payment configuration.');
+        const data = await response.json();
+        setPaystackPublicKey(data.publicKey || '');
+      } catch (error) {
+        console.error('Paystack key fetch failed:', error);
+        setPaystackKeyError('Unable to initialize payment gateway. Please try again later.');
+      }
+    };
+
+    loadPaystackKey();
+  }, []);
 
   useEffect(() => {
     scrollPageToTopAfterPaint();
@@ -201,6 +216,11 @@ const LashConsultation = () => {
 
     if (!formData.name || !formData.phone || !formData.email || !formData.date || !formData.time) {
       setSubmitStatus({ type: 'error', message: 'Please fill in all required fields.' });
+      return;
+    }
+
+    if (!paystackPublicKey) {
+      setSubmitStatus({ type: 'error', message: 'Payment gateway unavailable. Please try again later.' });
       return;
     }
 
