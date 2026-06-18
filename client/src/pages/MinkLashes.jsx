@@ -43,6 +43,7 @@ const MinkLashes = () => {
   const extrasRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
+  const colorPickerRef = useRef(null);
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
@@ -131,6 +132,9 @@ const MinkLashes = () => {
     if (isSelected) {
       if (selectedExtras.some(p => p.id === product.id)) return;
       setSelectedExtras(prev => [...prev, product]);
+      if (isColorLashExtra(product?.name)) {
+        requestAnimationFrame(() => scrollElementBelowNav(colorPickerRef.current));
+      }
     } else {
       setSelectedExtras(prev => prev.filter(p => p.id !== productId));
       if (isColorLashExtra(product?.name)) {
@@ -781,12 +785,14 @@ const MinkLashes = () => {
                     )}
 
                     {hasColorLashExtra() && (
-                      <ColorLashPicker
-                        id="mink-lash-color"
-                        selectedColor={selectedColor}
-                        onChange={handleColorChange}
-                        colors={LASH_COLORS}
-                      />
+                      <div ref={colorPickerRef}>
+                        <ColorLashPicker
+                          id="mink-lash-color"
+                          selectedColor={selectedColor}
+                          onChange={handleColorChange}
+                          colors={LASH_COLORS}
+                        />
+                      </div>
                     )}
 
                     {additionalExtras.length > 0 && (
