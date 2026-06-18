@@ -39,7 +39,7 @@ function App() {
                       Book Consultation
                     </Link>
                     <a href="#services" className="btn btn-secondary">
-                      Explore Collection
+                      Book Lash Appointment
                     </a>
                   </div>
                 </div>

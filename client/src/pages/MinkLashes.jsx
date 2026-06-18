@@ -40,6 +40,7 @@ const MinkLashes = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [checkoutReadyToPay, setCheckoutReadyToPay] = useState(false);
   const productsSectionRef = useRef(null);
+  const extrasRef = useRef(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedProductDetails, setSelectedProductDetails] = useState(null);
@@ -50,6 +51,7 @@ const MinkLashes = () => {
   useServicePageScroll(productsSectionRef, {
     selectedGroup,
     selectedProductId: selectedProductDetails?.id,
+    extrasRef,
   });
 
   const [paystackPublicKey, setPaystackPublicKey] = useState('');
@@ -734,14 +736,13 @@ const MinkLashes = () => {
                 )}
 
                 {(extras.length > 0 || additionalExtras.length > 0) && (
-                  <>
+                  <div ref={extrasRef} className="extras-section">
                     <h4 style={{ color: '#ff66b2', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.5rem', fontWeight: '700' }}>Optional Extras</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
                     <InlineTip title="Tip">
                       Extras are optional—tap to add, tap again to remove. Your summary updates automatically.
                     </InlineTip>
 
-                    {/* Product extras grid (only if there are product-based extras) */}
                     {extras.length > 0 && (
                       <div className="products-grid">
                         {extras
@@ -788,7 +789,6 @@ const MinkLashes = () => {
                       />
                     )}
 
-                    {/* Plain-text extras (no images) */}
                     {additionalExtras.length > 0 && (
                       <>
                         <h5 style={{ color: '#fff', marginTop: '1.5rem' }}>Other Extras</h5>
@@ -807,7 +807,7 @@ const MinkLashes = () => {
                         </div>
                       </>
                     )}
-                  </>
+                  </div>
                 )}
               </>
             );

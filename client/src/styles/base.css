@@ -48,6 +48,11 @@
   box-sizing: border-box;
 }
 
+/* Make all programmatic and anchor scrolling smooth */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--background-white);

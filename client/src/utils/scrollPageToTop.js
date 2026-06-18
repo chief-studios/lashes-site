@@ -1,13 +1,13 @@
 /** Matches fixed nav + .service-page margin-top */
 export const NAV_SCROLL_OFFSET = 80;
 
-export function scrollPageToTop(behavior = 'auto') {
+export function scrollPageToTop(behavior = 'smooth') {
   window.scrollTo({ top: 0, left: 0, behavior });
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
 }
 
-export function scrollElementBelowNav(element, behavior = 'auto') {
+export function scrollElementBelowNav(element, behavior = 'smooth') {
   if (!element) {
     scrollPageToTop(behavior);
     return;
@@ -18,9 +18,9 @@ export function scrollElementBelowNav(element, behavior = 'auto') {
 
 /** Run after layout so scroll wins over browser restoration / late renders */
 export function scrollPageToTopAfterPaint() {
-  scrollPageToTop('auto');
+  scrollPageToTop('smooth');
   requestAnimationFrame(() => {
-    scrollPageToTop('auto');
-    requestAnimationFrame(() => scrollPageToTop('auto'));
+    scrollPageToTop('smooth');
+    requestAnimationFrame(() => scrollPageToTop('smooth'));
   });
 }
