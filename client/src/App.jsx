@@ -7,6 +7,7 @@ import LashConsultation from './pages/LashConsultation';
 import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminProducts from './pages/AdminProducts'; // <-- ADDED IMPORT
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import './styles/base.css';
@@ -22,7 +23,7 @@ function App() {
         <ScrollToTop />
         <Navigation />
         <AdminLink />
-        
+
         <Routes>
           <Route path="/" element={
             <>
@@ -31,7 +32,7 @@ function App() {
                 <div className="hero-content">
                   <h1 className="fade-in-up">BEST LASHES</h1>
                   <p className="fade-in-up">
-                    Discover the art of premium lash extensions. From delicate classics to bold volumes, 
+                    Discover the art of premium lash extensions. From delicate classics to bold volumes,
                     we craft the perfect look for your unique beauty.
                   </p>
                   <div className="hero-buttons">
@@ -57,11 +58,12 @@ function App() {
               <Footer />
             </>
           } />
-          
+
           <Route path="/lash-consultation" element={<><LashConsultation /><Footer /></>} />
           <Route path="/cluster-lashes" element={<><ClusterLashes /><Footer /></>} />
           <Route path="/mink-lashes" element={<><MinkLashes /><Footer /></>} />
           <Route path="/admin" element={<><AdminDashboard /><Footer /></>} />
+          <Route path="/admin/products" element={<><AdminProducts /><Footer /></>} /> {/* <-- ADDED ROUTE */}
         </Routes>
       </div>
     </Router>

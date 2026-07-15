@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminCustomers from './AdminCustomers';
 import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
+import AdminProducts from './AdminProducts'; // <-- ADDED IMPORT
 import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/admin.css';
@@ -76,26 +77,26 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      
+
       // Fetch bookings
       const bookingsResponse = await fetch(apiUrl('/api/bookings'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (bookingsResponse.ok) {
         const bookingsData = await bookingsResponse.json();
         setBookings(bookingsData);
       }
 
-      // Fetch time slots (we'll create this endpoint)
+      // Fetch time slots
       const timeSlotsResponse = await fetch(apiUrl('/api/timeslots'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (timeSlotsResponse.ok) {
         const timeSlotsData = await timeSlotsResponse.json();
         setTimeSlots(timeSlotsData);
@@ -118,7 +119,6 @@ const AdminDashboard = () => {
     setLoginData({ username: '', password: '' });
     setLoginError('');
   };
-
 
   const formatTime = (date) => {
     const d = new Date(date);
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
 
           <form className="admin-login-form" onSubmit={handleLogin}>
             {loginError && <div className="error-message">{loginError}</div>}
-            
+
             <div className="form-group">
               <label htmlFor="username">Username</label>
               <input
@@ -221,8 +221,8 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="login-btn"
               disabled={loginLoading}
             >
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
           </form>
 
           <div className="back-to-site">
-            <button 
+            <button
               className="back-btn"
               onClick={() => navigate('/')}
             >
@@ -263,37 +263,43 @@ const AdminDashboard = () => {
       </div>
 
       <div className="admin-nav">
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
           Dashboard
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'bookings' ? 'active' : ''}`}
           onClick={() => setActiveTab('bookings')}
         >
           Bookings
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'customers' ? 'active' : ''}`}
           onClick={() => setActiveTab('customers')}
         >
           Customers
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'time-slots' ? 'active' : ''}`}
           onClick={() => setActiveTab('time-slots')}
         >
           Time Slots
         </button>
-        <button 
+        <button
+          className={`nav-btn ${activeTab === 'products' ? 'active' : ''}`}
+          onClick={() => setActiveTab('products')}
+        >
+          Products
+        </button>
+        <button
           className={`nav-btn ${activeTab === 'analytics' ? 'active' : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
           Analytics
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
@@ -336,12 +342,12 @@ const AdminDashboard = () => {
                     <p><strong>Phone:</strong> {booking.phone}</p>
                     <p><strong>Date:</strong> {formatDate(booking.bookingTime)}</p>
                     <p><strong>Time:</strong> {formatTime(booking.bookingTime)}</p>
-                    <p><strong>Status:</strong> 
+                    <p><strong>Status:</strong>
                       <span className={`status ${booking.status}`}>{booking.status}</span>
                     </p>
                     <p><strong>Total:</strong> ₵{typeof booking.totalAmount === 'number' ? booking.totalAmount.toFixed(2) : '0.00'}</p>
                     <p><strong>Paid:</strong> ₵{typeof booking.amountPaid === 'number' ? booking.amountPaid.toFixed(2) : '0.00'}</p>
-                    <p><strong>Remaining:</strong> 
+                    <p><strong>Remaining:</strong>
                       <span className={booking.remainingAmount > 0 ? 'remaining-due' : 'paid-in-full'}>
                         ₵{typeof booking.remainingAmount === 'number' ? booking.remainingAmount.toFixed(2) : '0.00'}
                       </span>
@@ -351,7 +357,7 @@ const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="booking-actions">
-                    <button 
+                    <button
                       className={`status-btn ${booking.status === 'confirmed' ? 'confirmed' : ''}`}
                       onClick={() => handleUpdateBookingStatus(booking._id, 'confirmed')}
                       disabled={booking.status === 'confirmed' || updatingBookingId === booking._id}
@@ -364,7 +370,7 @@ const AdminDashboard = () => {
                         'Approve'
                       )}
                     </button>
-                    <button 
+                    <button
                       className={`status-btn cancel`}
                       onClick={() => handleUpdateBookingStatus(booking._id, 'cancelled')}
                       disabled={booking.status === 'cancelled' || updatingBookingId === booking._id}
@@ -387,14 +393,15 @@ const AdminDashboard = () => {
         {activeTab === 'customers' && <AdminCustomers />}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'settings' && <AdminSettings />}
+        {activeTab === 'products' && <AdminProducts />} {/* <-- ADDED PRODUCTS TAB RENDER */}
 
         {activeTab === 'time-slots' && (
           <div className="time-slots-section">
             <h2>Time Slots</h2>
-            <div style={{ 
-              background: 'rgba(255, 20, 147, 0.1)', 
-              padding: '1rem', 
-              borderRadius: '8px', 
+            <div style={{
+              background: 'rgba(255, 20, 147, 0.1)',
+              padding: '1rem',
+              borderRadius: '8px',
               marginBottom: '2rem',
               border: '1px solid rgba(255, 20, 147, 0.2)'
             }}>
@@ -412,17 +419,17 @@ const AdminDashboard = () => {
                   No time slots have been generated yet. They will be created automatically when customers book appointments.
                 </p>
               ) : (
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-                  gap: '1rem' 
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: '1rem'
                 }}>
                   {timeSlots.slice(0, 50).map(slot => (
                     <div key={slot._id} className="time-slot-card">
                       <div className="slot-info">
                         <p><strong>Date:</strong> {formatDate(slot.date)}</p>
                         <p><strong>Time:</strong> {slot.time}</p>
-                        <p><strong>Status:</strong> 
+                        <p><strong>Status:</strong>
                           <span className={`status ${slot.isAvailable ? 'available' : 'unavailable'}`}>
                             {slot.isAvailable ? 'Available' : 'Booked'}
                           </span>

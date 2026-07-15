@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useProducts'; // <-- IMPORTS BOTH STATIC & DB PRODUCTS
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
@@ -22,6 +22,8 @@ import '../styles/booking.css';
 
 const MinkLashes = () => {
   const navigate = useNavigate();
+  const { products } = useProducts(); // <-- COMBINED PRODUCTS ARRAY
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -536,6 +538,7 @@ const MinkLashes = () => {
             </ul>
           </InlineTip>
           {(() => {
+            // Filters the combined (static + dynamic) products array
             const minkProducts = products.filter(p => p.type && p.type.toLowerCase().includes('mink'));
             const filteredMinkProducts = minkProducts.filter(p => p.poster !== 'yes');
 

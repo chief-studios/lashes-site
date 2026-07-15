@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useProducts'; // <-- IMPORTS BOTH STATIC & DB PRODUCTS
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
@@ -20,6 +20,8 @@ import '../styles/booking.css';
 
 const ClusterLashes = () => {
   const navigate = useNavigate();
+  const { products } = useProducts(); // <-- COMBINED PRODUCTS ARRAY
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -516,6 +518,7 @@ const ClusterLashes = () => {
             </ul>
           </InlineTip>
           {(() => {
+            // Filters the combined (static + dynamic) products array
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
             const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');
 
