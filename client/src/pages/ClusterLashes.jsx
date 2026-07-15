@@ -71,7 +71,6 @@ const ClusterLashes = () => {
     loadPaystackKey();
   }, []);
 
-  // Plain-text extra for cluster lashes (no image)
   const additionalExtras = [
     { id: 2001, name: 'Removal', price: 50, extra: 'yes' }
   ];
@@ -85,7 +84,6 @@ const ClusterLashes = () => {
     }
   }, [formData.date]);
 
-  // Reset status when date or time changes
   useEffect(() => {
     if (formData.date || formData.time) {
       setSubmitStatus({ type: '', message: '' });
@@ -106,7 +104,6 @@ const ClusterLashes = () => {
 
   const removeMainFromOrder = () => {
     if (!selectedProductDetails) return;
-    const name = selectedProductDetails.name;
     setSelectedProductDetails(null);
     setFormData(prev => ({ ...prev, product: '' }));
     setSelectedColor('');
@@ -114,9 +111,7 @@ const ClusterLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // Handle extra selection
   const handleSelectExtra = (productId, isSelected) => {
-    // Look up in products first, then in component additionalExtras
     let product = products.find(p => p.id === productId);
     if (!product) product = additionalExtras.find(a => a.id === productId);
 
@@ -138,7 +133,6 @@ const ClusterLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // NEW: Function to remove color comment from comments
   const removeColorComment = () => {
     const existingComments = formData.comments;
     const colorRegex = /Color:\s*\w+/i;
@@ -151,17 +145,14 @@ const ClusterLashes = () => {
     }
   };
 
-  // Check if an extra is selected
   const isExtraSelected = (productId) => {
     return selectedExtras.some(extra => extra.id === productId);
   };
 
-  // NEW: Check if the selected extra is a color lash product
   const isColorLashExtra = (productName) => {
     return productName.toLowerCase().includes('color');
   };
 
-  // NEW: Check if any selected extra is a color lash
   const hasColorLashExtra = () => {
     return selectedExtras.some(extra => isColorLashExtra(extra.name));
   };
@@ -177,7 +168,6 @@ const ClusterLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // UPDATED: Color change handler that adds to comments
   const handleColorChange = (e) => {
     const color = e.target.value;
     setSelectedColor(color);
@@ -201,12 +191,10 @@ const ClusterLashes = () => {
         }));
       }
     } else {
-      // Remove color comment if color is deselected
       removeColorComment();
     }
   };
 
-  // Calculate total amount including extras (charge 40% of total)
   const getPaymentAmount = () => {
     let total = 0;
 
@@ -229,7 +217,6 @@ const ClusterLashes = () => {
     return (total * 0.4) * 100;
   };
 
-  // Get total price for display
   const getTotalPrice = () => {
     let total = 0;
 
@@ -252,35 +239,29 @@ const ClusterLashes = () => {
     return total;
   };
 
-  // Paystack success callback - updated to include extras in comments
   const handlePaystackSuccess = async (reference) => {
     setPaymentProcessing(true);
     setSubmitStatus({ type: '', message: '' });
 
     try {
       const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
-
       let comments = formData.comments;
 
-      // Build comments including extras
       if (selectedExtras.length > 0) {
         const extraNames = selectedExtras.map(extra => extra.name).join(', ');
         const extrasComment = `Extras: ${extraNames}`;
 
-        // Combine existing comments with extras comment
         if (comments && !comments.includes('Extras:')) {
           comments = comments + '\n' + extrasComment;
         } else if (!comments) {
           comments = extrasComment;
         }
-        // If comments already contain extras, we don't need to add them again
       }
 
-      // Build service string with lash type (e.g., "Cluster Volume Cat Eye")
       let service = 'Cluster Lashes';
       if (selectedProductDetails && selectedProductDetails.type) {
         const typeParts = selectedProductDetails.type.toLowerCase().split(' ');
-        const lashType = typeParts[1]?.charAt(0).toUpperCase() + typeParts[1]?.slice(1); // 'hybrid', 'volume', 'classic'
+        const lashType = typeParts.slice(1).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         service = `Cluster ${lashType} ${formData.product}`.trim();
       } else if (formData.product) {
         service = `Cluster Lashes ${formData.product}`;
@@ -288,9 +269,7 @@ const ClusterLashes = () => {
 
       const response = await fetch(apiUrl('/api/bookings'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           phone: formData.phone,
@@ -315,16 +294,7 @@ const ClusterLashes = () => {
         setCheckoutReadyToPay(false);
         setShowConfirmationPopup(true);
 
-        // Reset form
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          product: '',
-          date: '',
-          time: '',
-          comments: ''
-        });
+        setFormData({ name: '', phone: '', email: '', product: '', date: '', time: '', comments: '' });
         setSelectedColor('');
         setSelectedProductDetails(null);
         setSelectedExtras([]);
@@ -351,7 +321,6 @@ const ClusterLashes = () => {
     }
   };
 
-  // Paystack close callback
   const handlePaystackClose = () => {
     setSubmitStatus({
       type: 'info',
@@ -359,7 +328,6 @@ const ClusterLashes = () => {
     });
   };
 
-  // Check if time slot is available by querying existing bookings
   const checkTimeSlotAvailability = async () => {
     try {
       setCheckingAvailability(true);
@@ -369,9 +337,7 @@ const ClusterLashes = () => {
 
       const checkResponse = await fetch(apiUrl('/api/bookings/check-booking-availability'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dateTimeFields)
       });
 
@@ -406,7 +372,6 @@ const ClusterLashes = () => {
     }
   };
 
-  // Modified handleSubmit to check time slot availability before payment
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus({ type: '', message: '' });
@@ -426,7 +391,6 @@ const ClusterLashes = () => {
       return;
     }
 
-    // NEW: Check if color lashes extra is selected but no color is chosen
     if (hasColorLashExtra() && !selectedColor) {
       setSubmitStatus({ type: 'error', message: 'Please select a color for your color lashes extra.' });
       return;
@@ -454,7 +418,6 @@ const ClusterLashes = () => {
 
   const hasActiveOrder = Boolean(selectedProductDetails) || selectedExtras.length > 0;
 
-  // Paystack component props with GHS currency
   const paystackProps = {
     email: formData.email,
     amount: getPaymentAmount(),
@@ -466,16 +429,8 @@ const ClusterLashes = () => {
       bookingDate: formData.date,
       bookingTime: formData.time,
       custom_fields: [
-        {
-          display_name: "Service",
-          variable_name: "service",
-          value: formData.product
-        },
-        {
-          display_name: "Booking Date",
-          variable_name: "booking_date",
-          value: formData.date
-        }
+        { display_name: "Service", variable_name: "service", value: formData.product },
+        { display_name: "Booking Date", variable_name: "booking_date", value: formData.date }
       ]
     },
     publicKey: paystackPublicKey,
@@ -485,16 +440,7 @@ const ClusterLashes = () => {
   };
 
   const isFormValid = () => {
-    return formData.name &&
-      formData.phone &&
-      formData.email &&
-      formData.product &&
-      formData.date &&
-      formData.time &&
-      selectedProductDetails &&
-      // NEW: Include color validation only if color lashes extra is selected
-      (!hasColorLashExtra() || selectedColor) &&
-      !!paystackPublicKey;
+    return formData.name && formData.phone && formData.email && formData.product && formData.date && formData.time && selectedProductDetails && (!hasColorLashExtra() || selectedColor) && !!paystackPublicKey;
   };
 
   const canPayFromReview = () => {
@@ -517,11 +463,7 @@ const ClusterLashes = () => {
         title="Book Your Cluster Lashes"
         mainProduct={selectedProductDetails}
         extras={selectedExtras}
-        colorLabel={
-          hasColorLashExtra() && selectedColor
-            ? LASH_COLORS.find(c => c.value === selectedColor)?.label
-            : null
-        }
+        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find(c => c.value === selectedColor)?.label : null}
         totalPrice={getTotalPrice()}
         depositAmount={getTotalPrice() * 0.4}
         onRemoveMain={removeMainFromOrder}
@@ -548,11 +490,7 @@ const ClusterLashes = () => {
         depositAmount={getTotalPrice() * 0.4}
         onProceed={openBookingModal}
         canProceed={Boolean(selectedProductDetails)}
-        colorLabel={
-          hasColorLashExtra() && selectedColor
-            ? LASH_COLORS.find((c) => c.value === selectedColor)?.label
-            : null
-        }
+        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find((c) => c.value === selectedColor)?.label : null}
       />
       <div className="service-container">
         <button className="back-btn" onClick={() => navigate('/')}>
@@ -585,6 +523,7 @@ const ClusterLashes = () => {
               classic: filteredClusterProducts.filter(p => p.type === 'cluster classic'),
               hybrid: filteredClusterProducts.filter(p => p.type === 'cluster hybrid'),
               volume: filteredClusterProducts.filter(p => p.type === 'cluster volume'),
+              megaVolume: filteredClusterProducts.filter(p => p.type === 'cluster mega volume'),
             };
 
             const separateStylesAndExtras = (items) => {
@@ -602,6 +541,7 @@ const ClusterLashes = () => {
                 { key: 'classic', title: 'Classic', items: groups.classic },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
                 { key: 'volume', title: 'Volume', items: groups.volume },
+                { key: 'megaVolume', title: 'Mega Volume', items: groups.megaVolume },
               ];
               const selectGroup = (key) => {
                 setSelectedGroup(key);
@@ -634,7 +574,7 @@ const ClusterLashes = () => {
               );
             }
 
-            const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
+            const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume', megaVolume: 'Mega Volume' };
             const items = groups[selectedGroup] || [];
             const { mainStyles, extras } = separateStylesAndExtras(items);
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
@@ -758,7 +698,6 @@ const ClusterLashes = () => {
             );
           })()}
         </div>
-
       </div>
     </div>
   );

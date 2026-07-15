@@ -33,6 +33,9 @@ import minkWispyVolume from '../images/mink wispy volume.jpg';
 import minkDollEye from '../images/mink doll eye.jpg';
 import minkNaturalSet from '../images/mink natural set.jpg';
 
+// Mega Volume
+import megaVolumeCoverPhoto from '../images/mega volume cover photo.jpeg';
+
 export const products = [
     // Cluster Lashes - Classic
     {
@@ -147,7 +150,7 @@ export const products = [
         duration: "45 mins",
         image: clusterVolume,
         type: "cluster volume",
-        "extra": "no"
+        extra: "no"
     },
     {
         id: 12,
@@ -176,8 +179,8 @@ export const products = [
         price: 50,
         duration: "5 mins",
         image: clusterVolumeWithBottom,
-        "type": "cluster volume",
-        "extra": "yes"
+        type: "cluster volume",
+        extra: "yes"
     },
     {
         id: 15,
@@ -222,7 +225,6 @@ export const products = [
         type: "mink classic",
         extra: "yes"
     },
-
     {
         id: 20,
         name: "Cat Eye",
@@ -254,6 +256,7 @@ export const products = [
         extra: "no"
     },
 
+    // Mink Hybrid
     {
         id: 23,
         name: "Mink Hybrid",
@@ -286,6 +289,7 @@ export const products = [
         extra: "yes"
     },
 
+    // Mink Volume
     {
         id: 26,
         name: "Mink Volume",
@@ -317,7 +321,6 @@ export const products = [
         type: "mink volume",
         extra: "yes"
     },
-
     {
         id: 29,
         name: "Wispy",
@@ -357,5 +360,71 @@ export const products = [
         image: minkNaturalSet,
         extra: "no",
         type: "mink classic"
+    },
+
+    // Cluster Lashes - Mega Volume
+    {
+        id: 33,
+        name: "Mega Volume",
+        description: "Ultra-full, dramatic cluster mega volume lashes for maximum glamour",
+        price: 170,
+        duration: "60 mins",
+        image: megaVolumeCoverPhoto,
+        type: "cluster mega volume",
+        extra: "no",
+        poster: "yes"
+    },
+    {
+        id: 34,
+        name: "Mega Volume Cat Eye",
+        description: "Intense cat eye effect with cluster mega volume technique",
+        price: 30,
+        duration: "10 mins",
+        image: megaVolumeCoverPhoto,
+        type: "cluster mega volume",
+        extra: "no"
+    },
+    {
+        id: 35,
+        name: "Mega Volume Wispy",
+        description: "Soft yet full cluster mega volume lashes with a wispy finish",
+        price: 40,
+        duration: "10 mins",
+        image: megaVolumeCoverPhoto,
+        type: "cluster mega volume",
+        extra: "no"
+    },
+
+    // Mink Lashes - Mega Volume
+    {
+        id: 36,
+        name: "Mega Volume",
+        description: "Ultra-full, dramatic mink mega volume lashes for ultimate luxury",
+        price: 180,
+        duration: "120 mins",
+        image: megaVolumeCoverPhoto,
+        type: "mink mega volume",
+        extra: "no",
+        poster: "yes"
+    },
+    {
+        id: 37,
+        name: "Mega Volume Cat Eye",
+        description: "Intense mink cat eye with mega volume technique for a bold statement",
+        price: 30,
+        duration: "15 mins",
+        image: megaVolumeCoverPhoto,
+        type: "mink mega volume",
+        extra: "no"
+    },
+    {
+        id: 38,
+        name: "Mega Volume Wispy",
+        description: "Soft yet full mink mega volume lashes with a wispy, natural finish",
+        price: 40,
+        duration: "15 mins",
+        image: megaVolumeCoverPhoto,
+        type: "mink mega volume",
+        extra: "no"
     }
 ];

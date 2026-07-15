@@ -74,7 +74,6 @@ const MinkLashes = () => {
     loadPaystackKey();
   }, []);
 
-  // Plain-text extras for mink lashes (no images)
   const additionalExtras = [
     { id: 1001, name: 'Refill', price: 50, extra: 'yes' },
     { id: 1002, name: 'Extra Length', price: 30, extra: 'yes' },
@@ -90,7 +89,6 @@ const MinkLashes = () => {
     }
   }, [formData.date]);
 
-  // Reset status when date or time changes
   useEffect(() => {
     if (formData.date || formData.time) {
       setSubmitStatus({ type: '', message: '' });
@@ -111,7 +109,6 @@ const MinkLashes = () => {
 
   const removeMainFromOrder = () => {
     if (!selectedProductDetails) return;
-    const name = selectedProductDetails.name;
     setSelectedProductDetails(null);
     setFormData(prev => ({ ...prev, product: '' }));
     setSelectedColor('');
@@ -119,9 +116,7 @@ const MinkLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // NEW: Handle extra selection (supports products and additional plain extras)
   const handleSelectExtra = (productId, isSelected) => {
-    // Look up in products first, then in additionalExtras
     let product = products.find(p => p.id === productId);
     if (!product) {
       product = additionalExtras.find(a => a.id === productId);
@@ -145,7 +140,6 @@ const MinkLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // NEW: Function to remove color comment from comments
   const removeColorComment = () => {
     const existingComments = formData.comments;
     const colorRegex = /Color:\s*\w+/i;
@@ -158,17 +152,14 @@ const MinkLashes = () => {
     }
   };
 
-  // Check if an extra is selected
   const isExtraSelected = (productId) => {
     return selectedExtras.some(extra => extra.id === productId);
   };
 
-  // NEW: Check if the selected extra is a color lash product
   const isColorLashExtra = (productName) => {
     return productName.toLowerCase().includes('color');
   };
 
-  // NEW: Check if any selected extra is a color lash
   const hasColorLashExtra = () => {
     return selectedExtras.some(extra => isColorLashExtra(extra.name));
   };
@@ -184,7 +175,6 @@ const MinkLashes = () => {
     setCheckoutReadyToPay(false);
   };
 
-  // UPDATED: Color change handler that adds to comments
   const handleColorChange = (e) => {
     const color = e.target.value;
     setSelectedColor(color);
@@ -208,12 +198,10 @@ const MinkLashes = () => {
         }));
       }
     } else {
-      // Remove color comment if color is deselected
       removeColorComment();
     }
   };
 
-  // UPDATED: Calculate total amount including extras (charge 40% of total)
   const getPaymentAmount = () => {
     let total = 0;
 
@@ -236,7 +224,6 @@ const MinkLashes = () => {
     return (total * 0.4) * 100;
   };
 
-  // NEW: Get total price for display
   const getTotalPrice = () => {
     let total = 0;
 
@@ -259,22 +246,18 @@ const MinkLashes = () => {
     return total;
   };
 
-  // UPDATED: Paystack success callback to include extras in comments
   const handlePaystackSuccess = async (reference) => {
     setPaymentProcessing(true);
     setSubmitStatus({ type: '', message: '' });
 
     try {
       const dateTimeFields = buildBookingDateTimeFields(formData.date, formData.time);
-
       let comments = formData.comments;
 
-      // Build comments including extras
       if (selectedExtras.length > 0) {
         const extraNames = selectedExtras.map(extra => extra.name).join(', ');
         const extrasComment = `Extras: ${extraNames}`;
 
-        // Combine existing comments with extras comment
         if (comments && !comments.includes('Extras:')) {
           comments = comments + '\n' + extrasComment;
         } else if (!comments) {
@@ -282,11 +265,10 @@ const MinkLashes = () => {
         }
       }
 
-      // Build service string with lash type (e.g., "Mink Hybrid Cat Eye")
       let service = 'Mink Lashes';
       if (selectedProductDetails && selectedProductDetails.type) {
         const typeParts = selectedProductDetails.type.toLowerCase().split(' ');
-        const lashType = typeParts[1]?.charAt(0).toUpperCase() + typeParts[1]?.slice(1); // 'hybrid', 'volume', 'classic'
+        const lashType = typeParts.slice(1).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         service = `Mink ${lashType} ${formData.product}`.trim();
       } else if (formData.product) {
         service = `Mink Lashes ${formData.product}`;
@@ -294,9 +276,7 @@ const MinkLashes = () => {
 
       const response = await fetch(apiUrl('/api/bookings'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           phone: formData.phone,
@@ -321,16 +301,7 @@ const MinkLashes = () => {
         setCheckoutReadyToPay(false);
         setShowConfirmationPopup(true);
 
-        // Reset form
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          product: '',
-          date: '',
-          time: '',
-          comments: ''
-        });
+        setFormData({ name: '', phone: '', email: '', product: '', date: '', time: '', comments: '' });
         setSelectedColor('');
         setSelectedProductDetails(null);
         setSelectedExtras([]);
@@ -357,7 +328,6 @@ const MinkLashes = () => {
     }
   };
 
-  // Paystack close callback
   const handlePaystackClose = () => {
     setSubmitStatus({
       type: 'info',
@@ -365,7 +335,6 @@ const MinkLashes = () => {
     });
   };
 
-  // Check if time slot is available by querying existing bookings
   const checkTimeSlotAvailability = async () => {
     try {
       setCheckingAvailability(true);
@@ -375,9 +344,7 @@ const MinkLashes = () => {
 
       const checkResponse = await fetch(apiUrl('/api/bookings/check-booking-availability'), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dateTimeFields)
       });
 
@@ -412,7 +379,6 @@ const MinkLashes = () => {
     }
   };
 
-  // UPDATED: Modified handleSubmit to check time slot availability before payment
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus({ type: '', message: '' });
@@ -432,7 +398,6 @@ const MinkLashes = () => {
       return;
     }
 
-    // NEW: Check if color lashes extra is selected but no color is chosen
     if (hasColorLashExtra() && !selectedColor) {
       setSubmitStatus({ type: 'error', message: 'Please select a color for your color lashes extra.' });
       return;
@@ -460,7 +425,6 @@ const MinkLashes = () => {
 
   const hasActiveOrder = Boolean(selectedProductDetails) || selectedExtras.length > 0;
 
-  // UPDATED: Paystack component props with GHS currency
   const paystackProps = {
     email: formData.email,
     amount: getPaymentAmount(),
@@ -472,16 +436,8 @@ const MinkLashes = () => {
       bookingDate: formData.date,
       bookingTime: formData.time,
       custom_fields: [
-        {
-          display_name: "Service",
-          variable_name: "service",
-          value: formData.product
-        },
-        {
-          display_name: "Booking Date",
-          variable_name: "booking_date",
-          value: formData.date
-        }
+        { display_name: "Service", variable_name: "service", value: formData.product },
+        { display_name: "Booking Date", variable_name: "booking_date", value: formData.date }
       ]
     },
     publicKey: paystackPublicKey,
@@ -491,16 +447,7 @@ const MinkLashes = () => {
   };
 
   const isFormValid = () => {
-    return formData.name &&
-      formData.phone &&
-      formData.email &&
-      formData.product &&
-      formData.date &&
-      formData.time &&
-      selectedProductDetails &&
-      // NEW: Include color validation only if color lashes extra is selected
-      (!hasColorLashExtra() || selectedColor) &&
-      !!paystackPublicKey;
+    return formData.name && formData.phone && formData.email && formData.product && formData.date && formData.time && selectedProductDetails && (!hasColorLashExtra() || selectedColor) && !!paystackPublicKey;
   };
 
   const canPayFromReview = () => {
@@ -523,11 +470,7 @@ const MinkLashes = () => {
         title="Book Your Mink Lashes"
         mainProduct={selectedProductDetails}
         extras={selectedExtras}
-        colorLabel={
-          hasColorLashExtra() && selectedColor
-            ? LASH_COLORS.find(c => c.value === selectedColor)?.label
-            : null
-        }
+        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find(c => c.value === selectedColor)?.label : null}
         totalPrice={getTotalPrice()}
         depositAmount={getTotalPrice() * 0.4}
         onRemoveMain={removeMainFromOrder}
@@ -554,11 +497,7 @@ const MinkLashes = () => {
         depositAmount={getTotalPrice() * 0.4}
         onProceed={openBookingModal}
         canProceed={Boolean(selectedProductDetails)}
-        colorLabel={
-          hasColorLashExtra() && selectedColor
-            ? LASH_COLORS.find((c) => c.value === selectedColor)?.label
-            : null
-        }
+        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find((c) => c.value === selectedColor)?.label : null}
       />
       <div className="service-container">
         <button className="back-btn" onClick={() => navigate('/')}>
@@ -579,10 +518,7 @@ const MinkLashes = () => {
         />
         {false && showConfirmationPopup && (
           <div className="modal-overlay" style={{ zIndex: 1000 }}>
-            <div
-              className="modal-content"
-              style={{ maxWidth: '420px', textAlign: 'center', color: '#fff', background: 'rgba(0,0,0,0.7)' }}
-            >
+            <div className="modal-content" style={{ maxWidth: '420px', textAlign: 'center', color: '#fff', background: 'rgba(0,0,0,0.7)' }}>
               <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Payment Successful</h3>
               <p style={{ margin: '0.5rem 0 0', fontSize: '1rem', color: '#fff' }}>Payment completed and booking confirmed.</p>
               <p style={{ fontWeight: 600, marginTop: '0.5rem', fontSize: '0.95rem', color: '#fff' }}>Late arrivals attract an extra fee of GHS 30.</p>
@@ -607,6 +543,7 @@ const MinkLashes = () => {
               classic: filteredMinkProducts.filter(p => p.type === 'mink classic'),
               hybrid: filteredMinkProducts.filter(p => p.type === 'mink hybrid'),
               volume: filteredMinkProducts.filter(p => p.type === 'mink volume'),
+              megaVolume: filteredMinkProducts.filter(p => p.type === 'mink mega volume'),
             };
 
             const separateStylesAndExtras = (items) => {
@@ -624,6 +561,7 @@ const MinkLashes = () => {
                 { key: 'classic', title: 'Classic', items: groups.classic },
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
                 { key: 'volume', title: 'Volume', items: groups.volume },
+                { key: 'megaVolume', title: 'Mega Volume', items: groups.megaVolume },
               ];
               const customizedSection = {
                 key: 'customized',
@@ -695,7 +633,7 @@ const MinkLashes = () => {
               );
             }
 
-            const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume' };
+            const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume', megaVolume: 'Mega Volume' };
             const items = groups[selectedGroup] || [];
             const { mainStyles, extras } = separateStylesAndExtras(items);
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
@@ -819,7 +757,6 @@ const MinkLashes = () => {
             );
           })()}
         </div>
-
       </div>
     </div>
   );
