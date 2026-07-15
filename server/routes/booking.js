@@ -1,9 +1,17 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { Resend } = require('resend');
 const Booking = require('../models/Booking');
 const { adminAuth } = require('../middleware/auth');
 const router = express.Router();
 
+const bookingLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { message: 'Too many booking attempts. Please wait 15 minutes before trying again.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 const emailFrom = () =>
     process.env.EMAIL_FROM || 'Lash Studio <onboarding@resend.dev>';
 
@@ -229,7 +237,7 @@ const sendClientStatusEmail = async (booking, status) => {
 };
 
 // Create new booking (public)
-router.post('/', async (req, res) => {
+router.post('/', bookingLimiter, async (req, res) => {
     try {
         const {
             name,
