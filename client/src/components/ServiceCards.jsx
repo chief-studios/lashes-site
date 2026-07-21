@@ -12,11 +12,11 @@ const ServiceCards = () => {
   const services = [
     {
       id: 1,
-      name: 'Lash Consultation',
+      name: 'Lash Consultation (₵50)',
       details: 'Professional consultation to determine the best lash style for your eyes and lifestyle',
       image: consultationImage,
       route: '/lash-consultation',
-      price: 'GHS 120',
+      price: 'GHS 50',
       duration: '60 mins'
     },
     {

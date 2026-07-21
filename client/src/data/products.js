@@ -37,6 +37,8 @@ import animeImage from "../images/anime.jpeg"
 
 // Mega Volume
 import megaVolumeCoverPhoto from '../images/mega volume cover photo.jpeg';
+import megaVolumeCatEye from '../images/mega volume cat eye.jpeg';
+import megaVolumeWispy from '../images/mega volume wispy.jpeg';
 
 export const products = [
     // Cluster Lashes - Classic
@@ -410,7 +412,7 @@ export const products = [
         description: "Intense cat eye effect with cluster mega volume technique",
         price: 30,
         duration: "10 mins",
-        image: megaVolumeCoverPhoto,
+        image: megaVolumeCatEye,
         type: "cluster mega volume",
         extra: "no",
         refillPrice: 170
@@ -421,7 +423,7 @@ export const products = [
         description: "Soft yet full cluster mega volume lashes with a wispy finish",
         price: 40,
         duration: "10 mins",
-        image: megaVolumeCoverPhoto,
+        image: megaVolumeWispy,
         type: "cluster mega volume",
         extra: "no",
         refillPrice: 170
@@ -446,7 +448,7 @@ export const products = [
         description: "Intense mink cat eye with mega volume technique for a bold statement",
         price: 30,
         duration: "15 mins",
-        image: megaVolumeCoverPhoto,
+        image: megaVolumeCatEye,
         type: "mink mega volume",
         extra: "no",
         refillPrice: 170
@@ -457,7 +459,7 @@ export const products = [
         description: "Soft yet full mink mega volume lashes with a wispy, natural finish",
         price: 40,
         duration: "15 mins",
-        image: megaVolumeCoverPhoto,
+        image: megaVolumeWispy,
         type: "mink mega volume",
         extra: "no",
         refillPrice: 170
