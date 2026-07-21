@@ -76,11 +76,23 @@ const MinkLashes = () => {
     loadPaystackKey();
   }, []);
 
+  const refillPrices = {
+    classic: 80,
+    hybrid: 120,
+    volume: 150,
+    megaVolume: 170
+  }
+
+  const refillExtra = selectedGroup && refillPrices[selectedGroup] ? { id: 1001, name: "Refill", price: refillPrices[selectedGroup], extra: "yes" } : null;
+  
   const additionalExtras = [
-    { id: 1001, name: 'Refill', price: 80, extra: 'yes' },
-    { id: 1002, name: 'Extra Length', price: 30, extra: 'yes' },
-    { id: 1003, name: 'Removal', price: 50, extra: 'yes' }
-  ];
+    { id: 1002, name: "Extra Length", price: 30, extra: "yes" },
+    { id: 1003, name: "Removal", price: 50, extra: "yes" }
+  ]
+
+  const displayedAdditionalExtras = refillExtra
+    ? [refillExtra, ...additionalExtras]
+    : additionalExtras
 
   useEffect(() => {
     if (formData.date) {
@@ -121,7 +133,7 @@ const MinkLashes = () => {
   const handleSelectExtra = (productId, isSelected) => {
     let product = products.find(p => p.id === productId);
     if (!product) {
-      product = additionalExtras.find(a => a.id === productId);
+      product = displayedAdditionalExtras.find(a => a.id === productId);
     }
 
     if (!product) return;
@@ -680,7 +692,7 @@ const MinkLashes = () => {
                   </>
                 )}
 
-                {(extras.length > 0 || additionalExtras.length > 0) && (
+                {(extras.length > 0 || displayedAdditionalExtras.length > 0) && (
                   <div ref={extrasRef} className="extras-section">
                     <h4 style={{ color: '#ff66b2', marginBottom: '1rem', marginTop: '2rem', fontSize: '1.5rem', fontWeight: '700' }}>Optional Extras</h4>
                     <p style={{ color: '#ccc', marginBottom: '1rem' }}>Select any extras you'd like to add to your main style</p>
@@ -736,11 +748,11 @@ const MinkLashes = () => {
                       </div>
                     )}
 
-                    {additionalExtras.length > 0 && (
+                    {displayedAdditionalExtras.length > 0 && (
                       <>
                         <h5 style={{ color: '#fff', marginTop: '1.5rem' }}>Other Extras</h5>
                         <div className="plain-extras-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-                          {additionalExtras.map(extra => (
+                          {displayedAdditionalExtras.map(extra => (
                             <label key={extra.id} className={`plain-extra ${isExtraSelected(extra.id) ? 'selected' : ''}`} style={{ color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                               <input
                                 type="checkbox"
