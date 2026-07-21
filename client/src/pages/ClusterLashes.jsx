@@ -74,7 +74,10 @@ const ClusterLashes = () => {
   }, []);
 
   const additionalExtras = [
-    { id: 2001, name: 'Removal', price: 50, extra: 'yes' }
+    { id: 1001, name: 'Color Lash', price: 50, extra: 'yes' },
+    { id: 1002, name: 'Bottom Lashes', price: 70, extra: 'yes' },
+    { id: 1003, name: 'Extra Length', price: 30, extra: 'yes' },
+    { id: 1004, name: 'Removal', price: 50, extra: 'yes' }
   ];
 
   useEffect(() => {

@@ -32,6 +32,7 @@ import minkWispy from '../images/mink wispy.jpg';
 import minkWispyVolume from '../images/mink wispy volume.jpg';
 import minkDollEye from '../images/mink doll eye.jpg';
 import minkNaturalSet from '../images/mink natural set.jpg';
+import customizedSetImage from '../images/anime image.jpeg';
 
 // Mega Volume
 import megaVolumeCoverPhoto from '../images/mega volume cover photo.jpeg';
@@ -288,6 +289,16 @@ export const products = [
         type: "mink hybrid",
         extra: "yes"
     },
+    {
+        id: 39,
+        name: "Anime Lash Set",
+        description: "Customized anime-inspired lash set for a unique and playful look",
+        price: 250,
+        duration: "120 mins",
+        image: customizedSetImage,
+        type: "mink hybrid",
+        extra: "no"
+    },
 
     // Mink Volume
     {
@@ -343,7 +354,7 @@ export const products = [
     },
     {
         id: 31,
-        name: "Doll Eye",
+        name: "Wet Set",
         description: "Round, doll-like mink lashes for a wide-eyed, innocent look",
         price: 150,
         duration: "105 mins",

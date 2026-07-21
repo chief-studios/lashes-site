@@ -77,7 +77,7 @@ const MinkLashes = () => {
   }, []);
 
   const additionalExtras = [
-    { id: 1001, name: 'Refill', price: 50, extra: 'yes' },
+    { id: 1001, name: 'Refill', price: 80, extra: 'yes' },
     { id: 1002, name: 'Extra Length', price: 30, extra: 'yes' },
     { id: 1003, name: 'Removal', price: 50, extra: 'yes' }
   ];
