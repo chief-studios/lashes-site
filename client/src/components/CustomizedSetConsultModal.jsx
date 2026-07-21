@@ -24,7 +24,7 @@ export default function CustomizedSetConsultModal({ isOpen, onClose }) {
         <h2 id="customized-set-modal-title">Customized Set</h2>
         <p>
           A customized mink set is tailored to your look and needs. Before we can book this
-          service, you&apos;ll need a consultation so we can plan your style together.
+          service, you&apos;ll need a consultation so we can plan your style together. This comes at a cost of ₵250 in addition to the consultation fee (₵50).
         </p>
         <p className="customized-set-modal__hint">
           Book a lash consultation first — then we can move forward with your customized set.

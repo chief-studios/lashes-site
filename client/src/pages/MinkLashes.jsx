@@ -640,8 +640,8 @@ const MinkLashes = () => {
                       <img src={customizedSection.coverImage} alt="Customized Set" />
                     </div>
                     <div className="service-info">
-                      <h3>{customizedSection.title}</h3>
-                      <p className="service-details">{customizedSection.details}</p>
+                      <h3>{customizedSection.title} (₵250)</h3>
+                      <p className="service-details">{customizedSection.details} (₵50)</p>
                     </div>
                   </div>
                 </div>
