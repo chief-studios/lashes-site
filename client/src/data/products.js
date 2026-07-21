@@ -204,7 +204,8 @@ export const products = [
         image: minkClassic,
         type: "mink classic",
         extra: "no",
-        poster: "yes"
+        poster: "yes",
+        refillPrice: 80
     },
     {
         id: 18,
@@ -214,7 +215,8 @@ export const products = [
         duration: "15 mins",
         image: minkClassicWithBottom,
         type: "mink classic",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 80
     },
     {
         id: 19,
@@ -224,7 +226,8 @@ export const products = [
         duration: "15 mins",
         image: minkClassicWithColor,
         type: "mink classic",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 80
     },
     {
         id: 20,
@@ -234,7 +237,8 @@ export const products = [
         duration: "100 mins",
         image: minkCatEye,
         extra: "no",
-        type: "mink classic"
+        type: "mink classic",
+        refillPrice: 80
     },
     {
         id: 21,
@@ -244,7 +248,8 @@ export const products = [
         duration: "120 mins",
         image: minkCatEyeHybrid,
         type: "mink hybrid",
-        extra: "no"
+        extra: "no",
+        refillPrice: 120
     },
     {
         id: 22,
@@ -254,7 +259,8 @@ export const products = [
         duration: "130 mins",
         image: minkCatEyeVolume,
         type: "mink volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 150
     },
 
     // Mink Hybrid
@@ -267,7 +273,8 @@ export const products = [
         image: minkHybrid,
         type: "mink hybrid",
         extra: "no",
-        poster: "yes"
+        poster: "yes",
+        refillPrice: 120
     },
     {
         id: 24,
@@ -277,7 +284,8 @@ export const products = [
         duration: "15 mins",
         image: minkHybridWithBottom,
         type: "mink hybrid",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 120
     },
     {
         id: 25,
@@ -287,7 +295,8 @@ export const products = [
         duration: "15 mins",
         image: minkHybridWithColor,
         type: "mink hybrid",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 120
     },
     {
         id: 39,
@@ -297,7 +306,8 @@ export const products = [
         duration: "120 mins",
         image: customizedSetImage,
         type: "mink hybrid",
-        extra: "no"
+        extra: "no",
+        refillPrice: 120
     },
 
     // Mink Volume
@@ -310,7 +320,8 @@ export const products = [
         image: minkVolume,
         type: "mink volume",
         extra: "no",
-        poster: "yes"
+        poster: "yes",
+        refillPrice: 150
     },
     {
         id: 27,
@@ -320,7 +331,8 @@ export const products = [
         duration: "15 mins",
         image: minkVolumeWithBottom,
         type: "mink volume",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 150
     },
     {
         id: 28,
@@ -330,7 +342,8 @@ export const products = [
         duration: "15 mins",
         image: minkVolumeWithColor,
         type: "mink volume",
-        extra: "yes"
+        extra: "yes",
+        refillPrice: 150
     },
     {
         id: 29,
@@ -340,7 +353,8 @@ export const products = [
         duration: "95 mins",
         image: minkWispy,
         type: "mink hybrid",
-        extra: "no"
+        extra: "no",
+        refillPrice: 120
     },
     {
         id: 30,
@@ -350,7 +364,8 @@ export const products = [
         duration: "115 mins",
         image: minkWispyVolume,
         type: "mink volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 150
     },
     {
         id: 31,
@@ -360,7 +375,8 @@ export const products = [
         duration: "105 mins",
         image: minkDollEye,
         type: "mink hybrid",
-        extra: "no"
+        extra: "no",
+        refillPrice: 120
     },
     {
         id: 32,
@@ -370,7 +386,8 @@ export const products = [
         duration: "90 mins",
         image: minkNaturalSet,
         extra: "no",
-        type: "mink classic"
+        type: "mink classic",
+        refillPrice: 80
     },
 
     // Cluster Lashes - Mega Volume
@@ -383,7 +400,8 @@ export const products = [
         image: megaVolumeCoverPhoto,
         type: "cluster mega volume",
         extra: "no",
-        poster: "yes"
+        poster: "yes",
+        refillPrice: 170
     },
     {
         id: 34,
@@ -393,7 +411,8 @@ export const products = [
         duration: "10 mins",
         image: megaVolumeCoverPhoto,
         type: "cluster mega volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 170
     },
     {
         id: 35,
@@ -403,7 +422,8 @@ export const products = [
         duration: "10 mins",
         image: megaVolumeCoverPhoto,
         type: "cluster mega volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 170
     },
 
     // Mink Lashes - Mega Volume
@@ -416,7 +436,8 @@ export const products = [
         image: megaVolumeCoverPhoto,
         type: "mink mega volume",
         extra: "no",
-        poster: "yes"
+        poster: "yes",
+        refillPrice: 170
     },
     {
         id: 37,
@@ -426,7 +447,8 @@ export const products = [
         duration: "15 mins",
         image: megaVolumeCoverPhoto,
         type: "mink mega volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 170
     },
     {
         id: 38,
@@ -436,6 +458,7 @@ export const products = [
         duration: "15 mins",
         image: megaVolumeCoverPhoto,
         type: "mink mega volume",
-        extra: "no"
+        extra: "no",
+        refillPrice: 170
     }
 ];
