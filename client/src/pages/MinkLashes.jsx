@@ -583,7 +583,7 @@ const MinkLashes = () => {
                 title: 'Customized Set',
                 consultationOnly: true,
                 coverImage: customizedSetImage,
-                details: 'Consultation required first',
+                details: 'Consultation included',
               };
 
               const selectGroup = (key) => {
@@ -640,7 +640,7 @@ const MinkLashes = () => {
                       <img src={customizedSection.coverImage} alt="Customized Set" />
                     </div>
                     <div className="service-info">
-                      <h3>{customizedSection.title} (₵250)</h3>
+                      <h3>{customizedSection.title} (₵300)</h3>
                       <p className="service-details">{customizedSection.details} (₵50)</p>
                     </div>
                   </div>

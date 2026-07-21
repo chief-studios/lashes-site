@@ -33,6 +33,7 @@ import minkWispyVolume from '../images/mink wispy volume.jpg';
 import minkDollEye from '../images/mink doll eye.jpg';
 import minkNaturalSet from '../images/mink natural set.jpg';
 import customizedSetImage from '../images/anime image.jpeg';
+import animeImage from "../images/anime.jpeg"
 
 // Mega Volume
 import megaVolumeCoverPhoto from '../images/mega volume cover photo.jpeg';
@@ -304,7 +305,7 @@ export const products = [
         description: "Customized anime-inspired lash set for a unique and playful look",
         price: 250,
         duration: "120 mins",
-        image: customizedSetImage,
+        image: animeImage,
         type: "mink hybrid",
         extra: "no",
         refillPrice: 120
