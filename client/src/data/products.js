@@ -408,7 +408,7 @@ export const products = [
     },
     {
         id: 34,
-        name: "Mega Volume Cat Eye",
+        name: "Cat Eye",
         description: "Intense cat eye effect with cluster mega volume technique",
         price: 30,
         duration: "10 mins",
@@ -419,7 +419,7 @@ export const products = [
     },
     {
         id: 35,
-        name: "Mega Volume Wispy",
+        name: "Wispy",
         description: "Soft yet full cluster mega volume lashes with a wispy finish",
         price: 40,
         duration: "10 mins",
