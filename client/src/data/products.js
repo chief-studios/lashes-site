@@ -32,7 +32,6 @@ import minkWispy from '../images/mink wispy.jpg';
 import minkWispyVolume from '../images/mink wispy volume.jpg';
 import minkDollEye from '../images/mink doll eye.jpg';
 import minkNaturalSet from '../images/mink natural set.jpg';
-import customizedSetImage from '../images/anime image.jpeg';
 import animeImage from "../images/anime.jpeg"
 
 // Mega Volume
@@ -76,7 +75,7 @@ export const products = [
         id: 4,
         name: "Bottom Lashes",
         description: "Complete eye enhancement with cluster classic on both lash lines",
-        price: 50,
+        price: 70,
         duration: "5 mins",
         image: clusterClassicWithBottom,
         type: "cluster classic",
@@ -180,7 +179,7 @@ export const products = [
         id: 14,
         name: "Volume with Bottom Lashes",
         description: "Complete dramatic look with cluster volume on both lash lines",
-        price: 50,
+        price: 70,
         duration: "5 mins",
         image: clusterVolumeWithBottom,
         type: "cluster volume",
@@ -214,7 +213,7 @@ export const products = [
         id: 18,
         name: "Bottom Lashes",
         description: "Complete mink classic enhancement on both lash lines",
-        price: 50,
+        price: 70,
         duration: "15 mins",
         image: minkClassicWithBottom,
         type: "mink classic",
@@ -283,7 +282,7 @@ export const products = [
         id: 24,
         name: "Bottom Lashes",
         description: "Complete mink hybrid enhancement on both lash lines",
-        price: 50,
+        price: 70,
         duration: "15 mins",
         image: minkHybridWithBottom,
         type: "mink hybrid",
@@ -330,7 +329,7 @@ export const products = [
         id: 27,
         name: "Bottom Lashes",
         description: "Complete dramatic mink volume on both lash lines",
-        price: 50,
+        price: 70,
         duration: "15 mins",
         image: minkVolumeWithBottom,
         type: "mink volume",
