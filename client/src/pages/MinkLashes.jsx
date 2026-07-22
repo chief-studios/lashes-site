@@ -7,6 +7,12 @@ import { apiUrl } from '../config/api';
 import { useServicePageScroll } from '../hooks/useServicePageScroll';
 import { scrollElementBelowNav } from '../utils/scrollPageToTop';
 import { getHowToOrderSteps } from '../utils/howToOrderSteps';
+import {
+  countMainStyles,
+  filterBookableProducts,
+  getCategoryCoverImage,
+  separateStylesAndExtras,
+} from '../utils/productStyles';
 import { LASH_COLORS } from '../data/lashColors';
 import InlineTip from '../components/InlineTip';
 import OrderBar from '../components/OrderBar';
@@ -552,18 +558,12 @@ const MinkLashes = () => {
               megaVolume: minkProducts.filter(p => p.type.toLowerCase().includes('mink mega volume')),
             };
 
-            // 3. Build bookable groups (EXCLUDING covers) for the detailed grid view
+            // 3. Build bookable groups (excluding banners) for the detailed grid view
             const bookableGroups = {
-              classic: groups.classic.filter(p => !p.isCategoryCover),
-              hybrid: groups.hybrid.filter(p => !p.isCategoryCover),
-              volume: groups.volume.filter(p => !p.isCategoryCover),
-              megaVolume: groups.megaVolume.filter(p => !p.isCategoryCover),
-            };
-
-            const separateStylesAndExtras = (items) => {
-              const mainStyles = items.filter(p => p.extra !== 'yes');
-              const extras = items.filter(p => p.extra === 'yes');
-              return { mainStyles, extras };
+              classic: filterBookableProducts(groups.classic),
+              hybrid: filterBookableProducts(groups.hybrid),
+              volume: filterBookableProducts(groups.volume),
+              megaVolume: filterBookableProducts(groups.megaVolume),
             };
 
             const scrollToSection = () => {
@@ -599,12 +599,8 @@ const MinkLashes = () => {
               return (
                 <div className="service-cards-container">
                   {styleSections.filter(s => s.items.length > 0).map(section => {
-                    // Find the specific cover image for this category
-                    const coverItem = section.items.find(item => item.isCategoryCover);
-                    const displayImage = coverItem?.image || section.items[0]?.image;
-
-                    // Count only the actual bookable styles (exclude the cover item)
-                    const bookableStylesCount = section.items.filter(item => !item.isCategoryCover).length;
+                    const displayImage = getCategoryCoverImage(section.items);
+                    const mainStylesCount = countMainStyles(section.items);
 
                     return (
                       <div
@@ -616,11 +612,11 @@ const MinkLashes = () => {
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
                       >
                         <div className="service-image">
-                          <img src={displayImage} alt={`${section.title} placeholder`} />
+                          <img src={displayImage} alt={`${section.title} cover`} />
                         </div>
                         <div className="service-info">
                           <h3>{section.title}</h3>
-                          <p className="service-details">{bookableStylesCount} styles available</p>
+                          <p className="service-details">{mainStylesCount} styles available</p>
                         </div>
                       </div>
                     );
@@ -669,9 +665,7 @@ const MinkLashes = () => {
                   <>
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
                     <div className="products-grid">
-                      {sortedMainStyles
-                        .filter(p => !p.isCategoryCover)
-                        .map(product => (
+                      {sortedMainStyles.map(product => (
                           <div
                             key={product.id}
                             className={`product-card ${selectedProductDetails?.id === product.id ? 'selected' : ''}`}
@@ -707,9 +701,7 @@ const MinkLashes = () => {
 
                     {extras.length > 0 && (
                       <div className="products-grid">
-                        {extras
-                          .filter(p => !p.isCategoryCover)
-                          .map(product => (
+                        {extras.map(product => (
                             <div
                               key={product.id}
                               className={`product-card extra-card ${isExtraSelected(product.id) ? 'selected' : ''}`}
