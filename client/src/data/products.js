@@ -444,7 +444,7 @@ export const products = [
     },
     {
         id: 37,
-        name: "Mega Volume Cat Eye",
+        name: "Cat Eye",
         description: "Intense mink cat eye with mega volume technique for a bold statement",
         price: 30,
         duration: "15 mins",
@@ -455,7 +455,7 @@ export const products = [
     },
     {
         id: 38,
-        name: "Mega Volume Wispy",
+        name: "Wispy",
         description: "Soft yet full mink mega volume lashes with a wispy, natural finish",
         price: 40,
         duration: "15 mins",
