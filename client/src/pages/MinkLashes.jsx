@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../hooks/useProducts'; // <-- IMPORTS BOTH STATIC & DB PRODUCTS
+import { useProducts } from '../hooks/useProducts';
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
@@ -22,7 +22,7 @@ import '../styles/booking.css';
 
 const MinkLashes = () => {
   const navigate = useNavigate();
-  const { products } = useProducts(); // <-- COMBINED PRODUCTS ARRAY
+  const { products } = useProducts();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -84,7 +84,7 @@ const MinkLashes = () => {
   }
 
   const refillExtra = selectedGroup && refillPrices[selectedGroup] ? { id: 1001, name: "Refill", price: refillPrices[selectedGroup], extra: "yes" } : null;
-  
+
   const additionalExtras = [
     { id: 1002, name: "Extra Length", price: 30, extra: "yes" },
     { id: 1003, name: "Removal", price: 50, extra: "yes" }
@@ -530,15 +530,6 @@ const MinkLashes = () => {
           isOpen={showCustomizedSetModal}
           onClose={() => setShowCustomizedSetModal(false)}
         />
-        {false && showConfirmationPopup && (
-          <div className="modal-overlay" style={{ zIndex: 1000 }}>
-            <div className="modal-content" style={{ maxWidth: '420px', textAlign: 'center', color: '#fff', background: 'rgba(0,0,0,0.7)' }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>Payment Successful</h3>
-              <p style={{ margin: '0.5rem 0 0', fontSize: '1rem', color: '#fff' }}>Payment completed and booking confirmed.</p>
-              <p style={{ fontWeight: 600, marginTop: '0.5rem', fontSize: '0.95rem', color: '#fff' }}>Late arrivals attract an extra fee of GHS 30.</p>
-            </div>
-          </div>
-        )}
 
         <div className="products-section" ref={productsSectionRef}>
           <h2>Available Styles</h2>
@@ -550,15 +541,23 @@ const MinkLashes = () => {
             </ul>
           </InlineTip>
           {(() => {
-            // Filters the combined (static + dynamic) products array
+            // 1. Get ALL mink products
             const minkProducts = products.filter(p => p.type && p.type.toLowerCase().includes('mink'));
-            const filteredMinkProducts = minkProducts.filter(p => p.poster !== 'yes');
 
+            // 2. Build groups from ALL products (INCLUDING covers) so the category card can find the image
             const groups = {
-              classic: filteredMinkProducts.filter(p => p.type === 'mink classic'),
-              hybrid: filteredMinkProducts.filter(p => p.type === 'mink hybrid'),
-              volume: filteredMinkProducts.filter(p => p.type === 'mink volume'),
-              megaVolume: filteredMinkProducts.filter(p => p.type === 'mink mega volume'),
+              classic: minkProducts.filter(p => p.type.toLowerCase().includes('mink classic')),
+              hybrid: minkProducts.filter(p => p.type.toLowerCase().includes('mink hybrid')),
+              volume: minkProducts.filter(p => p.type.toLowerCase().includes('mink volume')),
+              megaVolume: minkProducts.filter(p => p.type.toLowerCase().includes('mink mega volume')),
+            };
+
+            // 3. Build bookable groups (EXCLUDING covers) for the detailed grid view
+            const bookableGroups = {
+              classic: groups.classic.filter(p => !p.isCategoryCover),
+              hybrid: groups.hybrid.filter(p => !p.isCategoryCover),
+              volume: groups.volume.filter(p => !p.isCategoryCover),
+              megaVolume: groups.megaVolume.filter(p => !p.isCategoryCover),
             };
 
             const separateStylesAndExtras = (items) => {
@@ -573,7 +572,7 @@ const MinkLashes = () => {
 
             if (!selectedGroup) {
               const styleSections = [
-                { key: 'classic', title: 'Classic', items: groups.classic },
+                { key: 'classic', title: 'Classic', items: groups.classic }, // <-- Uses 'groups' to find the cover
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
                 { key: 'volume', title: 'Volume', items: groups.volume },
                 { key: 'megaVolume', title: 'Mega Volume', items: groups.megaVolume },
@@ -600,9 +599,12 @@ const MinkLashes = () => {
               return (
                 <div className="service-cards-container">
                   {styleSections.filter(s => s.items.length > 0).map(section => {
-                    const { mainStyles } = separateStylesAndExtras(section.items);
-                    const posterItem = minkProducts.find(p => p.type === `mink ${section.key}` && p.poster === 'yes');
-                    const coverImage = posterItem?.image || mainStyles[0]?.image || section.items[0]?.image;
+                    // Find the specific cover image for this category
+                    const coverItem = section.items.find(item => item.isCategoryCover);
+                    const displayImage = coverItem?.image || section.items[0]?.image;
+
+                    // Count only the actual bookable styles (exclude the cover item)
+                    const bookableStylesCount = section.items.filter(item => !item.isCategoryCover).length;
 
                     return (
                       <div
@@ -614,11 +616,11 @@ const MinkLashes = () => {
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
                       >
                         <div className="service-image">
-                          <img src={coverImage} alt={`${section.title} placeholder`} />
+                          <img src={displayImage} alt={`${section.title} placeholder`} />
                         </div>
                         <div className="service-info">
                           <h3>{section.title}</h3>
-                          <p className="service-details">{mainStyles.length} styles available</p>
+                          <p className="service-details">{bookableStylesCount} styles available</p>
                         </div>
                       </div>
                     );
@@ -649,7 +651,10 @@ const MinkLashes = () => {
             }
 
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume', megaVolume: 'Mega Volume' };
-            const items = groups[selectedGroup] || [];
+
+            // 4. Use 'bookableGroups' here so the cover item doesn't show up as a clickable style
+            const items = bookableGroups[selectedGroup] || [];
+
             const { mainStyles, extras } = separateStylesAndExtras(items);
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
 
@@ -665,7 +670,7 @@ const MinkLashes = () => {
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
                     <div className="products-grid">
                       {sortedMainStyles
-                        .filter(p => p.poster !== 'yes')
+                        .filter(p => !p.isCategoryCover)
                         .map(product => (
                           <div
                             key={product.id}
@@ -703,7 +708,7 @@ const MinkLashes = () => {
                     {extras.length > 0 && (
                       <div className="products-grid">
                         {extras
-                          .filter(p => p.poster !== 'yes')
+                          .filter(p => !p.isCategoryCover)
                           .map(product => (
                             <div
                               key={product.id}

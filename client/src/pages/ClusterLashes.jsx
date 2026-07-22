@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../hooks/useProducts'; // <-- IMPORTS BOTH STATIC & DB PRODUCTS
+import { useProducts } from '../hooks/useProducts';
 import { generateTimeSlots } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
@@ -20,7 +20,7 @@ import '../styles/booking.css';
 
 const ClusterLashes = () => {
   const navigate = useNavigate();
-  const { products } = useProducts(); // <-- COMBINED PRODUCTS ARRAY
+  const { products } = useProducts();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -521,15 +521,23 @@ const ClusterLashes = () => {
             </ul>
           </InlineTip>
           {(() => {
-            // Filters the combined (static + dynamic) products array
+            // 1. Get ALL cluster products
             const clusterProducts = products.filter(p => p.type && p.type.toLowerCase().includes('cluster'));
-            const filteredClusterProducts = clusterProducts.filter(p => p.poster !== 'yes');
 
+            // 2. Build groups from ALL products (INCLUDING covers) so the category card can find the image
             const groups = {
-              classic: filteredClusterProducts.filter(p => p.type === 'cluster classic'),
-              hybrid: filteredClusterProducts.filter(p => p.type === 'cluster hybrid'),
-              volume: filteredClusterProducts.filter(p => p.type === 'cluster volume'),
-              megaVolume: filteredClusterProducts.filter(p => p.type === 'cluster mega volume'),
+              classic: clusterProducts.filter(p => p.type.toLowerCase().includes('cluster classic')),
+              hybrid: clusterProducts.filter(p => p.type.toLowerCase().includes('cluster hybrid')),
+              volume: clusterProducts.filter(p => p.type.toLowerCase().includes('cluster volume')),
+              megaVolume: clusterProducts.filter(p => p.type.toLowerCase().includes('cluster mega volume')),
+            };
+
+            // 3. Build bookable groups (EXCLUDING covers) for the detailed grid view
+            const bookableGroups = {
+              classic: groups.classic.filter(p => !p.isCategoryCover),
+              hybrid: groups.hybrid.filter(p => !p.isCategoryCover),
+              volume: groups.volume.filter(p => !p.isCategoryCover),
+              megaVolume: groups.megaVolume.filter(p => !p.isCategoryCover),
             };
 
             const separateStylesAndExtras = (items) => {
@@ -544,7 +552,7 @@ const ClusterLashes = () => {
 
             if (!selectedGroup) {
               const sections = [
-                { key: 'classic', title: 'Classic', items: groups.classic },
+                { key: 'classic', title: 'Classic', items: groups.classic }, // <-- Uses 'groups' to find the cover
                 { key: 'hybrid', title: 'Hybrid', items: groups.hybrid },
                 { key: 'volume', title: 'Volume', items: groups.volume },
                 { key: 'megaVolume', title: 'Mega Volume', items: groups.megaVolume },
@@ -556,7 +564,13 @@ const ClusterLashes = () => {
               return (
                 <div className="service-cards-container">
                   {sections.filter(s => s.items.length > 0).map(section => {
-                    const { mainStyles } = separateStylesAndExtras(section.items);
+                    // Find the specific cover image for this category
+                    const coverItem = section.items.find(item => item.isCategoryCover);
+                    const displayImage = coverItem?.image || section.items[0]?.image;
+
+                    // Count only the actual bookable styles (exclude the cover item)
+                    const bookableStylesCount = section.items.filter(item => !item.isCategoryCover).length;
+
                     return (
                       <div
                         key={section.key}
@@ -567,11 +581,11 @@ const ClusterLashes = () => {
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
                       >
                         <div className="service-image">
-                          <img src={mainStyles[0]?.image || section.items[0]?.image} alt={`${section.title} placeholder`} />
+                          <img src={displayImage} alt={`${section.title} placeholder`} />
                         </div>
                         <div className="service-info">
                           <h3>{section.title}</h3>
-                          <p className="service-details">{mainStyles.length} styles available</p>
+                          <p className="service-details">{bookableStylesCount} styles available</p>
                         </div>
                       </div>
                     );
@@ -581,7 +595,9 @@ const ClusterLashes = () => {
             }
 
             const mapKeyToTitle = { classic: 'Classic', hybrid: 'Hybrid', volume: 'Volume', megaVolume: 'Mega Volume' };
-            const items = groups[selectedGroup] || [];
+
+            const items = bookableGroups[selectedGroup] || [];
+
             const { mainStyles, extras } = separateStylesAndExtras(items);
             const sortedMainStyles = sortProductsByPrice([...mainStyles]);
 
@@ -597,7 +613,7 @@ const ClusterLashes = () => {
                     <h4 style={{ color: '#fff', marginBottom: '1rem', marginTop: '0.5rem', fontSize: '1.2rem' }}>Main Styles</h4>
                     <div className="products-grid">
                       {sortedMainStyles
-                        .filter(p => p.poster !== 'yes')
+                        .filter(p => !p.isCategoryCover)
                         .map(product => (
                           <div
                             key={product.id}
@@ -635,7 +651,7 @@ const ClusterLashes = () => {
                     {extras.length > 0 && (
                       <div className="products-grid">
                         {extras
-                          .filter(p => p.poster !== 'yes')
+                          .filter(p => !p.isCategoryCover)
                           .map(product => (
                             <div
                               key={product.id}

@@ -397,14 +397,9 @@ export const products = [
     {
         id: 33,
         name: "Mega Volume",
-        description: "Ultra-full, dramatic cluster mega volume lashes for maximum glamour",
-        price: 170,
-        duration: "60 mins",
         image: megaVolumeCoverPhoto,
         type: "cluster mega volume",
-        extra: "no",
-        poster: "yes",
-        refillPrice: 170
+        isCategoryCover: true
     },
     {
         id: 34,
@@ -433,14 +428,9 @@ export const products = [
     {
         id: 36,
         name: "Mega Volume",
-        description: "Ultra-full, dramatic mink mega volume lashes for ultimate luxury",
-        price: 180,
-        duration: "120 mins",
         image: megaVolumeCoverPhoto,
         type: "mink mega volume",
-        extra: "no",
-        poster: "yes",
-        refillPrice: 170
+        isCategoryCover: true
     },
     {
         id: 37,
