@@ -392,37 +392,6 @@ export const products = [
         refillPrice: 80
     },
 
-    // Cluster Lashes - Mega Volume
-    {
-        id: 33,
-        name: "Mega Volume",
-        image: megaVolumeCoverPhoto,
-        type: "cluster mega volume",
-        isCategoryCover: true
-    },
-    {
-        id: 34,
-        name: "Cat Eye",
-        description: "Intense cat eye effect with cluster mega volume technique",
-        price: 280,
-        duration: "150 mins",
-        image: megaVolumeCatEye,
-        type: "cluster mega volume",
-        extra: "no",
-        refillPrice: 170
-    },
-    {
-        id: 35,
-        name: "Wispy",
-        description: "Soft yet full cluster mega volume lashes with a wispy finish",
-        price: 300,
-        duration: "120 mins",
-        image: megaVolumeWispy,
-        type: "cluster mega volume",
-        extra: "no",
-        refillPrice: 170
-    },
-
     // Mink Lashes - Mega Volume
     {
         id: 36,
