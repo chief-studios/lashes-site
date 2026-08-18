@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PaystackButton } from 'react-paystack';
 import consultationImage from '../images/consultation.jpg';
-import { generateTimeSlots } from '../utils/timeSlots';
+import { generateTimeSlots, fetchAvailableSlotsForDate } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
 import { scrollPageToTopAfterPaint } from '../utils/scrollPageToTop';
@@ -54,13 +54,15 @@ const LashConsultation = () => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     if (formData.date) {
-      // Generate time slots on the frontend
-      const slots = generateTimeSlots();
-      setAvailableTimeSlots(slots);
+      fetchAvailableSlotsForDate(formData.date).then(slots => {
+        if (isMounted) setAvailableTimeSlots(slots);
+      });
     } else {
       setAvailableTimeSlots([]);
     }
+    return () => { isMounted = false; };
   }, [formData.date]);
 
   // Reset status when date or time changes

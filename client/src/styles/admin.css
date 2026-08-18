@@ -1147,3 +1147,75 @@
     transform: rotate(360deg);
   }
 }
+
+/* Ensure all Form Fields in Admin Dashboard have clean white backgrounds, black text, and crisp borders */
+.admin-dashboard label,
+.admin-content label,
+.admin-section label,
+.settings-section label,
+.settings-form label,
+.form-group label {
+  color: var(--primary-black) !important;
+}
+
+.admin-dashboard input,
+.admin-dashboard select,
+.admin-dashboard textarea,
+.admin-content input,
+.admin-content select,
+.admin-content textarea,
+.admin-form-container input,
+.admin-form-container select,
+.admin-form-container textarea,
+.settings-form input,
+.settings-form select,
+.settings-form textarea,
+.business-hours-row input,
+.hours-inputs input,
+.search-input,
+.period-selector select {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid rgba(255, 20, 147, 0.3) !important;
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-body);
+}
+
+.admin-dashboard input:focus,
+.admin-dashboard select:focus,
+.admin-dashboard textarea:focus,
+.admin-content input:focus,
+.admin-content select:focus,
+.admin-content textarea:focus,
+.admin-form-container input:focus,
+.admin-form-container select:focus,
+.admin-form-container textarea:focus,
+.settings-form input:focus,
+.settings-form select:focus,
+.settings-form textarea:focus,
+.business-hours-row input:focus,
+.hours-inputs input:focus,
+.search-input:focus,
+.period-selector select:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: var(--primary-pink) !important;
+  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.2) !important;
+  outline: none !important;
+}
+
+.admin-dashboard input::placeholder,
+.admin-content input::placeholder,
+.admin-form-container input::placeholder,
+.settings-form input::placeholder {
+  color: #777777 !important;
+  opacity: 1 !important;
+}
+
+/* Checkboxes & specialized inputs */
+.day-checkbox input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: var(--primary-pink);
+  cursor: pointer;
+}

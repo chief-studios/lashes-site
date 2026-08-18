@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { products } from '../data/products';
-import { generateTimeSlots } from '../utils/timeSlots';
+import { generateTimeSlots, fetchAvailableSlotsForDate } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
 import '../styles/base.css';
@@ -27,13 +27,15 @@ const BookingForm = ({ selectedProduct = null }) => {
     }, [selectedProduct]);
 
     useEffect(() => {
+        let isMounted = true;
         if (formData.date) {
-            // Generate time slots on the frontend
-            const slots = generateTimeSlots();
-            setAvailableTimeSlots(slots);
+            fetchAvailableSlotsForDate(formData.date).then(slots => {
+                if (isMounted) setAvailableTimeSlots(slots);
+            });
         } else {
             setAvailableTimeSlots([]);
         }
+        return () => { isMounted = false; };
     }, [formData.date]);
 
     const handleChange = (e) => {

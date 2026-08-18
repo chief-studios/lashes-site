@@ -1,8 +1,42 @@
 const express = require('express');
 const TimeSlot = require('../models/TimeSlot');
 const Booking = require('../models/Booking');
+const Settings = require('../models/Settings');
 const { adminAuth } = require('../middleware/auth');
 const router = express.Router();
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+/**
+ * Checks if requested date and time fall within configured admin work hours.
+ */
+async function checkTimeWithinWorkHours(dateObj, timeStr) {
+    const settings = await Settings.getSettings();
+    const businessHours = settings.businessHours || {};
+
+    const dayOfWeek = DAY_NAMES[dateObj.getDay()];
+    const daySchedule = businessHours[dayOfWeek];
+
+    if (!daySchedule || !daySchedule.isOpen) {
+        return { isWithin: false, reason: 'Studio is closed on this day' };
+    }
+
+    const { open = '08:00', close = '20:00' } = daySchedule;
+    const [openH, openM] = open.split(':').map(Number);
+    const [closeH, closeM] = close.split(':').map(Number);
+
+    const [reqH, reqM] = timeStr.split(':').map(Number);
+
+    const reqMinutes = reqH * 60 + reqM;
+    const openMinutes = openH * 60 + openM;
+    const closeMinutes = closeH * 60 + closeM;
+
+    if (reqMinutes < openMinutes || reqMinutes >= closeMinutes) {
+        return { isWithin: false, reason: 'Selected time is outside working hours' };
+    }
+
+    return { isWithin: true };
+}
 
 // Get all time slots (admin only)
 router.get('/', adminAuth, async (req, res) => {
@@ -95,11 +129,11 @@ router.delete('/:id', adminAuth, async (req, res) => {
 });
 
 // Check time slot availability (public)
+// Step 1: Check work hours / time slot availability first
+// Step 2: Check existing booking second
 router.post('/check-availability', async (req, res) => {
     try {
         const { date, time } = req.body;
-
-        console.log('Received availability check:', { date, time }); // Debug log
 
         if (!date || !time) {
             return res.status(400).json({
@@ -108,44 +142,55 @@ router.post('/check-availability', async (req, res) => {
             });
         }
 
-        // Parse the date and time
+        const bookingDateObj = new Date(date);
+        if (Number.isNaN(bookingDateObj.getTime())) {
+            return res.status(400).json({
+                message: 'The selected time slot is unavailable',
+                available: false
+            });
+        }
+
+        // STEP 1: First check if that time is available for booking (work hours & admin manual blocks)
+        const workHoursCheck = await checkTimeWithinWorkHours(bookingDateObj, time);
+        if (!workHoursCheck.isWithin) {
+            return res.json({
+                available: false,
+                message: 'The selected time slot is unavailable'
+            });
+        }
+
+        const dateOnly = new Date(date);
+        dateOnly.setHours(0, 0, 0, 0);
+
+        const timeSlot = await TimeSlot.findOne({
+            date: dateOnly,
+            time: time
+        });
+
+        if (timeSlot && !timeSlot.isAvailable) {
+            return res.json({
+                available: false,
+                message: 'The selected time slot is unavailable'
+            });
+        }
+
+        // STEP 2: Second check if there's a booking there already
         const [hours, minutes] = time.split(':');
         const bookingDateTime = new Date(date);
-        bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        bookingDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
 
-        console.log('Parsed booking time:', bookingDateTime); // Debug log
-
-        // Check if there's already a booking for this time slot
         const existingBooking = await Booking.findOne({
             bookingTime: bookingDateTime,
             status: { $in: ['pending', 'confirmed', 'completed'] }
         });
 
-        console.log('Existing booking found:', existingBooking); // Debug log
-
         if (existingBooking) {
             return res.json({
                 available: false,
-                message: 'Time slot is already booked'
+                message: 'The selected time slot is unavailable'
             });
         }
 
-        // Check if time slot exists and is available
-        const timeSlot = await TimeSlot.findOne({
-            date: new Date(date),
-            time: time
-        });
-
-        console.log('Time slot found:', timeSlot); // Debug log
-
-        if (timeSlot && !timeSlot.isAvailable) {
-            return res.json({
-                available: false,
-                message: 'Time slot is marked as unavailable'
-            });
-        }
-
-        // If no booking exists and time slot is available (or doesn't exist yet), it's available
         res.json({
             available: true,
             message: 'Time slot is available'
@@ -161,26 +206,46 @@ router.post('/check-availability', async (req, res) => {
     }
 });
 
-// Helper function to generate time slots for a given date
+// Helper function to generate time slots for a given date based on Settings work hours
 async function generateTimeSlotsForDate(date) {
-    // Working hours: 08:00 to 22:00 (10:00 PM) with 2-hour blocks
-    const timeSlots = [
-        '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'
-    ];
-
     const dateObj = new Date(date);
     dateObj.setHours(0, 0, 0, 0);
+
+    const settings = await Settings.getSettings();
+    const businessHours = settings.businessHours || {};
+    const dayOfWeek = DAY_NAMES[dateObj.getDay()];
+    const daySchedule = businessHours[dayOfWeek];
+
+    if (!daySchedule || !daySchedule.isOpen) {
+        return [];
+    }
+
+    const slotDuration = settings.bookingSettings?.slotDuration || 120;
+    const { open = '08:00', close = '20:00' } = daySchedule;
+
+    const [openH, openM] = open.split(':').map(Number);
+    const [closeH, closeM] = close.split(':').map(Number);
+
+    let startMins = openH * 60 + openM;
+    const endMins = closeH * 60 + closeM;
+
+    const timeSlots = [];
+    while (startMins + slotDuration <= endMins) {
+        const h = Math.floor(startMins / 60);
+        const m = startMins % 60;
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        timeSlots.push(timeStr);
+        startMins += slotDuration;
+    }
 
     const generatedSlots = [];
 
     for (const time of timeSlots) {
-        // Check if slot already exists
         let slot = await TimeSlot.findOne({
             date: dateObj,
             time: time
         });
 
-        // If slot doesn't exist, create it
         if (!slot) {
             slot = new TimeSlot({
                 date: dateObj,
@@ -190,23 +255,20 @@ async function generateTimeSlotsForDate(date) {
             await slot.save();
         }
 
-        // Check if slot is booked
         const [hours, minutes] = time.split(':');
         const slotDateTime = new Date(dateObj);
-        slotDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        slotDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
 
         const existingBooking = await Booking.findOne({
             bookingTime: slotDateTime,
             status: { $in: ['pending', 'confirmed'] }
         });
 
-        // Mark as unavailable if booked
         if (existingBooking && slot.isAvailable) {
             slot.isAvailable = false;
             await slot.save();
         }
 
-        // Only return available slots
         if (slot.isAvailable) {
             generatedSlots.push(slot);
         }
@@ -215,7 +277,7 @@ async function generateTimeSlotsForDate(date) {
     return generatedSlots;
 }
 
-// Get available time slots (public) - auto-generates if needed
+// Get available time slots (public) - auto-generates based on admin work hours
 router.get('/available', async (req, res) => {
     try {
         const { date } = req.query;
@@ -226,7 +288,6 @@ router.get('/available', async (req, res) => {
             });
         }
 
-        // Generate time slots for the requested date
         const timeSlots = await generateTimeSlotsForDate(date);
 
         res.json(timeSlots);

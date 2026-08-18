@@ -45,9 +45,10 @@ const formatBookingDateTime = (input) => {
     return `${date} ${hours}:${minutes}`;
 };
 
-const VALID_SLOT_HOURS = [8, 10, 12, 14, 16, 18, 20];
-const INVALID_SLOT_MESSAGE =
-    'Invalid time slot. Please select a valid 2-hour time block starting at 8:00 AM, 10:00 AM, 12:00 PM, 2:00 PM, 4:00 PM, 6:00 PM, or 8:00 PM.';
+const Settings = require('../models/Settings');
+const TimeSlot = require('../models/TimeSlot');
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 /**
  * Resolve appointment time from bookingDate + timeSlot (preferred) or ISO bookingTime.
@@ -58,15 +59,11 @@ const resolveBookingDateTime = (body) => {
     if (bookingDate && timeSlot) {
         const slotMatch = /^(\d{1,2}):(\d{2})$/.exec(String(timeSlot).trim());
         if (!slotMatch) {
-            return { error: INVALID_SLOT_MESSAGE };
+            return { error: 'The selected time slot is unavailable' };
         }
 
         const hours = parseInt(slotMatch[1], 10);
         const minutes = parseInt(slotMatch[2], 10);
-
-        if (!VALID_SLOT_HOURS.includes(hours) || minutes !== 0) {
-            return { error: INVALID_SLOT_MESSAGE };
-        }
 
         let dateMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(String(bookingDate).trim());
         let day;
@@ -80,7 +77,7 @@ const resolveBookingDateTime = (body) => {
         } else {
             dateMatch = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/.exec(String(bookingDate).trim());
             if (!dateMatch) {
-                return { error: 'Invalid booking date.' };
+                return { error: 'The selected time slot is unavailable' };
             }
             day = parseInt(dateMatch[1], 10);
             month = parseInt(dateMatch[2], 10);
@@ -90,29 +87,88 @@ const resolveBookingDateTime = (body) => {
         const bookingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
         if (Number.isNaN(bookingDateTime.getTime())) {
-            return { error: 'Invalid booking date.' };
+            return { error: 'The selected time slot is unavailable' };
         }
 
-        return { bookingDateTime, hours, minutes };
+        return { bookingDateTime, hours, minutes, timeSlotStr: String(timeSlot).trim() };
     }
 
     if (!bookingTime) {
-        return { error: 'Booking time is required' };
+        return { error: 'The selected time slot is unavailable' };
     }
 
     const bookingDateTime = new Date(bookingTime);
     if (Number.isNaN(bookingDateTime.getTime())) {
-        return { error: 'Invalid booking time' };
+        return { error: 'The selected time slot is unavailable' };
     }
 
     const hours = bookingDateTime.getHours();
     const minutes = bookingDateTime.getMinutes();
+    const timeSlotStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-    if (!VALID_SLOT_HOURS.includes(hours) || minutes !== 0) {
-        return { error: INVALID_SLOT_MESSAGE };
+    return { bookingDateTime, hours, minutes, timeSlotStr };
+};
+
+/**
+ * Checks:
+ * Step 1: Work hours & TimeSlot manual availability check FIRST.
+ * Step 2: Existing booking check SECOND.
+ */
+const verifyBookingAvailability = async (bookingDateTime, timeStr) => {
+    try {
+        const settings = await Settings.getSettings();
+        const businessHours = settings.businessHours || {};
+        const dayOfWeek = DAY_NAMES[bookingDateTime.getDay()];
+        const daySchedule = businessHours[dayOfWeek];
+
+        // STEP 1: Check work hours availability
+        if (!daySchedule || !daySchedule.isOpen) {
+            return { available: false, message: 'The selected time slot is unavailable' };
+        }
+
+        const { open = '08:00', close = '20:00' } = daySchedule;
+        const [openH, openM] = open.split(':').map(Number);
+        const [closeH, closeM] = close.split(':').map(Number);
+
+        const hours = bookingDateTime.getHours();
+        const minutes = bookingDateTime.getMinutes();
+
+        const reqMinutes = hours * 60 + minutes;
+        const openMinutes = openH * 60 + openM;
+        const closeMinutes = closeH * 60 + closeM;
+
+        if (reqMinutes < openMinutes || reqMinutes >= closeMinutes) {
+            return { available: false, message: 'The selected time slot is unavailable' };
+        }
+
+        const dateOnly = new Date(bookingDateTime);
+        dateOnly.setHours(0, 0, 0, 0);
+        const formattedTimeStr = timeStr || `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        const timeSlot = await TimeSlot.findOne({
+            date: dateOnly,
+            time: formattedTimeStr
+        });
+
+        if (timeSlot && !timeSlot.isAvailable) {
+            return { available: false, message: 'The selected time slot is unavailable' };
+        }
+
+        // STEP 2: Check existing booking second
+        const existingBooking = await Booking.findOne({
+            bookingTime: bookingDateTime,
+            status: { $in: ['pending', 'confirmed'] }
+        });
+
+        if (existingBooking) {
+            return { available: false, message: 'The selected time slot is unavailable' };
+        }
+
+        return { available: true };
+    } catch (error) {
+        console.error('Error verifying booking availability:', error);
+        return { available: false, message: 'The selected time slot is unavailable' };
     }
-
-    return { bookingDateTime, hours, minutes };
 };
 
 /**
@@ -281,22 +337,17 @@ router.post('/', bookingLimiter, async (req, res) => {
             return res.status(400).json({ message: resolved.error });
         }
 
-        const { bookingDateTime, hours, minutes } = resolved;
+        const { bookingDateTime, hours, minutes, timeSlotStr } = resolved;
         
-        // Check for existing bookings
-        const existingBooking = await Booking.findOne({
-            bookingTime: bookingDateTime,
-            status: { $in: ['pending', 'confirmed'] }
-        });
-
-        if (existingBooking) {
+        // 2-Tier Check: 1) Work hours/slot availability FIRST, 2) Existing booking SECOND
+        const availability = await verifyBookingAvailability(bookingDateTime, timeSlotStr);
+        if (!availability.available) {
             return res.status(400).json({
-                message: 'This time slot is already booked. Please choose another time.'
+                message: availability.message || 'The selected time slot is unavailable'
             });
         }
         
         // Mark the time slot as unavailable
-        const TimeSlot = require('../models/TimeSlot');
         const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         const dateOnly = new Date(bookingDateTime);
         dateOnly.setHours(0, 0, 0, 0);
@@ -376,6 +427,8 @@ router.post('/', bookingLimiter, async (req, res) => {
 });
 
 // Check booking availability (public)
+// Step 1: Check work hours / time slot availability first
+// Step 2: Check existing booking second
 router.post('/check-booking-availability', async (req, res) => {
     try {
         const resolved = resolveBookingDateTime(req.body);
@@ -386,22 +439,16 @@ router.post('/check-booking-availability', async (req, res) => {
             });
         }
 
-        const { bookingDateTime } = resolved;
+        const { bookingDateTime, timeSlotStr } = resolved;
 
-        // Check for existing bookings
-        const existingBooking = await Booking.findOne({
-            bookingTime: bookingDateTime,
-            status: { $in: ['pending', 'confirmed'] }
-        });
-
-        if (existingBooking) {
+        const availability = await verifyBookingAvailability(bookingDateTime, timeSlotStr);
+        if (!availability.available) {
             return res.json({
                 available: false,
-                message: 'This time slot is already booked. Please choose another time.'
+                message: availability.message || 'The selected time slot is unavailable'
             });
         }
 
-        // If no existing booking, time slot is available
         res.json({
             available: true,
             message: 'Time slot is available'

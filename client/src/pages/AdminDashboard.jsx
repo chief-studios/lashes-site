@@ -397,19 +397,32 @@ const AdminDashboard = () => {
 
         {activeTab === 'time-slots' && (
           <div className="time-slots-section">
-            <h2>Time Slots</h2>
+            <h2>Time Slots & Work Hours</h2>
             <div style={{
               background: 'rgba(255, 20, 147, 0.1)',
-              padding: '1rem',
+              padding: '1.25rem',
               borderRadius: '8px',
               marginBottom: '2rem',
               border: '1px solid rgba(255, 20, 147, 0.2)'
             }}>
-              <p style={{ margin: 0, color: 'var(--primary-black)' }}>
-                <strong>Working Hours:</strong> 8:00 AM - 10:00 PM<br />
-                <strong>Time Blocks:</strong> 2-hour intervals (8:00-10:00, 10:00-12:00, 12:00-2:00 PM, 2:00-4:00 PM, 4:00-6:00 PM, 6:00-8:00 PM, 8:00-10:00 PM)<br />
-                Time slots are automatically generated when customers select a date. No manual addition needed.
+              <p style={{ margin: '0 0 1rem 0', color: 'var(--primary-black)' }}>
+                <strong>Work Hours Schedule:</strong> Time slots are automatically generated when clients select a date, according to your active Business Hours and slot duration settings.
               </p>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setActiveTab('settings')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  background: 'var(--primary-black, #111)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px'
+                }}
+              >
+                ⚙️ Configure Work Hours in Settings
+              </button>
             </div>
 
             <div className="time-slots-list">

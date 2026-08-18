@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
-import { generateTimeSlots } from '../utils/timeSlots';
+import { generateTimeSlots, fetchAvailableSlotsForDate } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
 import { useServicePageScroll } from '../hooks/useServicePageScroll';
@@ -87,12 +87,15 @@ const ClusterLashes = () => {
   ];
 
   useEffect(() => {
+    let isMounted = true;
     if (formData.date) {
-      const slots = generateTimeSlots();
-      setAvailableTimeSlots(slots);
+      fetchAvailableSlotsForDate(formData.date).then(slots => {
+        if (isMounted) setAvailableTimeSlots(slots);
+      });
     } else {
       setAvailableTimeSlots([]);
     }
+    return () => { isMounted = false; };
   }, [formData.date]);
 
   useEffect(() => {

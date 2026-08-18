@@ -58,7 +58,22 @@ const settingsSchema = new mongoose.Schema({
 settingsSchema.statics.getSettings = async function() {
     let settings = await this.findOne();
     if (!settings) {
-        settings = await this.create({});
+        settings = await this.create({
+            businessHours: {
+                monday: { open: '08:00', close: '20:00', isOpen: true },
+                tuesday: { open: '08:00', close: '20:00', isOpen: true },
+                wednesday: { open: '08:00', close: '20:00', isOpen: true },
+                thursday: { open: '08:00', close: '20:00', isOpen: true },
+                friday: { open: '08:00', close: '20:00', isOpen: true },
+                saturday: { open: '08:00', close: '20:00', isOpen: true },
+                sunday: { open: '08:00', close: '20:00', isOpen: false }
+            },
+            bookingSettings: {
+                advanceBookingDays: 30,
+                cancellationHours: 24,
+                slotDuration: 120
+            }
+        });
     }
     return settings;
 };

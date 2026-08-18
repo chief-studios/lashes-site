@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/admin.css';
 
@@ -12,18 +13,18 @@ const AdminSettings = () => {
     studioPhone: '',
     studioAddress: '',
     businessHours: {
-      monday: { open: '09:00', close: '18:00', isOpen: true },
-      tuesday: { open: '09:00', close: '18:00', isOpen: true },
-      wednesday: { open: '09:00', close: '18:00', isOpen: true },
-      thursday: { open: '09:00', close: '18:00', isOpen: true },
-      friday: { open: '09:00', close: '18:00', isOpen: true },
-      saturday: { open: '10:00', close: '16:00', isOpen: true },
-      sunday: { open: '10:00', close: '16:00', isOpen: false }
+      monday: { open: '08:00', close: '20:00', isOpen: true },
+      tuesday: { open: '08:00', close: '20:00', isOpen: true },
+      wednesday: { open: '08:00', close: '20:00', isOpen: true },
+      thursday: { open: '08:00', close: '20:00', isOpen: true },
+      friday: { open: '08:00', close: '20:00', isOpen: true },
+      saturday: { open: '08:00', close: '20:00', isOpen: true },
+      sunday: { open: '08:00', close: '20:00', isOpen: false }
     },
     bookingSettings: {
       advanceBookingDays: 30,
       cancellationHours: 24,
-      slotDuration: 30
+      slotDuration: 120
     },
     socialMedia: {
       facebook: '',
@@ -40,7 +41,7 @@ const AdminSettings = () => {
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('https://lashes-site.onrender.com/api/settings/admin', {
+      const response = await fetch(apiUrl('/api/settings/admin'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -72,7 +73,7 @@ const AdminSettings = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('https://lashes-site.onrender.com/api/settings', {
+      const response = await fetch(apiUrl('/api/settings'), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
