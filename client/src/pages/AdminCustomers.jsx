@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 import '../styles/base.css';
 import '../styles/admin.css';
 
@@ -17,8 +18,8 @@ const AdminCustomers = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const url = searchTerm
-        ? `https://lashes-site.onrender.com/api/customers?search=${encodeURIComponent(searchTerm)}`
-        : 'https://lashes-site.onrender.com/api/customers';
+        ? apiUrl(`/api/customers?search=${encodeURIComponent(searchTerm)}`)
+        : apiUrl('/api/customers');
       
       const response = await fetch(url, {
         headers: {
@@ -40,7 +41,7 @@ const AdminCustomers = () => {
   const fetchCustomerDetails = async (customerId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`https://lashes-site.onrender.com/api/customers/${customerId}`, {
+      const response = await fetch(apiUrl(`/api/customers/${customerId}`), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -61,7 +62,7 @@ const AdminCustomers = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('https://lashes-site.onrender.com/api/customers/sync', {
+      const response = await fetch(apiUrl('/api/customers/sync'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

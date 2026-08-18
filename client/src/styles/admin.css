@@ -1148,16 +1148,7 @@
   }
 }
 
-/* Ensure all Form Fields in Admin Dashboard have clean white backgrounds, black text, and crisp borders */
-.admin-dashboard label,
-.admin-content label,
-.admin-section label,
-.settings-section label,
-.settings-form label,
-.form-group label {
-  color: var(--primary-black) !important;
-}
-
+/* Explicit Admin Form Controls Styling - Clean White Background */
 .admin-dashboard input,
 .admin-dashboard select,
 .admin-dashboard textarea,
@@ -1170,15 +1161,34 @@
 .settings-form input,
 .settings-form select,
 .settings-form textarea,
+.settings-section input,
+.settings-section select,
+.settings-section textarea,
 .business-hours-row input,
 .hours-inputs input,
-.search-input,
-.period-selector select {
+.search-input {
   background-color: #ffffff !important;
   color: #000000 !important;
-  border: 2px solid rgba(255, 20, 147, 0.3) !important;
-  border-radius: var(--radius-md) !important;
-  font-family: var(--font-body);
+  border: 2px solid rgba(255, 20, 147, 0.25) !important;
+  border-radius: var(--radius-md, 8px) !important;
+  padding: 0.75rem 1rem !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.95rem !important;
+  color-scheme: light !important;
+  box-shadow: none !important;
+}
+
+.admin-dashboard input::placeholder,
+.admin-dashboard textarea::placeholder,
+.admin-content input::placeholder,
+.admin-content textarea::placeholder,
+.admin-form-container input::placeholder,
+.admin-form-container textarea::placeholder,
+.settings-form input::placeholder,
+.settings-form textarea::placeholder,
+.search-input::placeholder {
+  color: #666666 !important;
+  opacity: 0.8 !important;
 }
 
 .admin-dashboard input:focus,
@@ -1193,29 +1203,19 @@
 .settings-form input:focus,
 .settings-form select:focus,
 .settings-form textarea:focus,
-.business-hours-row input:focus,
-.hours-inputs input:focus,
-.search-input:focus,
-.period-selector select:focus {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border-color: var(--primary-pink) !important;
-  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.2) !important;
+.search-input:focus {
   outline: none !important;
+  border-color: var(--primary-pink, #FF1493) !important;
+  box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.15) !important;
+  background-color: #ffffff !important;
 }
 
-.admin-dashboard input::placeholder,
-.admin-content input::placeholder,
-.admin-form-container input::placeholder,
-.settings-form input::placeholder {
-  color: #777777 !important;
-  opacity: 1 !important;
-}
-
-/* Checkboxes & specialized inputs */
-.day-checkbox input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  accent-color: var(--primary-pink);
-  cursor: pointer;
+/* Ensure labels inside admin forms are dark and readable */
+.admin-dashboard label,
+.admin-content label,
+.settings-section label,
+.admin-form-container label,
+.settings-form label {
+  color: var(--primary-black, #000000) !important;
+  font-weight: 600 !important;
 }
