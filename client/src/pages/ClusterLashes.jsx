@@ -90,7 +90,15 @@ const ClusterLashes = () => {
     let isMounted = true;
     if (formData.date) {
       fetchAvailableSlotsForDate(formData.date).then(slots => {
-        if (isMounted) setAvailableTimeSlots(slots);
+        if (isMounted) {
+          setAvailableTimeSlots(slots);
+          if (slots.length === 0) {
+            setSubmitStatus({
+              type: 'error',
+              message: 'No available time slots for this date. Kindly choose another date.'
+            });
+          }
+        }
       });
     } else {
       setAvailableTimeSlots([]);
@@ -100,7 +108,6 @@ const ClusterLashes = () => {
 
   useEffect(() => {
     if (formData.date || formData.time) {
-      setSubmitStatus({ type: '', message: '' });
       setTimeSlotAvailable(null);
     }
   }, [formData.date, formData.time]);
@@ -180,6 +187,29 @@ const ClusterLashes = () => {
     setSubmitStatus({ type: '', message: '' });
     setTimeSlotAvailable(null);
     setCheckoutReadyToPay(false);
+
+    if (name === 'time' && value && formData.date) {
+      const dateTimeFields = buildBookingDateTimeFields(formData.date, value);
+      fetch(apiUrl('/api/bookings/check-booking-availability'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dateTimeFields)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.available) {
+          setTimeSlotAvailable(false);
+          setSubmitStatus({
+            type: 'error',
+            message: data.message || 'This time slot is not available. Please select a different slot.'
+          });
+          setFormData(prev => ({ ...prev, time: '' }));
+        } else {
+          setTimeSlotAvailable(true);
+        }
+      })
+      .catch(err => console.error('Error checking time slot availability:', err));
+    }
   };
 
   const handleColorChange = (e) => {

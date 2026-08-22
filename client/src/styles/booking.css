@@ -132,9 +132,19 @@
 }
 
 .submit-message.error {
-  background: rgba(244, 67, 54, 0.1);
-  color: #c62828;
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  background: rgba(244, 67, 54, 0.12);
+  color: #d32f2f;
+  border: 1.5px solid #ef5350;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+}
+.submit-message.error::before {
+  content: '⚠️';
+  font-size: 1.1rem;
 }
 
 /* Order Summary Styling */

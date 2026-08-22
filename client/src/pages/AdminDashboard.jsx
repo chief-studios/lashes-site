@@ -405,23 +405,24 @@ const AdminDashboard = () => {
               marginBottom: '2rem',
               border: '1px solid rgba(255, 20, 147, 0.2)'
             }}>
-              <p style={{ margin: '0 0 1rem 0', color: 'var(--primary-black)' }}>
-                <strong>Work Hours Schedule:</strong> Time slots are automatically generated when clients select a date, according to your active Business Hours and slot duration settings.
+              <p style={{ margin: '0 0 1rem 0', color: 'var(--primary-black)', lineHeight: 1.5 }}>
+                <strong>Weekly Available Time Slots:</strong> You can configure specific time slots available for each day of the week (Monday through Sunday) under Settings. When clients pick a date, only the available time slots for that day will be presented.
               </p>
               <button
                 className="btn btn-secondary"
                 onClick={() => setActiveTab('settings')}
                 style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '0.9rem',
+                  padding: '0.6rem 1.2rem',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
                   cursor: 'pointer',
-                  background: 'var(--primary-black, #111)',
+                  background: 'var(--primary-pink, #ff1493)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '4px'
                 }}
               >
-                ⚙️ Configure Work Hours in Settings
+                ⚙️ Manage Weekly Time Slots in Settings
               </button>
             </div>
 

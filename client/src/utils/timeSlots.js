@@ -46,18 +46,19 @@ export const fetchAvailableSlotsForDate = async (dateStr) => {
   if (!dateStr) return [];
   try {
     const response = await fetch(apiUrl(`/api/timeslots/available?date=${encodeURIComponent(dateStr)}`));
-    if (!response.ok) return generateTimeSlots();
+    if (!response.ok) return [];
 
     const data = await response.json();
     if (Array.isArray(data) && data.length > 0) {
       return data.map(slot => {
-        const [hours, minutes] = slot.time.split(':');
+        const timeStr = typeof slot === 'string' ? slot : slot.time;
+        const [hours, minutes] = timeStr.split(':');
         const hour = parseInt(hours, 10);
         const ampm = hour >= 12 ? 'PM' : 'AM';
         const displayHour = hour % 12 || 12;
         const formattedHour = String(displayHour).padStart(2, '0');
         return {
-          value: slot.time,
+          value: timeStr,
           display: `${formattedHour}:${minutes}${ampm}`
         };
       });
@@ -65,7 +66,7 @@ export const fetchAvailableSlotsForDate = async (dateStr) => {
     return [];
   } catch (error) {
     console.error('Error fetching available slots:', error);
-    return generateTimeSlots();
+    return [];
   }
 };
 

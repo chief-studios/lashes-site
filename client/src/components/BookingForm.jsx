@@ -30,7 +30,15 @@ const BookingForm = ({ selectedProduct = null }) => {
         let isMounted = true;
         if (formData.date) {
             fetchAvailableSlotsForDate(formData.date).then(slots => {
-                if (isMounted) setAvailableTimeSlots(slots);
+                if (isMounted) {
+                    setAvailableTimeSlots(slots);
+                    if (slots.length === 0) {
+                        setSubmitStatus({
+                            type: 'error',
+                            message: 'No available booking time slots for this date. Kindly choose another date.'
+                        });
+                    }
+                }
             });
         } else {
             setAvailableTimeSlots([]);
@@ -39,11 +47,32 @@ const BookingForm = ({ selectedProduct = null }) => {
     }, [formData.date]);
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
         setSubmitStatus({ type: '', message: '' });
+
+        if (name === 'time' && value && formData.date) {
+            const dateTimeFields = buildBookingDateTimeFields(formData.date, value);
+            fetch(apiUrl('/api/bookings/check-booking-availability'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dateTimeFields)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.available) {
+                    setSubmitStatus({
+                        type: 'error',
+                        message: data.message || 'This time slot is not available. Please select a different time slot.'
+                    });
+                    setFormData(prev => ({ ...prev, time: '' }));
+                }
+            })
+            .catch(err => console.error('Error checking availability:', err));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -85,7 +114,10 @@ const BookingForm = ({ selectedProduct = null }) => {
                 });
                 setAvailableTimeSlots([]);
             } else {
-                setSubmitStatus({ type: 'error', message: data.message || 'Error submitting booking. Please try again.' });
+                setSubmitStatus({ type: 'error', message: data.message || 'This time slot is not available. Please select a different slot.' });
+                if (formData.date) {
+                    fetchAvailableSlotsForDate(formData.date).then(setAvailableTimeSlots);
+                }
             }
         } catch (error) {
             setSubmitStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });

@@ -121,29 +121,35 @@ const verifyBookingAvailability = async (bookingDateTime, timeStr) => {
         const dayOfWeek = DAY_NAMES[bookingDateTime.getDay()];
         const daySchedule = businessHours[dayOfWeek];
 
-        // STEP 1: Check work hours availability
+        // STEP 1: Check work hours & available slots list
         if (!daySchedule || !daySchedule.isOpen) {
-            return { available: false, message: 'The selected time slot is unavailable' };
+            return { available: false, message: 'Studio is closed on this day. Please select a different day or slot.' };
         }
-
-        const { open = '08:00', close = '20:00' } = daySchedule;
-        const [openH, openM] = open.split(':').map(Number);
-        const [closeH, closeM] = close.split(':').map(Number);
 
         const hours = bookingDateTime.getHours();
         const minutes = bookingDateTime.getMinutes();
+        const formattedTimeStr = timeStr || `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-        const reqMinutes = hours * 60 + minutes;
-        const openMinutes = openH * 60 + openM;
-        const closeMinutes = closeH * 60 + closeM;
+        if (Array.isArray(daySchedule.slots) && daySchedule.slots.length > 0) {
+            if (!daySchedule.slots.includes(formattedTimeStr)) {
+                return { available: false, message: 'This time slot is not available. Please select a different slot.' };
+            }
+        } else {
+            const { open = '08:00', close = '20:00' } = daySchedule;
+            const [openH, openM] = open.split(':').map(Number);
+            const [closeH, closeM] = close.split(':').map(Number);
 
-        if (reqMinutes < openMinutes || reqMinutes >= closeMinutes) {
-            return { available: false, message: 'The selected time slot is unavailable' };
+            const reqMinutes = hours * 60 + minutes;
+            const openMinutes = openH * 60 + openM;
+            const closeMinutes = closeH * 60 + closeM;
+
+            if (reqMinutes < openMinutes || reqMinutes >= closeMinutes) {
+                return { available: false, message: 'Selected time is outside working hours. Please select a different slot.' };
+            }
         }
 
         const dateOnly = new Date(bookingDateTime);
         dateOnly.setHours(0, 0, 0, 0);
-        const formattedTimeStr = timeStr || `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
         const timeSlot = await TimeSlot.findOne({
             date: dateOnly,
@@ -151,23 +157,23 @@ const verifyBookingAvailability = async (bookingDateTime, timeStr) => {
         });
 
         if (timeSlot && !timeSlot.isAvailable) {
-            return { available: false, message: 'The selected time slot is unavailable' };
+            return { available: false, message: 'This time slot is not available. Please select a different slot.' };
         }
 
         // STEP 2: Check existing booking second
         const existingBooking = await Booking.findOne({
             bookingTime: bookingDateTime,
-            status: { $in: ['pending', 'confirmed'] }
+            status: { $in: ['pending', 'confirmed', 'completed'] }
         });
 
         if (existingBooking) {
-            return { available: false, message: 'The selected time slot is unavailable' };
+            return { available: false, message: 'This time slot has already been taken. Please select a different slot.' };
         }
 
         return { available: true };
     } catch (error) {
         console.error('Error verifying booking availability:', error);
-        return { available: false, message: 'The selected time slot is unavailable' };
+        return { available: false, message: 'Error checking time slot availability. Please try again.' };
     }
 };
 

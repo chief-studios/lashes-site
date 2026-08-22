@@ -21,6 +21,13 @@ async function checkTimeWithinWorkHours(dateObj, timeStr) {
         return { isWithin: false, reason: 'Studio is closed on this day' };
     }
 
+    if (Array.isArray(daySchedule.slots) && daySchedule.slots.length > 0) {
+        if (!daySchedule.slots.includes(timeStr)) {
+            return { isWithin: false, reason: 'The selected time slot is not available for this day' };
+        }
+        return { isWithin: true };
+    }
+
     const { open = '08:00', close = '20:00' } = daySchedule;
     const [openH, openM] = open.split(':').map(Number);
     const [closeH, closeM] = close.split(':').map(Number);
@@ -220,22 +227,26 @@ async function generateTimeSlotsForDate(date) {
         return [];
     }
 
-    const slotDuration = settings.bookingSettings?.slotDuration || 120;
-    const { open = '08:00', close = '20:00' } = daySchedule;
+    let timeSlots = [];
+    if (Array.isArray(daySchedule.slots) && daySchedule.slots.length > 0) {
+        timeSlots = [...daySchedule.slots];
+    } else {
+        const slotDuration = settings.bookingSettings?.slotDuration || 120;
+        const { open = '08:00', close = '20:00' } = daySchedule;
 
-    const [openH, openM] = open.split(':').map(Number);
-    const [closeH, closeM] = close.split(':').map(Number);
+        const [openH, openM] = open.split(':').map(Number);
+        const [closeH, closeM] = close.split(':').map(Number);
 
-    let startMins = openH * 60 + openM;
-    const endMins = closeH * 60 + closeM;
+        let startMins = openH * 60 + openM;
+        const endMins = closeH * 60 + closeM;
 
-    const timeSlots = [];
-    while (startMins + slotDuration <= endMins) {
-        const h = Math.floor(startMins / 60);
-        const m = startMins % 60;
-        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        timeSlots.push(timeStr);
-        startMins += slotDuration;
+        while (startMins + slotDuration <= endMins) {
+            const h = Math.floor(startMins / 60);
+            const m = startMins % 60;
+            const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            timeSlots.push(timeStr);
+            startMins += slotDuration;
+        }
     }
 
     const generatedSlots = [];
@@ -261,7 +272,7 @@ async function generateTimeSlotsForDate(date) {
 
         const existingBooking = await Booking.findOne({
             bookingTime: slotDateTime,
-            status: { $in: ['pending', 'confirmed'] }
+            status: { $in: ['pending', 'confirmed', 'completed'] }
         });
 
         if (existingBooking && slot.isAvailable) {
@@ -269,7 +280,7 @@ async function generateTimeSlotsForDate(date) {
             await slot.save();
         }
 
-        if (slot.isAvailable) {
+        if (slot.isAvailable && !existingBooking) {
             generatedSlots.push(slot);
         }
     }
