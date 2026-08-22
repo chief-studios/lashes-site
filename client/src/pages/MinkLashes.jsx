@@ -568,6 +568,25 @@ const MinkLashes = () => {
         <CustomizedSetConsultModal
           isOpen={showCustomizedSetModal}
           onClose={() => setShowCustomizedSetModal(false)}
+          onProceed={() => {
+            setShowCustomizedSetModal(false);
+            const customizedProduct = {
+              id: 9999,
+              name: 'Customized Set',
+              description: 'Tailored mink lash set designed specifically for your eyes. Consultation included.',
+              price: 300,
+              duration: '90 mins',
+              image: customizedSetImage,
+              type: 'mink customized set',
+              extra: 'no'
+            };
+            setSelectedProductDetails(customizedProduct);
+            setFormData(prev => ({ ...prev, product: customizedProduct.name }));
+            setSelectedColor('');
+            setCheckoutReadyToPay(false);
+            setSubmitStatus({ type: '', message: '' });
+            setShowBookingModal(true);
+          }}
         />
 
         <div className="products-section" ref={productsSectionRef}>

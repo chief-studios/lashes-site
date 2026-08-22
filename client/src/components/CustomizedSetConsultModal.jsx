@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
-export default function CustomizedSetConsultModal({ isOpen, onClose }) {
+export default function CustomizedSetConsultModal({ isOpen, onClose, onProceed }) {
   if (!isOpen) return null;
 
   const handleOverlayClick = (e) => {
@@ -23,20 +22,19 @@ export default function CustomizedSetConsultModal({ isOpen, onClose }) {
       >
         <h2 id="customized-set-modal-title">Customized Set</h2>
         <p>
-          A customized mink set is tailored to your look and needs. Before we can book this
-          service, you&apos;ll need a consultation so we can plan your style together. This comes at a cost of ₵250 in addition to the consultation fee (₵50).
+          A customized mink set is tailored to your unique look and needs. The consultation is included as part of your customized set package so we can plan your style together (Customized Set: ₵250 + Consultation fee: ₵50 = Total ₵300).
         </p>
         <p className="customized-set-modal__hint">
-          Book a lash consultation first — then we can move forward with your customized set.
+          Proceed below to select your date, time slot, and enter your booking details.
         </p>
         <div className="customized-set-modal__actions">
-          <Link
-            to="/lash-consultation"
+          <button
+            type="button"
             className="modal-ok-btn customized-set-modal__cta"
-            onClick={onClose}
+            onClick={onProceed}
           >
-            Book a consultation
-          </Link>
+            Proceed to Book
+          </button>
           <button type="button" className="customized-set-modal__close" onClick={onClose}>
             Close
           </button>
