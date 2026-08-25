@@ -27,22 +27,63 @@ function pad2(n) {
     return String(n).padStart(2, '0');
 }
 
-function formatDateOnlyToDDMMYYYY(input) {
-    const d = new Date(input);
-    if (Number.isNaN(d.getTime())) return '';
-    const day = pad2(d.getDate());
-    const month = pad2(d.getMonth() + 1);
+const FULL_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const FULL_MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function getOrdinalSuffix(day) {
+    const j = day % 10;
+    const k = day % 100;
+    if (j === 1 && k !== 11) return `${day}st`;
+    if (j === 2 && k !== 12) return `${day}nd`;
+    if (j === 3 && k !== 13) return `${day}rd`;
+    return `${day}th`;
+}
+
+function formatDateFormatted(input) {
+    if (!input) return '';
+    let d;
+    if (typeof input === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(input.trim())) {
+        const parts = input.trim().split('-').map(Number);
+        d = new Date(parts[0], parts[1] - 1, parts[2]);
+    } else if (typeof input === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(input.trim())) {
+        const parts = input.trim().split('/').map(Number);
+        d = new Date(parts[2], parts[1] - 1, parts[0]);
+    } else {
+        d = new Date(input);
+    }
+
+    if (Number.isNaN(d.getTime())) return String(input);
+
+    const dayName = FULL_DAY_NAMES[d.getDay()];
+    const dayOrdinal = getOrdinalSuffix(d.getDate());
+    const monthName = FULL_MONTH_NAMES[d.getMonth()];
     const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+
+    return `${dayName}, ${dayOrdinal} ${monthName}, ${year}`;
+}
+
+function formatTimeFormatted(input) {
+    if (!input) return '';
+    const d = new Date(input);
+    if (Number.isNaN(d.getTime())) return String(input);
+    const hours = d.getHours();
+    const minutes = pad2(d.getMinutes());
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = pad2(hours % 12 || 12);
+    return `${displayHours}:${minutes} ${ampm}`;
+}
+
+function formatDateOnlyToDDMMYYYY(input) {
+    return formatDateFormatted(input);
 }
 
 const formatBookingDateTime = (input) => {
-    const d = new Date(input);
-    if (Number.isNaN(d.getTime())) return String(input);
-    const date = formatDateOnlyToDDMMYYYY(d);
-    const hours = pad2(d.getHours());
-    const minutes = pad2(d.getMinutes());
-    return `${date} ${hours}:${minutes}`;
+    const dateStr = formatDateFormatted(input);
+    const timeStr = formatTimeFormatted(input);
+    return timeStr ? `${dateStr} at ${timeStr}` : dateStr;
 };
 
 const Settings = require('../models/Settings');
@@ -208,6 +249,8 @@ const sendAdminNewBookingEmail = async (booking) => {
         return;
     }
 
+    const dateFormatted = formatDateFormatted(booking.bookingTime);
+    const timeFormatted = formatTimeFormatted(booking.bookingTime);
     const subject = `New booking: ${booking.name} (${booking.service})`;
     const html = `
         <h2>New Booking Submitted</h2>
@@ -215,7 +258,8 @@ const sendAdminNewBookingEmail = async (booking) => {
         <p><strong>Email:</strong> ${booking.email}</p>
         <p><strong>Phone:</strong> ${booking.phone}</p>
         <p><strong>Service:</strong> ${booking.service}</p>
-        <p><strong>Booking Time:</strong> ${formatBookingDateTime(booking.bookingTime)}</p>
+        <p><strong>Booking Date:</strong> ${dateFormatted}</p>
+        <p><strong>Booking Time:</strong> ${timeFormatted}</p>
         <p><strong>Comments:</strong> ${booking.comments || 'None'}</p>
     `;
 

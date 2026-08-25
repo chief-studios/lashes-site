@@ -5,6 +5,7 @@ import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
 import AdminProducts from './AdminProducts'; // <-- ADDED IMPORT
 import { apiUrl } from '../config/api';
+import { formatDateFormatted } from '../utils/bookingDateTime';
 import '../styles/base.css';
 import '../styles/admin.css';
 import '../styles/booking.css';
@@ -130,12 +131,7 @@ const AdminDashboard = () => {
   };
 
   const formatDate = (value) => {
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '';
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+    return formatDateFormatted(value);
   };
 
   const handleUpdateBookingStatus = async (bookingId, status) => {
