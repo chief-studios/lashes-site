@@ -20,6 +20,7 @@ import BookingCheckoutModal from '../components/BookingCheckoutModal';
 import ColorLashPicker from '../components/ColorLashPicker';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
 import CustomizedSetConsultModal from '../components/CustomizedSetConsultModal';
+import WhatsAppInquiryBanner from '../components/WhatsAppInquiryBanner';
 import customizedSetImage from '../images/anime image.jpeg';
 import '../styles/base.css';
 import '../styles/service-page.css';
@@ -649,7 +650,8 @@ const MinkLashes = () => {
               };
 
               return (
-                <div className="service-cards-container">
+                <>
+                  <div className="service-cards-container">
                   {styleSections.filter(s => s.items.length > 0).map(section => {
                     const displayImage = getCategoryCoverImage(section.items);
                     const mainStylesCount = countMainStyles(section.items);
@@ -695,6 +697,10 @@ const MinkLashes = () => {
                     </div>
                   </div>
                 </div>
+                <WhatsAppInquiryBanner
+                  customMessage="Hi! I am browsing Mink Lash styles on your website and didn't see the exact look I am looking for. Can I share a reference photo or inquire about a custom style?"
+                />
+              </>
               );
             }
 
@@ -817,6 +823,9 @@ const MinkLashes = () => {
                     )}
                   </div>
                 )}
+                <WhatsAppInquiryBanner
+                  customMessage="Hi! I am browsing your Mink Lash options and didn't see the exact style I want. Can I share a reference photo or inquire about a custom look?"
+                />
               </>
             );
           })()}

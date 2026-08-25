@@ -19,6 +19,7 @@ import OrderBar from '../components/OrderBar';
 import BookingCheckoutModal from '../components/BookingCheckoutModal';
 import ColorLashPicker from '../components/ColorLashPicker';
 import PaymentSuccessModal from '../components/PaymentSuccessModal';
+import WhatsAppInquiryBanner from '../components/WhatsAppInquiryBanner';
 import '../styles/base.css';
 import '../styles/service-page.css';
 import '../styles/home.css';
@@ -595,31 +596,36 @@ const ClusterLashes = () => {
               };
 
               return (
-                <div className="service-cards-container">
-                  {sections.filter(s => s.items.length > 0).map(section => {
-                    const displayImage = getCategoryCoverImage(section.items);
-                    const mainStylesCount = countMainStyles(section.items);
+                <>
+                  <div className="service-cards-container">
+                    {sections.filter(s => s.items.length > 0).map(section => {
+                      const displayImage = getCategoryCoverImage(section.items);
+                      const mainStylesCount = countMainStyles(section.items);
 
-                    return (
-                      <div
-                        key={section.key}
-                        className="service-card"
-                        onClick={() => { selectGroup(section.key); }}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
-                      >
-                        <div className="service-image">
-                          <img src={displayImage} alt={`${section.title} cover`} />
+                      return (
+                        <div
+                          key={section.key}
+                          className="service-card"
+                          onClick={() => { selectGroup(section.key); }}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectGroup(section.key); } }}
+                        >
+                          <div className="service-image">
+                            <img src={displayImage} alt={`${section.title} cover`} />
+                          </div>
+                          <div className="service-info">
+                            <h3>{section.title}</h3>
+                            <p className="service-details">{mainStylesCount} styles available</p>
+                          </div>
                         </div>
-                        <div className="service-info">
-                          <h3>{section.title}</h3>
-                          <p className="service-details">{mainStylesCount} styles available</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                  <WhatsAppInquiryBanner
+                    customMessage="Hi! I am browsing Cluster Lash styles on your website and didn't see the exact look I am looking for. Can I share a reference photo or inquire about a custom style?"
+                  />
+                </>
               );
             }
 
@@ -741,6 +747,9 @@ const ClusterLashes = () => {
                     )}
                   </div>
                 )}
+                <WhatsAppInquiryBanner
+                  customMessage="Hi! I am browsing your Cluster Lash options and didn't see the exact style I want. Can I share a reference photo or inquire about a custom look?"
+                />
               </>
             );
           })()}
