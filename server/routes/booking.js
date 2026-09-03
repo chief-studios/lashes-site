@@ -564,8 +564,11 @@ router.get('/available-slots', async (req, res) => {
 // Get all bookings (admin only)
 router.get('/', adminAuth, async (req, res) => {
     try {
-        const { status, date, search } = req.query;
+        const { status, date, search, includeAll } = req.query;
         let query = {};
+
+        // Calculate cutoff date (14 days ago from current date/time)
+        const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
 
         if (status) {
             query.status = status;
@@ -576,7 +579,15 @@ router.get('/', adminAuth, async (req, res) => {
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
-            query.bookingTime = { $gte: startOfDay, $lte: endOfDay };
+            
+            if (includeAll !== 'true') {
+                const effectiveStart = startOfDay > twoWeeksAgo ? startOfDay : twoWeeksAgo;
+                query.bookingTime = { $gte: effectiveStart, $lte: endOfDay };
+            } else {
+                query.bookingTime = { $gte: startOfDay, $lte: endOfDay };
+            }
+        } else if (includeAll !== 'true') {
+            query.bookingTime = { $gte: twoWeeksAgo };
         }
 
         if (search) {

@@ -22,13 +22,14 @@ const AdminDashboard = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [showOlderBookings, setShowOlderBookings] = useState(false);
 
   useEffect(() => {
     checkAuth();
     if (isAuthenticated) {
       fetchData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, showOlderBookings]);
 
   const checkAuth = () => {
     const token = localStorage.getItem('adminToken');
@@ -79,8 +80,12 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('adminToken');
 
-      // Fetch bookings
-      const bookingsResponse = await fetch(apiUrl('/api/bookings'), {
+      // Fetch bookings (filter out > 2 weeks past by default)
+      const bookingsUrl = showOlderBookings
+        ? apiUrl('/api/bookings?includeAll=true')
+        : apiUrl('/api/bookings');
+
+      const bookingsResponse = await fetch(bookingsUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -327,62 +332,80 @@ const AdminDashboard = () => {
 
         {activeTab === 'bookings' && (
           <div className="bookings-section">
-            <h2>All Bookings</h2>
-            <div className="bookings-list">
-              {bookings.map(booking => (
-                <div key={booking._id} className="booking-card">
-                  <div className="booking-info">
-                    <h4>{booking.name}</h4>
-                    <p><strong>Service:</strong> {booking.service}</p>
-                    <p><strong>Email:</strong> {booking.email}</p>
-                    <p><strong>Phone:</strong> {booking.phone}</p>
-                    <p><strong>Date:</strong> {formatDate(booking.bookingTime)}</p>
-                    <p><strong>Time:</strong> {formatTime(booking.bookingTime)}</p>
-                    <p><strong>Status:</strong>
-                      <span className={`status ${booking.status}`}>{booking.status}</span>
-                    </p>
-                    <p><strong>Total:</strong> ₵{typeof booking.totalAmount === 'number' ? booking.totalAmount.toFixed(2) : '0.00'}</p>
-                    <p><strong>Paid:</strong> ₵{typeof booking.amountPaid === 'number' ? booking.amountPaid.toFixed(2) : '0.00'}</p>
-                    <p><strong>Remaining:</strong>
-                      <span className={booking.remainingAmount > 0 ? 'remaining-due' : 'paid-in-full'}>
-                        ₵{typeof booking.remainingAmount === 'number' ? booking.remainingAmount.toFixed(2) : '0.00'}
-                      </span>
-                    </p>
-                    {booking.comments && (
-                      <p><strong>Comments / Extras:</strong> {booking.comments}</p>
-                    )}
-                  </div>
-                  <div className="booking-actions">
-                    <button
-                      className={`status-btn ${booking.status === 'confirmed' ? 'confirmed' : ''}`}
-                      onClick={() => handleUpdateBookingStatus(booking._id, 'confirmed')}
-                      disabled={booking.status === 'confirmed' || updatingBookingId === booking._id}
-                    >
-                      {updatingBookingId === booking._id ? (
-                        <>
-                          <span className="spinner"></span> Updating...
-                        </>
-                      ) : (
-                        'Approve'
-                      )}
-                    </button>
-                    <button
-                      className={`status-btn cancel`}
-                      onClick={() => handleUpdateBookingStatus(booking._id, 'cancelled')}
-                      disabled={booking.status === 'cancelled' || updatingBookingId === booking._id}
-                    >
-                      {updatingBookingId === booking._id ? (
-                        <>
-                          <span className="spinner"></span> Updating...
-                        </>
-                      ) : (
-                        'Reject'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <h2>Bookings</h2>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: '#555', userSelect: 'none' }}>
+                <input
+                  type="checkbox"
+                  checked={showOlderBookings}
+                  onChange={(e) => setShowOlderBookings(e.target.checked)}
+                />
+                Show appointments past 2 weeks
+              </label>
             </div>
+            {bookings.length === 0 ? (
+              <p style={{ color: '#888', fontStyle: 'italic' }}>
+                {showOlderBookings
+                  ? 'No bookings found.'
+                  : 'No active bookings found within the last 2 weeks.'}
+              </p>
+            ) : (
+              <div className="bookings-list">
+                {bookings.map(booking => (
+                  <div key={booking._id} className="booking-card">
+                    <div className="booking-info">
+                      <h4>{booking.name}</h4>
+                      <p><strong>Service:</strong> {booking.service}</p>
+                      <p><strong>Email:</strong> {booking.email}</p>
+                      <p><strong>Phone:</strong> {booking.phone}</p>
+                      <p><strong>Date:</strong> {formatDate(booking.bookingTime)}</p>
+                      <p><strong>Time:</strong> {formatTime(booking.bookingTime)}</p>
+                      <p><strong>Status:</strong>
+                        <span className={`status ${booking.status}`}>{booking.status}</span>
+                      </p>
+                      <p><strong>Total:</strong> ₵{typeof booking.totalAmount === 'number' ? booking.totalAmount.toFixed(2) : '0.00'}</p>
+                      <p><strong>Paid:</strong> ₵{typeof booking.amountPaid === 'number' ? booking.amountPaid.toFixed(2) : '0.00'}</p>
+                      <p><strong>Remaining:</strong>
+                        <span className={booking.remainingAmount > 0 ? 'remaining-due' : 'paid-in-full'}>
+                          ₵{typeof booking.remainingAmount === 'number' ? booking.remainingAmount.toFixed(2) : '0.00'}
+                        </span>
+                      </p>
+                      {booking.comments && (
+                        <p><strong>Comments / Extras:</strong> {booking.comments}</p>
+                      )}
+                    </div>
+                    <div className="booking-actions">
+                      <button
+                        className={`status-btn ${booking.status === 'confirmed' ? 'confirmed' : ''}`}
+                        onClick={() => handleUpdateBookingStatus(booking._id, 'confirmed')}
+                        disabled={booking.status === 'confirmed' || updatingBookingId === booking._id}
+                      >
+                        {updatingBookingId === booking._id ? (
+                          <>
+                            <span className="spinner"></span> Updating...
+                          </>
+                        ) : (
+                          'Approve'
+                        )}
+                      </button>
+                      <button
+                        className={`status-btn cancel`}
+                        onClick={() => handleUpdateBookingStatus(booking._id, 'cancelled')}
+                        disabled={booking.status === 'cancelled' || updatingBookingId === booking._id}
+                      >
+                        {updatingBookingId === booking._id ? (
+                          <>
+                            <span className="spinner"></span> Updating...
+                          </>
+                        ) : (
+                          'Reject'
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

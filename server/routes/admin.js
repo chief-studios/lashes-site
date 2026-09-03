@@ -8,16 +8,23 @@ const router = express.Router();
 // Admin dashboard stats
 router.get('/dashboard', adminAuth, async (req, res) => {
     try {
-        const totalBookings = await Booking.countDocuments();
-        const pendingBookings = await Booking.countDocuments({ status: 'pending' });
-        const confirmedBookings = await Booking.countDocuments({ status: 'confirmed' });
-        const cancelledBookings = await Booking.countDocuments({ status: 'cancelled' });
+        const { includeAll } = req.query;
+        let baseQuery = {};
+        if (includeAll !== 'true') {
+            const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+            baseQuery.bookingTime = { $gte: twoWeeksAgo };
+        }
+
+        const totalBookings = await Booking.countDocuments(baseQuery);
+        const pendingBookings = await Booking.countDocuments({ ...baseQuery, status: 'pending' });
+        const confirmedBookings = await Booking.countDocuments({ ...baseQuery, status: 'confirmed' });
+        const cancelledBookings = await Booking.countDocuments({ ...baseQuery, status: 'cancelled' });
         const totalCustomers = await Customer.countDocuments();
         const availableSlots = await TimeSlot.countDocuments({ isAvailable: true });
 
         // Recent bookings
-        const recentBookings = await Booking.find()
-            .sort({ createdAt: -1 })
+        const recentBookings = await Booking.find(baseQuery)
+            .sort({ bookingTime: -1 })
             .limit(10);
 
         // Bookings by status for chart
