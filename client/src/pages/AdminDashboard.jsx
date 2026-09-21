@@ -4,6 +4,7 @@ import AdminCustomers from './AdminCustomers';
 import AdminAnalytics from './AdminAnalytics';
 import AdminSettings from './AdminSettings';
 import AdminProducts from './AdminProducts'; // <-- ADDED IMPORT
+import AdminLashColors from './AdminLashColors';
 import { apiUrl } from '../config/api';
 import { formatDateFormatted } from '../utils/bookingDateTime';
 import '../styles/base.css';
@@ -295,6 +296,12 @@ const AdminDashboard = () => {
           Products
         </button>
         <button
+          className={`nav-btn ${activeTab === 'colors' ? 'active' : ''}`}
+          onClick={() => setActiveTab('colors')}
+        >
+          Lash Colors
+        </button>
+        <button
           className={`nav-btn ${activeTab === 'analytics' ? 'active' : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
@@ -412,7 +419,8 @@ const AdminDashboard = () => {
         {activeTab === 'customers' && <AdminCustomers />}
         {activeTab === 'analytics' && <AdminAnalytics />}
         {activeTab === 'settings' && <AdminSettings />}
-        {activeTab === 'products' && <AdminProducts />} {/* <-- ADDED PRODUCTS TAB RENDER */}
+        {activeTab === 'products' && <AdminProducts />}
+        {activeTab === 'colors' && <AdminLashColors />}
 
         {activeTab === 'time-slots' && (
           <div className="time-slots-section">

@@ -120,6 +120,7 @@ app.use('/api/timeslots', checkDBConnection, require('./routes/timeSlots'));
 app.use('/api/customers', checkDBConnection, require('./routes/customers'));
 app.use('/api/settings', checkDBConnection, require('./routes/settings'));
 app.use('/api/products', checkDBConnection, require('./routes/product')); // <-- NEW PRODUCTS ROUTE
+app.use('/api/lash-colors', checkDBConnection, require('./routes/lashColors'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -1,51 +1,47 @@
 import { useState, useEffect } from 'react';
-import { products as staticProducts } from '../data/products';
 import { apiUrl } from '../config/api';
 
 export const useProducts = () => {
-    const [products, setProducts] = useState(staticProducts);
-    const [loading, setLoading] = useState(false);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
         const fetchProducts = async () => {
-            setLoading(true);
             try {
                 const response = await fetch(apiUrl('/api/products'));
                 if (response.ok) {
                     const dynamicProducts = await response.json();
-
-                    // Map dynamic products to match the static product structure
-                    const mappedProducts = dynamicProducts.map(p => ({
-                        id: p._id, // MongoDB ObjectId (string)
-                        name: p.name,
-                        description: p.description,
-                        price: p.price,
-                        duration: p.duration,
-                        // Serve from public folder dynamically or pass-through if base64 / absolute URL
-                        image: (p.image.startsWith('http') || p.image.startsWith('data:') || p.image.startsWith('/'))
-                            ? p.image
-                            : `/images/${p.image}`,
-                        type: p.type,
-                        extra: p.extra,
-                        poster: p.poster
-                    }));
-
-                    // Merge static and dynamic products. 
-                    // (Static IDs are numbers, Dynamic IDs are strings, so no collisions)
-                    setProducts([...staticProducts, ...mappedProducts]);
+                    if (isMounted) {
+                        const mappedProducts = dynamicProducts.map(p => ({
+                            id: p._id, // MongoDB ObjectId (string)
+                            name: p.name,
+                            description: p.description,
+                            price: p.price,
+                            duration: p.duration,
+                            image: (p.image.startsWith('http') || p.image.startsWith('data:') || p.image.startsWith('/'))
+                                ? p.image
+                                : `/images/${p.image}`,
+                            type: p.type,
+                            extra: p.extra,
+                            poster: p.poster
+                        }));
+                        setProducts(mappedProducts);
+                    }
                 } else {
-                    console.warn('Failed to fetch dynamic products, using static fallback.');
+                    console.warn('Failed to fetch dynamic products from DB');
                 }
             } catch (err) {
-                console.error('Error fetching dynamic products, using static fallback:', err);
-                setError(err.message);
+                console.error('Error fetching dynamic products:', err);
+                if (isMounted) setError(err.message);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
 
         fetchProducts();
+        return () => { isMounted = false; };
     }, []);
 
     return { products, loading, error };

@@ -13,7 +13,7 @@ import {
   getCategoryCoverImage,
   separateStylesAndExtras,
 } from '../utils/productStyles';
-import { LASH_COLORS } from '../data/lashColors';
+import { useLashColors } from '../hooks/useLashColors';
 import InlineTip from '../components/InlineTip';
 import OrderBar from '../components/OrderBar';
 import BookingCheckoutModal from '../components/BookingCheckoutModal';
@@ -28,6 +28,7 @@ import '../styles/booking.css';
 const ClusterLashes = () => {
   const navigate = useNavigate();
   const { products } = useProducts();
+  const { lashColors } = useLashColors();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -219,7 +220,7 @@ const ClusterLashes = () => {
     setCheckoutReadyToPay(false);
 
     if (color) {
-      const colorComment = `Color: ${LASH_COLORS.find(c => c.value === color)?.label}`;
+      const colorComment = `Color: ${lashColors.find(c => c.value === color)?.label}`;
       const existingComments = formData.comments;
       const colorRegex = /Color:\s*\w+/i;
 
@@ -508,7 +509,7 @@ const ClusterLashes = () => {
         title="Book Your Cluster Lashes"
         mainProduct={selectedProductDetails}
         extras={selectedExtras}
-        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find(c => c.value === selectedColor)?.label : null}
+        colorLabel={hasColorLashExtra() && selectedColor ? lashColors.find(c => c.value === selectedColor)?.label : null}
         totalPrice={getTotalPrice()}
         depositAmount={getTotalPrice() * 0.4}
         onRemoveMain={removeMainFromOrder}
@@ -518,7 +519,7 @@ const ClusterLashes = () => {
         selectedColor={selectedColor}
         onColorChange={handleColorChange}
         hasColorLashExtra={hasColorLashExtra}
-        availableColors={LASH_COLORS}
+        availableColors={lashColors}
         availableTimeSlots={availableTimeSlots}
         onSubmit={handleSubmit}
         submitStatus={submitStatus}
@@ -535,7 +536,7 @@ const ClusterLashes = () => {
         depositAmount={getTotalPrice() * 0.4}
         onProceed={openBookingModal}
         canProceed={Boolean(selectedProductDetails)}
-        colorLabel={hasColorLashExtra() && selectedColor ? LASH_COLORS.find((c) => c.value === selectedColor)?.label : null}
+        colorLabel={hasColorLashExtra() && selectedColor ? lashColors.find((c) => c.value === selectedColor)?.label : null}
       />
       <div className="service-container">
         <button className="back-btn" onClick={() => navigate('/')}>
@@ -722,7 +723,7 @@ const ClusterLashes = () => {
                           id="cluster-lash-color"
                           selectedColor={selectedColor}
                           onChange={handleColorChange}
-                          colors={LASH_COLORS}
+                          colors={lashColors}
                         />
                       </div>
                     )}

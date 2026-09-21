@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useProducts';
 import { generateTimeSlots, fetchAvailableSlotsForDate } from '../utils/timeSlots';
 import { buildBookingDateTimeFields } from '../utils/bookingDateTime';
 import { apiUrl } from '../config/api';
@@ -7,6 +7,7 @@ import '../styles/base.css';
 import '../styles/booking.css';
 
 const BookingForm = ({ selectedProduct = null }) => {
+    const { products } = useProducts();
     const [formData, setFormData] = useState({
         name: '',
         phone: '',

@@ -3,3 +3,5 @@
 .env.local
 .env.development
 .env.production
+/seedProducts.js
+/seedLashColors.js

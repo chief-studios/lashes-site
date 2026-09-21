@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../config/api';
+import ConfirmModal from '../components/ConfirmModal';
+import { isCategoryBanner } from '../utils/productStyles';
 
 const PRESET_IMAGES = [
     { label: '-- Select Preset Image --', value: '' },
@@ -70,6 +72,7 @@ const AdminProducts = () => {
     });
     const [editingId, setEditingId] = useState(null);
     const [imageMode, setImageMode] = useState('upload'); // 'upload' | 'preset' | 'custom'
+    const [productToDelete, setProductToDelete] = useState(null);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -201,12 +204,12 @@ const AdminProducts = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this product?')) return;
+    const confirmDeleteProduct = async () => {
+        if (!productToDelete) return;
 
         const token = localStorage.getItem('adminToken');
         try {
-            const response = await fetch(apiUrl(`/api/products/${id}`), {
+            const response = await fetch(apiUrl(`/api/products/${productToDelete._id}`), {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -218,6 +221,8 @@ const AdminProducts = () => {
             }
         } catch (err) {
             setError('Error deleting product');
+        } finally {
+            setProductToDelete(null);
         }
     };
 
@@ -419,36 +424,54 @@ const AdminProducts = () => {
 
                 {/* List Section */}
                 <div style={{ background: '#ffffff', border: '2px solid rgba(255, 20, 147, 0.15)', padding: '1.5rem', borderRadius: '16px', maxHeight: '80vh', overflowY: 'auto', boxShadow: 'var(--shadow-soft)' }}>
-                    <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>Existing Products ({products.length})</h3>
-                    {loading ? (
-                        <p style={{ color: '#666' }}>Loading products...</p>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {products.map(product => (
-                                <div key={product._id} style={{ background: '#f8f8f8', border: '1px solid rgba(255, 20, 147, 0.15)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        {product.image && (
-                                            <img
-                                                src={getImagePreviewSrc(product.image)}
-                                                alt={product.name}
-                                                style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255, 20, 147, 0.4)' }}
-                                            />
-                                        )}
-                                        <div>
-                                            <strong style={{ color: '#000000', fontSize: '1rem' }}>{product.name}</strong>
-                                            <div style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.2rem' }}>{product.type} • ₵{product.price}</div>
-                                        </div>
+                    {(() => {
+                        const displayedProducts = products.filter(p => !isCategoryBanner(p));
+                        return (
+                            <>
+                                <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>Existing Products ({displayedProducts.length})</h3>
+                                {loading ? (
+                                    <p style={{ color: '#666' }}>Loading products...</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {displayedProducts.map(product => (
+                                            <div key={product._id} style={{ background: '#f8f8f8', border: '1px solid rgba(255, 20, 147, 0.15)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                    {product.image && (
+                                                        <img
+                                                            src={getImagePreviewSrc(product.image)}
+                                                            alt={product.name}
+                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255, 20, 147, 0.4)' }}
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <strong style={{ color: '#000000', fontSize: '1rem' }}>{product.name}</strong>
+                                                        <div style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.2rem' }}>{product.type} • ₵{product.price}</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button onClick={() => handleEdit(product)} style={{ ...smallButtonStyle, background: '#007bff' }}>Edit</button>
+                                                    <button onClick={() => setProductToDelete(product)} style={{ ...smallButtonStyle, background: '#dc3545' }}>Delete</button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button onClick={() => handleEdit(product)} style={{ ...smallButtonStyle, background: '#007bff' }}>Edit</button>
-                                        <button onClick={() => handleDelete(product._id)} style={{ ...smallButtonStyle, background: '#dc3545' }}>Delete</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                )}
+                            </>
+                        );
+                    })()}
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={Boolean(productToDelete)}
+                title="Delete Product"
+                message={productToDelete ? `Are you sure you want to delete "${productToDelete.name}"? This action cannot be undone.` : ''}
+                confirmText="Delete Product"
+                cancelText="Cancel"
+                confirmVariant="danger"
+                onConfirm={confirmDeleteProduct}
+                onCancel={() => setProductToDelete(null)}
+            />
         </div>
     );
 };

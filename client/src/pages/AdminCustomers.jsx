@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiUrl } from '../config/api';
 import { formatDateFormatted } from '../utils/bookingDateTime';
+import ConfirmModal from '../components/ConfirmModal';
 import '../styles/base.css';
 import '../styles/admin.css';
 
@@ -10,6 +11,7 @@ const AdminCustomers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerBookings, setCustomerBookings] = useState([]);
+  const [showSyncConfirm, setShowSyncConfirm] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -58,8 +60,8 @@ const AdminCustomers = () => {
     }
   };
 
-  const handleSyncCustomers = async () => {
-    if (!window.confirm('This will sync customers from existing bookings. Continue?')) return;
+  const confirmSyncCustomers = async () => {
+    setShowSyncConfirm(false);
 
     try {
       const token = localStorage.getItem('adminToken');
@@ -72,7 +74,6 @@ const AdminCustomers = () => {
 
       if (response.ok) {
         fetchCustomers();
-        alert('Customers synced successfully!');
       }
     } catch (error) {
       console.error('Error syncing customers:', error);
@@ -99,7 +100,7 @@ const AdminCustomers = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <button className="btn btn-secondary" onClick={handleSyncCustomers}>
+          <button className="btn btn-secondary" onClick={() => setShowSyncConfirm(true)}>
             Sync from Bookings
           </button>
         </div>
@@ -188,6 +189,17 @@ const AdminCustomers = () => {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={showSyncConfirm}
+        title="Sync Customers"
+        message="This will scan existing bookings and sync customer profiles into your customer directory. Continue?"
+        confirmText="Sync Customers"
+        cancelText="Cancel"
+        confirmVariant="primary"
+        onConfirm={confirmSyncCustomers}
+        onCancel={() => setShowSyncConfirm(false)}
+      />
     </div>
   );
 };
