@@ -1,6 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../config/api';
+
+const PRESET_IMAGES = [
+    { label: '-- Select Preset Image --', value: '' },
+    { label: 'Mink Classic', value: 'mink classic.jpg' },
+    { label: 'Mink Cat Eye', value: 'mink cat eye.jpg' },
+    { label: 'Mink Cat Eye Hybrid', value: 'mink cat eye hybrid.jpg' },
+    { label: 'Mink Cat Eye Volume', value: 'mink cat eye volume.jpg' },
+    { label: 'Mink Classic (Bottom Lashes)', value: 'mink classic with bottom lashes.jpg' },
+    { label: 'Mink Classic (Color Lashes)', value: 'mink classic with color lashes.jpg' },
+    { label: 'Mink Hybrid', value: 'mink hybrid.jpg' },
+    { label: 'Mink Hybrid (Bottom Lashes)', value: 'mink hybrid with bottom lashes.jpg' },
+    { label: 'Mink Hybrid (Color Lashes)', value: 'mink hybrid with color lashes.jpg' },
+    { label: 'Mink Volume', value: 'mink volume.jpg' },
+    { label: 'Mink Volume (Bottom Lashes)', value: 'mink volume with bottom lashes.jpg' },
+    { label: 'Mink Volume (Color Lashes)', value: 'mink volume with color lashes.jpg' },
+    { label: 'Mink Wispy', value: 'mink wispy.jpg' },
+    { label: 'Mink Wispy Volume', value: 'mink wispy volume.jpg' },
+    { label: 'Mink Doll Eye', value: 'mink doll eye.jpg' },
+    { label: 'Mink Natural Set', value: 'mink natural set.jpg' },
+    { label: 'Mink Poster Highlight', value: 'mink poster.jpg' },
+    { label: 'Mink Cover Picture', value: 'mink cover picture.jpg' },
+    { label: 'Mega Volume Cover Photo', value: 'mega volume cover photo.jpeg' },
+    { label: 'Mega Volume Cat Eye', value: 'mega volume cat eye.jpeg' },
+    { label: 'Mega Volume Wispy', value: 'mega volume wispy.jpeg' },
+    { label: 'Cluster Classic', value: 'cluster classic.jpg' },
+    { label: 'Cluster Classic Cat Eye', value: 'cluster classic cat eye.jpg' },
+    { label: 'Cluster Classic Wispy', value: 'cluster classic wispy.jpg' },
+    { label: 'Cluster Classic (Bottom Lashes)', value: 'cluster classic with bottom lashes.jpg' },
+    { label: 'Cluster Classic (Color Lashes)', value: 'cluster classic with color lashes.jpg' },
+    { label: 'Cluster Hybrid', value: 'cluster hybrid.jpg' },
+    { label: 'Cluster Hybrid Cat Eye', value: 'cluster hybrid cat eye.jpg' },
+    { label: 'Cluster Hybrid Wispy', value: 'cluster hybrid wispy.jpg' },
+    { label: 'Cluster Hybrid (Bottom Lashes)', value: 'cluster hybrid with bottoms.jpg' },
+    { label: 'Cluster Hybrid (Color Lashes)', value: 'cluster hybrid color lashes.jpg' },
+    { label: 'Cluster Volume', value: 'cluster volume.jpg' },
+    { label: 'Cluster Volume Cat Eye', value: 'cluster volume cat eye.jpg' },
+    { label: 'Cluster Volume Wispy', value: 'cluster volume wispy.jpg' },
+    { label: 'Cluster Volume (Bottom Lashes)', value: 'cluster volume with bottom lashes.jpg' },
+    { label: 'Cluster Volume (Color Lashes)', value: 'cluster volume with color lashes.jpg' },
+    { label: 'Anime Style', value: 'anime image.jpeg' },
+    { label: 'Consultation', value: 'consultation.jpg' },
+];
+
+const getImagePreviewSrc = (imageStr) => {
+    if (!imageStr) return null;
+    if (imageStr.startsWith('http') || imageStr.startsWith('data:') || imageStr.startsWith('/')) {
+        return imageStr;
+    }
+    return `/images/${imageStr}`;
+};
 
 const AdminProducts = () => {
     const navigate = useNavigate();
@@ -19,6 +69,8 @@ const AdminProducts = () => {
         poster: 'no'
     });
     const [editingId, setEditingId] = useState(null);
+    const [imageMode, setImageMode] = useState('upload'); // 'upload' | 'preset' | 'custom'
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         fetchProducts();
@@ -49,9 +101,52 @@ const AdminProducts = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 15 * 1024 * 1024) {
+                setError('Selected image file is too large (max 15MB)');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1200;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    setFormData(prev => ({ ...prev, image: compressedDataUrl }));
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!formData.image) {
+            setError('Please upload or select an image for the product.');
+            return;
+        }
+
         const token = localStorage.getItem('adminToken');
 
         try {
@@ -73,6 +168,7 @@ const AdminProducts = () => {
             if (response.ok) {
                 setFormData({ name: '', description: '', price: '', duration: '', image: '', type: 'mink classic', extra: 'no', poster: 'no' });
                 setEditingId(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
                 fetchProducts();
             } else {
                 const data = await response.json();
@@ -95,6 +191,13 @@ const AdminProducts = () => {
             poster: product.poster
         });
         setEditingId(product._id);
+        if (product.image?.startsWith('data:')) {
+            setImageMode('upload');
+        } else if (PRESET_IMAGES.some(p => p.value === product.image)) {
+            setImageMode('preset');
+        } else {
+            setImageMode('custom');
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -117,6 +220,8 @@ const AdminProducts = () => {
             setError('Error deleting product');
         }
     };
+
+    const previewSrc = getImagePreviewSrc(formData.image);
 
     return (
         <div style={{ padding: '2rem', color: '#000000', maxWidth: '1200px', margin: '0 auto' }}>
@@ -151,10 +256,113 @@ const AdminProducts = () => {
                                 <input name="duration" placeholder="Duration (e.g., 120 mins)" value={formData.duration} onChange={handleInputChange} required style={inputStyle} />
                             </div>
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#000' }}>Image Filename</label>
-                            <input name="image" placeholder="Image Filename (e.g., mink mega volume cat eye.jpg)" value={formData.image} onChange={handleInputChange} required style={inputStyle} />
-                            <p style={{ fontSize: '0.8rem', color: '#666', margin: '0.4rem 0 0' }}>⚠️ Place this image file in the <code>client/public/images/</code> folder.</p>
+
+                        {/* Image Selection Area */}
+                        <div style={{ background: '#fafafa', border: '1px solid rgba(255, 20, 147, 0.2)', padding: '1rem', borderRadius: '12px' }}>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.6rem', color: '#000' }}>Product Image</label>
+                            
+                            {/* Mode Selection Tabs */}
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageMode('upload')}
+                                    style={{
+                                        ...modeTabStyle,
+                                        background: imageMode === 'upload' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
+                                        color: imageMode === 'upload' ? '#fff' : '#333'
+                                    }}
+                                >
+                                    📁 Upload File
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageMode('preset')}
+                                    style={{
+                                        ...modeTabStyle,
+                                        background: imageMode === 'preset' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
+                                        color: imageMode === 'preset' ? '#fff' : '#333'
+                                    }}
+                                >
+                                    🖼️ Preset Library
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImageMode('custom')}
+                                    style={{
+                                        ...modeTabStyle,
+                                        background: imageMode === 'custom' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
+                                        color: imageMode === 'custom' ? '#fff' : '#333'
+                                    }}
+                                >
+                                    🔗 Custom URL
+                                </button>
+                            </div>
+
+                            {/* Mode Controls */}
+                            {imageMode === 'upload' && (
+                                <div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        style={{ ...inputStyle, padding: '0.5rem' }}
+                                    />
+                                    <p style={{ fontSize: '0.8rem', color: '#666', margin: '0.4rem 0 0' }}>Select an image file from your computer (PNG, JPG, WEBP).</p>
+                                </div>
+                            )}
+
+                            {imageMode === 'preset' && (
+                                <div>
+                                    <select
+                                        name="image"
+                                        value={formData.image}
+                                        onChange={handleInputChange}
+                                        style={inputStyle}
+                                    >
+                                        {PRESET_IMAGES.map((img, idx) => (
+                                            <option key={idx} value={img.value}>{img.label}</option>
+                                        ))}
+                                    </select>
+                                    <p style={{ fontSize: '0.8rem', color: '#666', margin: '0.4rem 0 0' }}>Select an existing lash style image from the studio catalog.</p>
+                                </div>
+                            )}
+
+                            {imageMode === 'custom' && (
+                                <div>
+                                    <input
+                                        name="image"
+                                        placeholder="Image URL or filename (e.g., https://... or mink classic.jpg)"
+                                        value={formData.image}
+                                        onChange={handleInputChange}
+                                        style={inputStyle}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Live Image Preview */}
+                            <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '1rem', background: '#fff', padding: '0.75rem', borderRadius: '8px', border: '1px dashed rgba(255, 20, 147, 0.4)' }}>
+                                {previewSrc ? (
+                                    <>
+                                        <img
+                                            src={previewSrc}
+                                            alt="Preview"
+                                            style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #FF1493' }}
+                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: '#444', wordBreak: 'break-all' }}>
+                                            <strong style={{ color: '#FF1493' }}>Selected Image:</strong>
+                                            <div style={{ marginTop: '0.2rem', maxHeight: '40px', overflow: 'hidden' }}>
+                                                {formData.image.startsWith('data:') ? 'Uploaded Image File (Base64)' : formData.image}
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ fontSize: '0.85rem', color: '#888', fontStyle: 'italic' }}>
+                                        📷 No image selected yet. Choose a file or preset above.
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div>
@@ -193,7 +401,15 @@ const AdminProducts = () => {
                                 {editingId ? 'Update Product' : 'Add Product'}
                             </button>
                             {editingId && (
-                                <button type="button" onClick={() => { setEditingId(null); setFormData({ name: '', description: '', price: '', duration: '', image: '', type: 'mink classic', extra: 'no', poster: 'no' }); }} style={{ ...buttonStyle, background: '#666' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditingId(null);
+                                        setFormData({ name: '', description: '', price: '', duration: '', image: '', type: 'mink classic', extra: 'no', poster: 'no' });
+                                        if (fileInputRef.current) fileInputRef.current.value = '';
+                                    }}
+                                    style={{ ...buttonStyle, background: '#666' }}
+                                >
                                     Cancel Edit
                                 </button>
                             )}
@@ -210,9 +426,18 @@ const AdminProducts = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {products.map(product => (
                                 <div key={product._id} style={{ background: '#f8f8f8', border: '1px solid rgba(255, 20, 147, 0.15)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <strong style={{ color: '#000000', fontSize: '1rem' }}>{product.name}</strong>
-                                        <div style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.2rem' }}>{product.type} • ₵{product.price}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        {product.image && (
+                                            <img
+                                                src={getImagePreviewSrc(product.image)}
+                                                alt={product.name}
+                                                style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255, 20, 147, 0.4)' }}
+                                            />
+                                        )}
+                                        <div>
+                                            <strong style={{ color: '#000000', fontSize: '1rem' }}>{product.name}</strong>
+                                            <div style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.2rem' }}>{product.type} • ₵{product.price}</div>
+                                        </div>
                                     </div>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <button onClick={() => handleEdit(product)} style={{ ...smallButtonStyle, background: '#007bff' }}>Edit</button>
@@ -238,6 +463,17 @@ const inputStyle = {
     width: '100%',
     fontFamily: 'inherit',
     colorScheme: 'light'
+};
+
+const modeTabStyle = {
+    flex: 1,
+    padding: '0.4rem 0.6rem',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
 };
 
 const buttonStyle = {

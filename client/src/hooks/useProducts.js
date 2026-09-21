@@ -22,8 +22,10 @@ export const useProducts = () => {
                         description: p.description,
                         price: p.price,
                         duration: p.duration,
-                        // Serve from public folder dynamically
-                        image: p.image.startsWith('http') ? p.image : `/images/${p.image}`,
+                        // Serve from public folder dynamically or pass-through if base64 / absolute URL
+                        image: (p.image.startsWith('http') || p.image.startsWith('data:') || p.image.startsWith('/'))
+                            ? p.image
+                            : `/images/${p.image}`,
                         type: p.type,
                         extra: p.extra,
                         poster: p.poster
