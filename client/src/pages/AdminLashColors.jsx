@@ -119,7 +119,7 @@ const AdminLashColors = () => {
     };
 
     return (
-        <div style={{ padding: '2rem', color: '#000000', maxWidth: '1000px', margin: '0 auto' }}>
+        <div className="admin-manage-container">
             <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ marginBottom: '1.5rem', cursor: 'pointer' }}>
                 ← Back to Dashboard
             </button>
@@ -128,9 +128,9 @@ const AdminLashColors = () => {
 
             {error && <div style={{ background: 'rgba(244, 67, 54, 0.1)', color: '#c62828', border: '1px solid rgba(244, 67, 54, 0.3)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div className="admin-manage-grid">
                 {/* Form Section */}
-                <div style={{ background: '#ffffff', border: '2px solid rgba(255, 20, 147, 0.15)', padding: '1.5rem', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
+                <div className="admin-manage-card">
                     <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>{editingId ? 'Edit Lash Color' : 'Add New Lash Color'}</h3>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
@@ -186,15 +186,15 @@ const AdminLashColors = () => {
                 </div>
 
                 {/* List Section */}
-                <div style={{ background: '#ffffff', border: '2px solid rgba(255, 20, 147, 0.15)', padding: '1.5rem', borderRadius: '16px', maxHeight: '80vh', overflowY: 'auto', boxShadow: 'var(--shadow-soft)' }}>
+                <div className="admin-manage-card admin-manage-scroll-list">
                     <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>Existing Lash Colors ({colors.length})</h3>
                     {loading ? (
                         <p style={{ color: '#666' }}>Loading lash colors...</p>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {colors.map(color => (
-                                <div key={color._id} style={{ background: '#f8f8f8', border: '1px solid rgba(255, 20, 147, 0.15)', padding: '0.85rem 1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div key={color._id} className="admin-item-card">
+                                    <div className="admin-item-content">
                                         <span
                                             style={{
                                                 width: '28px',
@@ -202,7 +202,8 @@ const AdminLashColors = () => {
                                                 borderRadius: '50%',
                                                 backgroundColor: color.swatch,
                                                 border: '2px solid rgba(0,0,0,0.15)',
-                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                flexShrink: 0
                                             }}
                                         />
                                         <div>
@@ -210,7 +211,7 @@ const AdminLashColors = () => {
                                             <div style={{ fontSize: '0.8rem', color: '#666666' }}>Code: <code>{color.value}</code> | Hex: <code>{color.swatch}</code></div>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <div className="admin-item-actions">
                                         <button onClick={() => handleEdit(color)} style={{ ...smallButtonStyle, background: '#007bff' }}>Edit</button>
                                         <button onClick={() => setColorToDelete(color)} style={{ ...smallButtonStyle, background: '#dc3545' }}>Delete</button>
                                     </div>

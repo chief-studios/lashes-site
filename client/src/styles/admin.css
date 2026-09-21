@@ -1219,3 +1219,134 @@
   color: var(--primary-black, #000000) !important;
   font-weight: 600 !important;
 }
+
+/* Responsive Management Layouts for Admin Products & Lash Colors */
+.admin-manage-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #000000;
+}
+
+.admin-manage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.admin-manage-card {
+  background: #ffffff;
+  border: 2px solid rgba(255, 20, 147, 0.15);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  min-width: 0;
+}
+
+.admin-manage-scroll-list {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.admin-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-mode-tab {
+  flex: 1;
+  min-width: 90px;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-item-card {
+  background: #f8f8f8;
+  border: 1px solid rgba(255, 20, 147, 0.15);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-item-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Tablet & Mobile Media Queries */
+@media (max-width: 992px) {
+  .admin-manage-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .admin-manage-scroll-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-manage-container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .admin-manage-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .admin-form-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .admin-mode-tabs {
+    flex-direction: column;
+  }
+
+  .admin-mode-tab {
+    width: 100%;
+  }
+
+  .admin-item-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .admin-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .admin-item-actions button {
+    flex: 1;
+  }
+}

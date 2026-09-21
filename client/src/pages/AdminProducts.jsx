@@ -229,7 +229,7 @@ const AdminProducts = () => {
     const previewSrc = getImagePreviewSrc(formData.image);
 
     return (
-        <div style={{ padding: '2rem', color: '#000000', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="admin-manage-container">
             <button onClick={() => navigate('/admin')} className="btn btn-secondary" style={{ marginBottom: '1.5rem', cursor: 'pointer' }}>
                 ← Back to Dashboard
             </button>
@@ -238,9 +238,9 @@ const AdminProducts = () => {
 
             {error && <div style={{ background: 'rgba(244, 67, 54, 0.1)', color: '#c62828', border: '1px solid rgba(244, 67, 54, 0.3)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div className="admin-manage-grid">
                 {/* Form Section */}
-                <div style={{ background: '#ffffff', border: '2px solid rgba(255, 20, 147, 0.15)', padding: '1.5rem', borderRadius: '16px', boxShadow: 'var(--shadow-soft)' }}>
+                <div className="admin-manage-card">
                     <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h3>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
@@ -251,7 +251,7 @@ const AdminProducts = () => {
                             <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#000' }}>Description</label>
                             <textarea name="description" placeholder="Description" value={formData.description} onChange={handleInputChange} required rows="3" style={inputStyle} />
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="admin-form-row">
                             <div>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#000' }}>Price (₵)</label>
                                 <input name="price" type="number" placeholder="Price (e.g., 250)" value={formData.price} onChange={handleInputChange} required style={inputStyle} />
@@ -267,12 +267,12 @@ const AdminProducts = () => {
                             <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.6rem', color: '#000' }}>Product Image</label>
                             
                             {/* Mode Selection Tabs */}
-                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                            <div className="admin-mode-tabs">
                                 <button
                                     type="button"
                                     onClick={() => setImageMode('upload')}
+                                    className="admin-mode-tab"
                                     style={{
-                                        ...modeTabStyle,
                                         background: imageMode === 'upload' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
                                         color: imageMode === 'upload' ? '#fff' : '#333'
                                     }}
@@ -282,8 +282,8 @@ const AdminProducts = () => {
                                 <button
                                     type="button"
                                     onClick={() => setImageMode('preset')}
+                                    className="admin-mode-tab"
                                     style={{
-                                        ...modeTabStyle,
                                         background: imageMode === 'preset' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
                                         color: imageMode === 'preset' ? '#fff' : '#333'
                                     }}
@@ -293,8 +293,8 @@ const AdminProducts = () => {
                                 <button
                                     type="button"
                                     onClick={() => setImageMode('custom')}
+                                    className="admin-mode-tab"
                                     style={{
-                                        ...modeTabStyle,
                                         background: imageMode === 'custom' ? 'var(--primary-pink, #FF1493)' : '#e0e0e0',
                                         color: imageMode === 'custom' ? '#fff' : '#333'
                                     }}
@@ -384,7 +384,7 @@ const AdminProducts = () => {
                             </select>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="admin-form-row">
                             <div>
                                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#000' }}>Extra Option</label>
                                 <select name="extra" value={formData.extra} onChange={handleInputChange} style={inputStyle}>
@@ -423,7 +423,7 @@ const AdminProducts = () => {
                 </div>
 
                 {/* List Section */}
-                <div style={{ background: '#ffffff', border: '2px solid rgba(255, 20, 147, 0.15)', padding: '1.5rem', borderRadius: '16px', maxHeight: '80vh', overflowY: 'auto', boxShadow: 'var(--shadow-soft)' }}>
+                <div className="admin-manage-card admin-manage-scroll-list">
                     {(() => {
                         const displayedProducts = products.filter(p => !isCategoryBanner(p));
                         return (
@@ -434,13 +434,13 @@ const AdminProducts = () => {
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                         {displayedProducts.map(product => (
-                                            <div key={product._id} style={{ background: '#f8f8f8', border: '1px solid rgba(255, 20, 147, 0.15)', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <div key={product._id} className="admin-item-card">
+                                                <div className="admin-item-content">
                                                     {product.image && (
                                                         <img
                                                             src={getImagePreviewSrc(product.image)}
                                                             alt={product.name}
-                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255, 20, 147, 0.4)' }}
+                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255, 20, 147, 0.4)', flexShrink: 0 }}
                                                         />
                                                     )}
                                                     <div>
@@ -448,7 +448,7 @@ const AdminProducts = () => {
                                                         <div style={{ fontSize: '0.85rem', color: '#666666', marginTop: '0.2rem' }}>{product.type} • ₵{product.price}</div>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <div className="admin-item-actions">
                                                     <button onClick={() => handleEdit(product)} style={{ ...smallButtonStyle, background: '#007bff' }}>Edit</button>
                                                     <button onClick={() => setProductToDelete(product)} style={{ ...smallButtonStyle, background: '#dc3545' }}>Delete</button>
                                                 </div>
