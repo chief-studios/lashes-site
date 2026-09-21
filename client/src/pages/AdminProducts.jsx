@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../config/api';
 import ConfirmModal from '../components/ConfirmModal';
 import { isCategoryBanner } from '../utils/productStyles';
+import { scrollElementBelowNav } from '../utils/scrollPageToTop';
 
 const PRESET_IMAGES = [
     { label: '-- Select Preset Image --', value: '' },
@@ -74,6 +75,7 @@ const AdminProducts = () => {
     const [imageMode, setImageMode] = useState('upload'); // 'upload' | 'preset' | 'custom'
     const [productToDelete, setProductToDelete] = useState(null);
     const fileInputRef = useRef(null);
+    const formRef = useRef(null);
 
     useEffect(() => {
         fetchProducts();
@@ -201,7 +203,9 @@ const AdminProducts = () => {
         } else {
             setImageMode('custom');
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (formRef.current) {
+            scrollElementBelowNav(formRef.current, 'smooth');
+        }
     };
 
     const confirmDeleteProduct = async () => {
@@ -240,7 +244,7 @@ const AdminProducts = () => {
 
             <div className="admin-manage-grid">
                 {/* Form Section */}
-                <div className="admin-manage-card">
+                <div ref={formRef} className="admin-manage-card">
                     <h3 style={{ marginTop: 0, marginBottom: '1.25rem', color: 'var(--primary-pink, #FF1493)' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h3>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
