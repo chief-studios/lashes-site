@@ -45,6 +45,10 @@ const PRESET_IMAGES = [
     { label: 'Cluster Volume (Color Lashes)', value: 'cluster volume with color lashes.jpg' },
     { label: 'Anime Style', value: 'anime image.jpeg' },
     { label: 'Consultation', value: 'consultation.jpg' },
+    { label: 'Brow Shaping', value: 'brow-shaping.jpeg' },
+    { label: 'Brow Lamination', value: 'brow-lamination.jpeg' },
+    { label: 'Brow Tinting', value: 'brow-tinting.jpeg' },
+    { label: 'Brow Combo', value: 'lamination-tinting.jpeg' },
 ];
 
 const getImagePreviewSrc = (imageStr) => {
@@ -385,6 +389,7 @@ const AdminProducts = () => {
                                 <option value="cluster hybrid">Cluster Hybrid</option>
                                 <option value="cluster volume">Cluster Volume</option>
                                 <option value="cluster mega volume">Cluster Mega Volume</option>
+                                <option value="brow">Brow Services</option>
                             </select>
                         </div>
 

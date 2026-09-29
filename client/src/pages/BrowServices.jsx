@@ -82,11 +82,34 @@ export default function BrowServices() {
     scrollPageToTopAfterPaint();
   }, []);
 
-  // Fetch dynamic brow services from DB if available
+  // Fetch dynamic brow services from DB (products or services API)
   useEffect(() => {
     let isMounted = true;
     const fetchServices = async () => {
       try {
+        // First try fetching products with type === 'brow' or name matching brow items
+        const prodRes = await fetch(apiUrl('/api/products'));
+        if (prodRes.ok) {
+          const products = await prodRes.json();
+          const browProds = products.filter(p => (p.type && p.type.toLowerCase().includes('brow')) || (p.name && p.name.toLowerCase().includes('brow')));
+          if (isMounted && browProds.length > 0) {
+            const mapped = browProds.map(s => ({
+              id: s._id,
+              name: s.name,
+              description: s.description,
+              price: s.price,
+              duration: s.duration,
+              image: (s.image.startsWith('http') || s.image.startsWith('data:') || s.image.startsWith('/'))
+                ? s.image
+                : `/images/${s.image}`,
+              type: 'brow'
+            }));
+            setBrowServices(mapped);
+            return;
+          }
+        }
+
+        // Fallback to /api/services
         const response = await fetch(apiUrl('/api/services'));
         if (response.ok) {
           const data = await response.json();
