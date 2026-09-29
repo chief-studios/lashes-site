@@ -22,7 +22,7 @@ export default function CustomizedSetConsultModal({ isOpen, onClose, onProceed }
       >
         <h2 id="customized-set-modal-title">Customized Set</h2>
         <p>
-          A customized mink set is tailored to your unique look and needs. The consultation is included as part of your customized set package so we can plan your style together (Customized Set: ₵250 + Consultation fee: ₵50 = Total ₵300).
+          A customized mink set is tailored to your unique look and needs. The consultation is included as part of your customized set package so we can plan your style together (Customized Set: ₵300 + Consultation fee: ₵50 = Total ₵350).
         </p>
         <p className="customized-set-modal__hint">
           Proceed below to select your date, time slot, and enter your booking details.

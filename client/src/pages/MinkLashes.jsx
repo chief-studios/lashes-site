@@ -576,7 +576,7 @@ const MinkLashes = () => {
               id: 9999,
               name: 'Customized Set',
               description: 'Tailored mink lash set designed specifically for your eyes. Consultation included.',
-              price: 300,
+              price: 350,
               duration: '90 mins',
               image: customizedSetImage,
               type: 'mink customized set',
@@ -636,7 +636,7 @@ const MinkLashes = () => {
                 title: 'Customized Set',
                 consultationOnly: true,
                 coverImage: customizedSetImage,
-                details: 'Consultation included',
+                details: 'Consultation and eye analysis included',
               };
 
               const selectGroup = (key) => {
@@ -693,8 +693,8 @@ const MinkLashes = () => {
                       <img src={customizedSection.coverImage} alt="Customized Set" />
                     </div>
                     <div className="service-info">
-                      <h3>{customizedSection.title} (₵300)</h3>
-                      <p className="service-details">{customizedSection.details} (₵50)</p>
+                      <h3>{customizedSection.title} (₵350)</h3>
+                      <p className="service-details">{customizedSection.details}</p>
                     </div>
                   </div>
                 </div>
