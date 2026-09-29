@@ -45,7 +45,7 @@ const fallbackBrowServices = [
     id: 'brow-4',
     name: 'Brow Combo',
     description: 'Brow tinting is a semi-permanent dye application that tints the hair on your brows, making them appear darker, fuller, and more defined.',
-    price: 100,
+    price: 180,
     duration: '40 minutes',
     image: '/images/lamination-tinting.jpeg',
     type: 'brow'
