@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import consultationImage from '../images/consultation.jpg';
 import clusterLashesImage from '../images/cluster cluster lashes.jpg';
 import minkImage from '../images/mink cover picture.jpg';
+import browShapingImage from '../images/brow-shaping.jpeg';
 import '../styles/base.css';
 import '../styles/home.css';
 
@@ -36,6 +37,15 @@ const ServiceCards = () => {
       route: '/cluster-lashes',
       price: 'From GHS 55',
       duration: '40-110 mins'
+    },
+    {
+      id: 4,
+      name: 'Brow Services',
+      details: 'Professional brow shaping, lamination, tinting, and combo services for defined beauty',
+      image: browShapingImage,
+      route: '/brow-services',
+      price: 'From GHS 30',
+      duration: '10-40 mins'
     }
   ];
 

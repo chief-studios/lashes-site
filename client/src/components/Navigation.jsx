@@ -14,6 +14,7 @@ const Navigation = () => {
     { name: 'Consultation', path: '/lash-consultation' },
     { name: 'Mink Lashes', path: '/mink-lashes' },
     { name: 'Cluster Lashes', path: '/cluster-lashes' },
+    { name: 'Brow Services', path: '/brow-services' },
     { name: 'Admin', path: '/admin' }
   ];
 

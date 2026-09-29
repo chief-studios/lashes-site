@@ -6,6 +6,7 @@ import AdminLink from './components/AdminLink';
 import LashConsultation from './pages/LashConsultation';
 import ClusterLashes from './pages/ClusterLashes';
 import MinkLashes from './pages/MinkLashes';
+import BrowServices from './pages/BrowServices';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts'; // <-- ADDED IMPORT
 import Footer from './components/Footer';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/lash-consultation" element={<><LashConsultation /><Footer /></>} />
           <Route path="/cluster-lashes" element={<><ClusterLashes /><Footer /></>} />
           <Route path="/mink-lashes" element={<><MinkLashes /><Footer /></>} />
+          <Route path="/brow-services" element={<><BrowServices /><Footer /></>} />
           <Route path="/admin" element={<><AdminDashboard /><Footer /></>} />
           <Route path="/admin/products" element={<><AdminProducts /><Footer /></>} /> {/* <-- ADDED ROUTE */}
         </Routes>

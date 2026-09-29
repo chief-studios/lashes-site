@@ -5,3 +5,5 @@
 .env.production
 /seedProducts.js
 /seedLashColors.js
+/seedServices.js
+/data.js
